@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v0.9 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.0 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -64,16 +64,16 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
   <div class="kpis">
    <div class="kpi"><b id="marketClose">36,033.29</b><span>加權指數</span></div>
    <div class="kpi"><b id="marketChange" style="color:var(--red)">−6.23%</b><span>加權指數單日漲跌</span></div>
-   <div class="kpi"><b style="color:var(--red)">−7.72%</b><span>櫃買指數單日漲跌</span></div>
-   <div class="kpi"><b>52.13</b><span>VIXTWN</span></div>
+   <div class="kpi"><b id="otcChange" style="color:var(--red)">−7.72%</b><span>櫃買指數單日漲跌</span></div>
+   <div class="kpi"><b id="vix">52.13</b><span>VIXTWN</span></div>
   </div>
   <div class="kpis">
-   <div class="kpi"><b>16 / 1,058</b><span>上市上漲／下跌家數</span></div>
-   <div class="kpi"><b>179 家</b><span>上市跌停家數</span></div>
-   <div class="kpi"><b>−95.11 億</b><span>外資現貨買賣超</span></div>
-   <div class="kpi"><b>−491.41 億</b><span>上市融資餘額單日變化*</span></div>
+   <div class="kpi"><b id="breadth">16 / 1,058</b><span>上市上漲／下跌家數</span></div>
+   <div class="kpi"><b id="limitDown">179 家</b><span>上市跌停家數</span></div>
+   <div class="kpi"><b id="foreignFlow">−95.11 億</b><span>外資現貨買賣超</span></div>
+   <div class="kpi"><b id="marginChange">−491.41 億</b><span>上市融資餘額單日變化*</span></div>
   </div>
-  <p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
+  <p class="small" id="marketQuality">市場概況為示範資料；Refresh 後逐項顯示來源、日期及可用性。</p><p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
  </section>
 
  <section class="card half">
@@ -101,7 +101,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
    <div class="third"><h3>② 衍生指標計算</h3><p class="small">Python 計算 RSI、BIAS、MACD、ADR、歷史百分位、融資變化及外資期貨部位變化。</p></div>
    <div class="third"><h3>③ 儲存與呈現</h3><p class="small">每日資料寫入資料庫，儀表板讀取最新分數、歷史曲線、指標貢獻與資料品質狀態。</p></div>
   </div>
-  <div class="notice">正式自動更新尚未啟用：需要選定資料來源／API、建立排程與資料庫，並對歷史資料進行回測。此 HTML 原型本身不會連網抓取行情。</div>
+  <div class="notice">目前 GitHub Actions 可下載部分官方快照，網頁 Refresh 會讀取快照並檢查日期；完整模型仍需更多歷史資料與回測。</div>
  </section>
 </div>
 <footer>模型版本 v0.1 · 分數為示範規則，不構成投資建議。正式上線前須完成指標定義、資料品質檢查、歷史回測與樣本外驗證。</footer>
@@ -192,29 +192,56 @@ function updateItem(arr,name,value,points,raw){const x=arr.find(x=>x.name===name
 function rocDate(x){let s=String(x??'').trim();if(/^\d{7}$/.test(s))return String(+s.slice(0,3)+1911)+'-'+s.slice(3,5)+'-'+s.slice(5);if(/^\d{8}$/.test(s))return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6);return s.replaceAll('/','-');}
 function signChange(x){let s=String(x??'').replaceAll(',','').replaceAll('＋','+').replaceAll('－','-').trim();if(!s||s==='X'||s==='—'||s==='--')return null;let n=Number(s);return Number.isFinite(n)?n:null;}
 async function loadOfficialSnapshots(date){
- const info=[];
- let manifest;
- try{let r=await fetch('./data/manifest.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);manifest=await r.json();}
- catch(e){return '官方快照尚未發布（GitHub Actions 尚未成功執行）；僅更新指數。'}
- if(manifest.errors&&Object.keys(manifest.errors).length)info.push('部分官方來源下載失敗');
+ const info=[], quality=[];
+ async function read(key){
+  const r=await fetch('./data/'+key+'.json?t='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw Error(key+' HTTP '+r.status);
+  return r.json();
+ }
+ function datedRows(rows){
+  if(!Array.isArray(rows))return [];
+  return rows.map(x=>({row:x,date:rocDate(x.Date??x.date??x.TradeDate??x.trade_date??'')})).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.date));
+ }
+ function numeric(x){if(x===undefined||x===null)return null;const n=Number(String(x).replaceAll(',','').replaceAll('%','').trim());return Number.isFinite(n)?n:null;}
  try{
-  let r=await fetch('./data/twse_stocks.json?t='+Date.now(),{cache:'no-store'});
-  if(!r.ok)throw Error('HTTP '+r.status);
-  const rows=await r.json();if(!Array.isArray(rows))throw Error('非陣列');
-  const dates=rows.map(x=>rocDate(x.Date)).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x));
-  const snapshotDate=dates.length?dates.sort().at(-1):null;
-  if(snapshotDate!==date){info.push('上市廣度快照日期'+(snapshotDate||'未知')+'，與指數'+date+'不符，未計分');}
+  const manifest=await read('manifest');
+  if(manifest.errors&&Object.keys(manifest.errors).length)info.push('部分官方資料來源下載失敗');
+  quality.push('GitHub 資料快照：'+(manifest.fetched_at_utc||'日期未知'));
+ }catch(e){info.push('尚無 GitHub Actions 資料快照：'+e.message);}
+ try{
+  const rows=await read('twse_stocks');
+  const dated=datedRows(rows),latest=dated.map(x=>x.date).sort().at(-1);
+  if(latest!==date){info.push('上市個股資料日期 '+(latest||'未知')+'，不同於指數 '+date+'，不計分');quality.push('上市廣度：日期不符');}
   else{
    let up=0,down=0,flat=0;
-   for(const x of rows){if(rocDate(x.Date)!==date)continue;let code=String(x.Code||'').trim();if(!/^\d{4}$/.test(code))continue;let n=signChange(x.Change);if(n===null)continue;if(n>0)up++;else if(n<0)down++;else flat++;}
-   if(up+down<100)throw Error('有效股票樣本過少');
+   for(const {row:x,date:d} of dated){if(d!==date||!/^[0-9]{4}$/.test(String(x.Code||'').trim()))continue;
+    const n=signChange(x.Change);if(n===null)continue;
+    if(n>0)up++;else if(n<0)down++;else flat++;
+   }
+   if(up+down<100)throw Error('可辨識股票少於100家');
+   document.getElementById('breadth').textContent=up.toLocaleString()+' / '+down.toLocaleString();
+   quality.push('上市漲跌家數：'+date+'，依個股價格變動統計（暫定口徑）');
    const ratio=down?up/down:Infinity;
-   const points=ratio<=0.2?5:ratio<=0.5?3:ratio<=0.8?1:0;
-   updateItem(warning,'ADR（上市）',ratio,points,`${up} 漲 / ${down} 跌 / ${flat} 平（個股價格快照；暫定口徑）`);
-   info.push(`已計入上市廣度 ${up} 漲/${down} 跌（研究口徑）`);
+   updateItem(warning,'ADR（上市）',ratio,ratio<=0.2?5:ratio<=0.5?3:ratio<=0.8?1:0,up+' 漲 / '+down+' 跌 / '+flat+' 平（單日比率，非歷史 ADR）');
+   info.push('已更新上市漲跌家數');
   }
- }catch(e){info.push('上市廣度未取得：'+e.message)}
- return info.join('；')||'官方快照已讀取，但沒有可加入計分的同日指標';
+ }catch(e){info.push('上市個股資料未採用：'+e.message);quality.push('上市廣度：無法驗證')}
+ try{
+  const rows=await read('tpex_index'),dated=datedRows(rows),same=dated.filter(x=>x.date===date);
+  if(!same.length){quality.push('櫃買指數：未找到 '+date+' 的資料');}
+  else{
+   const x=same.at(-1).row;
+   // TPEx API schemas differ. Only use a documented daily percent field, never infer from an ambiguous numeric column.
+   const pctKeys=['ChangePercent','changePercent','ChangePercentage','漲跌幅','漲跌百分比','漲跌幅(%)'];
+   let pct=null;for(const k of pctKeys){if(Object.hasOwn(x,k)){pct=numeric(x[k]);break;}}
+   if(pct!==null){document.getElementById('otcChange').textContent=(pct>0?'+':'')+pct.toFixed(2)+'%';quality.push('櫃買指數：'+date+'（官方快照）');info.push('櫃買漲跌幅已更新');}
+   else{quality.push('櫃買指數：同日資料已下載，但欄位格式尚待核對');info.push('櫃買漲跌幅欄位未辨識');}
+  }
+ }catch(e){quality.push('櫃買指數：'+e.message)}
+ // Other market KPIs require verified field definitions and history; do not synthesize.
+ quality.push('VIX／跌停／外資／融資變化：尚未完成同日欄位核對，維持缺值');
+ document.getElementById('marketQuality').textContent=quality.join('；');
+ return info.join('；')||'官方快照已檢查，沒有其他可安全納入計分的指標';
 }
 
 async function refreshMarket(){
@@ -246,8 +273,9 @@ async function refreshMarket(){
   const change=(t.last/t.prev-1)*100;
   document.getElementById('marketChange').textContent=(change>=0?'+':'')+change.toFixed(2)+'%';
   document.getElementById('marketChange').style.color=change<0?'var(--green)':'var(--red)';
-  // 其他 KPI 也不能繼續顯示舊數字當成今日數據。
-  document.querySelectorAll('.kpi').forEach((el,i)=>{if(i!==0&&i!==1){el.querySelector('b').textContent='—';}});
+  // Clear every old snapshot value; populate only verified records.
+  for(const id of ["otcChange","vix","breadth","limitDown","foreignFlow","marginChange"])document.getElementById(id).textContent="—";
+  document.getElementById("marketQuality").textContent="資料日期核對中；未取得欄位不沿用舊值。";
   document.getElementById('dataNotice').textContent=`已讀取 TWSE 官方指數至 ${date}（${a.length} 筆交易日）；只重算由指數可推導的指標。其他來源尚未連線，相關分數保留缺值。`;
   state.textContent='指數更新完成，正在核對官方快照…';
   const snapshotMessage=await loadOfficialSnapshots(date);
