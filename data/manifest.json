@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-20T21:00:49.113044+00:00",
+  "fetched_at_utc": "2026-11-20T21:20:07.908163+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -25,6 +25,11 @@
       "status": "ok",
       "records": 15,
       "url": "https://www.tpex.org.tw/openapi/v1/tpex_index"
+    },
+    "taifex_putcall": {
+      "status": "ok",
+      "records": 21,
+      "url": "https://openapi.taifex.com.tw/v1/PutCallRatio"
     }
   },
   "errors": {}
