@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.0 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.1 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -73,7 +73,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
    <div class="kpi"><b id="foreignFlow">−95.11 億</b><span>外資現貨買賣超</span></div>
    <div class="kpi"><b id="marginChange">−491.41 億</b><span>上市融資餘額單日變化*</span></div>
   </div>
-  <p class="small" id="marketQuality">市場概況為示範資料；Refresh 後逐項顯示來源、日期及可用性。</p><p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
+  <div class="kpis"><div class="kpi"><b id="putcall">—</b><span>臺指選擇權 Put/Call 成交量比</span></div><div class="kpi"><b id="otcClose">—</b><span>櫃買指數收盤</span></div></div><p class="small" id="marketQuality">市場概況為示範資料；Refresh 後逐項顯示來源、日期及可用性。</p><p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
  </section>
 
  <section class="card half">
@@ -153,7 +153,7 @@ function render(){
  document.getElementById("interpretation").innerHTML=`<p><b>預警：</b>${ws[0]}。目前可評分指標覆蓋 ${coverageW.toFixed(0)}% 權重，分數仍可能隨缺失指標而改變。</p><p><b>確認：</b>${cs[0]}。目前可評分指標覆蓋 ${coverageC.toFixed(0)}% 權重，尚不足以判定中期反轉。</p><p>兩個分數必須分開看；高預警不等於買點，確認分數上升也應觀察是否持續數日。</p>`;
 }
 function resetDemo(){document.getElementById("refreshState").textContent="已還原 2026/11/20 示範資料";document.getElementById("marketTag").textContent="示範資料";document.getElementById("marketHeading").textContent="市場概況｜2026/11/20";document.getElementById("marketClose").textContent="36,033.29";document.getElementById("marketChange").textContent="−6.23%";document.getElementById("dataNotice").textContent="以下預載 2026/11/20 收盤示範資料。";let o=JSON.parse(original);warning.splice(0,warning.length,...o.warning);confirm.splice(0,confirm.length,...o.confirm);render();}
-function downloadCSV(){let rows=[["model","indicator","weight","score","raw_value","status"],...warning.map(x=>["warning",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"]),...confirm.map(x=>["confirmation",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"])];let csv="\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="TBRM_v0.1_indicators.csv";a.click();URL.revokeObjectURL(a.href);}
+function downloadCSV(){let rows=[["model","indicator","weight","score","raw_value","status"],...warning.map(x=>["warning",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"]),...confirm.map(x=>["confirmation",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"])];let csv="\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="TBRM_v1_1_indicators.csv";a.click();URL.revokeObjectURL(a.href);}
 
 // 手機單一 HTML：僅能在交易所允許跨來源存取時直接取得官方資料。
 const finite = x => Number.isFinite(x);
@@ -191,59 +191,73 @@ function updateItem(arr,name,value,points,raw){const x=arr.find(x=>x.name===name
 // GitHub Actions official snapshots: freshness and date are checked before scoring.
 function rocDate(x){let s=String(x??'').trim();if(/^\d{7}$/.test(s))return String(+s.slice(0,3)+1911)+'-'+s.slice(3,5)+'-'+s.slice(5);if(/^\d{8}$/.test(s))return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6);return s.replaceAll('/','-');}
 function signChange(x){let s=String(x??'').replaceAll(',','').replaceAll('＋','+').replaceAll('－','-').trim();if(!s||s==='X'||s==='—'||s==='--')return null;let n=Number(s);return Number.isFinite(n)?n:null;}
-async function loadOfficialSnapshots(date){
- const info=[], quality=[];
- async function read(key){
-  const r=await fetch('./data/'+key+'.json?t='+Date.now(),{cache:'no-store'});
-  if(!r.ok)throw Error(key+' HTTP '+r.status);
-  return r.json();
- }
- function datedRows(rows){
-  if(!Array.isArray(rows))return [];
-  return rows.map(x=>({row:x,date:rocDate(x.Date??x.date??x.TradeDate??x.trade_date??'')})).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.date));
- }
- function numeric(x){if(x===undefined||x===null)return null;const n=Number(String(x).replaceAll(',','').replaceAll('%','').trim());return Number.isFinite(n)?n:null;}
+async function loadOfficialSnapshots(date,taiexPct){
+ const info=[],quality=[];
+ const read=async key=>{const r=await fetch('./data/'+key+'.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);return r.json()};
+ const num=x=>{if(x===undefined||x===null||String(x).trim()==='')return null;const n=Number(String(x).replaceAll(',','').replaceAll('%','').replace(/[＋]/g,'+').replace(/[－]/g,'-').trim());return Number.isFinite(n)?n:null};
+ const get=(x,keys)=>{for(const k of keys)if(Object.prototype.hasOwnProperty.call(x,k))return x[k];return undefined};
+ const dateOf=x=>rocDate(get(x,['Date','date','TradeDate','trade_date','日期','交易日期','資料日期'])??'');
+ const normalized=rows=>Array.isArray(rows)?rows.map(row=>({row,date:dateOf(row)})).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.date)):[];
+ const latestDate=rows=>rows.map(x=>x.date).sort().at(-1);
+ const match=rows=>rows.filter(x=>x.date===date);
+ const label=(name,msg)=>quality.push(name+'：'+msg);
+ try{const m=await read('manifest');if(m.errors&&Object.keys(m.errors).length)info.push('部分資料下載失敗');label('資料快照',m.fetched_at_utc||'未知時間')}catch(e){label('資料快照',e.message)}
  try{
-  const manifest=await read('manifest');
-  if(manifest.errors&&Object.keys(manifest.errors).length)info.push('部分官方資料來源下載失敗');
-  quality.push('GitHub 資料快照：'+(manifest.fetched_at_utc||'日期未知'));
- }catch(e){info.push('尚無 GitHub Actions 資料快照：'+e.message);}
- try{
-  const rows=await read('twse_stocks');
-  const dated=datedRows(rows),latest=dated.map(x=>x.date).sort().at(-1);
-  if(latest!==date){info.push('上市個股資料日期 '+(latest||'未知')+'，不同於指數 '+date+'，不計分');quality.push('上市廣度：日期不符');}
-  else{
-   let up=0,down=0,flat=0;
-   for(const {row:x,date:d} of dated){if(d!==date||!/^[0-9]{4}$/.test(String(x.Code||'').trim()))continue;
-    const n=signChange(x.Change);if(n===null)continue;
-    if(n>0)up++;else if(n<0)down++;else flat++;
-   }
-   if(up+down<100)throw Error('可辨識股票少於100家');
-   document.getElementById('breadth').textContent=up.toLocaleString()+' / '+down.toLocaleString();
-   quality.push('上市漲跌家數：'+date+'，依個股價格變動統計（暫定口徑）');
-   const ratio=down?up/down:Infinity;
-   updateItem(warning,'ADR（上市）',ratio,ratio<=0.2?5:ratio<=0.5?3:ratio<=0.8?1:0,up+' 漲 / '+down+' 跌 / '+flat+' 平（單日比率，非歷史 ADR）');
-   info.push('已更新上市漲跌家數');
+  const a=normalized(await read('twse_stocks')),latest=latestDate(a);
+  if(latest!==date)throw Error('日期 '+(latest||'未知')+' ≠ '+date);
+  let up=0,down=0,flat=0;
+  for(const {row:x} of match(a)){
+   if(!/^\d{4}$/.test(String(get(x,['Code','證券代號'])??'').trim()))continue;
+   const change=signChange(get(x,['Change','漲跌價差']));
+   if(change===null)continue;
+   if(change>0)up++;else if(change<0)down++;else flat++;
   }
- }catch(e){info.push('上市個股資料未採用：'+e.message);quality.push('上市廣度：無法驗證')}
+  if(up+down<100)throw Error('有效上市股票少於100家');
+  document.getElementById('breadth').textContent=up.toLocaleString()+' / '+down.toLocaleString();
+  // Single-day up/down ratio is a proxy, not a historical ADR.
+  const ratio=down?up/down:Infinity;
+  updateItem(warning,'ADR（上市）',ratio,ratio<=.2?5:ratio<=.5?3:ratio<=.8?1:0,`${up} 漲 / ${down} 跌（單日代理指標）`);
+  label('上市漲跌家數',date+'，股票代號四碼之單日統計');info.push('上市漲跌家數已更新');
+ }catch(e){label('上市漲跌家數','未採用：'+e.message)}
  try{
-  const rows=await read('tpex_index'),dated=datedRows(rows),same=dated.filter(x=>x.date===date);
-  if(!same.length){quality.push('櫃買指數：未找到 '+date+' 的資料');}
-  else{
-   const x=same.at(-1).row;
-   // TPEx API schemas differ. Only use a documented daily percent field, never infer from an ambiguous numeric column.
-   const pctKeys=['ChangePercent','changePercent','ChangePercentage','漲跌幅','漲跌百分比','漲跌幅(%)'];
-   let pct=null;for(const k of pctKeys){if(Object.hasOwn(x,k)){pct=numeric(x[k]);break;}}
-   if(pct!==null){document.getElementById('otcChange').textContent=(pct>0?'+':'')+pct.toFixed(2)+'%';quality.push('櫃買指數：'+date+'（官方快照）');info.push('櫃買漲跌幅已更新');}
-   else{quality.push('櫃買指數：同日資料已下載，但欄位格式尚待核對');info.push('櫃買漲跌幅欄位未辨識');}
+  const a=normalized(await read('tpex_index')),latest=latestDate(a),same=match(a);
+  if(!same.length)throw Error('未找到 '+date+'，最新 '+(latest||'未知'));
+  const x=same.at(-1).row;
+  const close=num(get(x,['Close','close','Index','index','IndexValue','收盤指數','指數','收盤價']));
+  const pct=num(get(x,['ChangePercent','changePercent','ChangePercentage','漲跌幅','漲跌百分比','漲跌幅(%)']));
+  if(close!==null)document.getElementById('otcClose').textContent=close.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(pct!==null){
+   document.getElementById('otcChange').textContent=(pct>0?'+':'')+pct.toFixed(2)+'%';
+   updateItem(confirm,'OTC 相對強度',pct,pct>taiexPct?3:0,`OTC ${pct.toFixed(2)}%／加權 ${taiexPct.toFixed(2)}%（單日代理）`);
   }
- }catch(e){quality.push('櫃買指數：'+e.message)}
- // Other market KPIs require verified field definitions and history; do not synthesize.
- quality.push('VIX／跌停／外資／融資變化：尚未完成同日欄位核對，維持缺值');
+  if(close===null&&pct===null)throw Error('尚未辨識收盤／漲跌幅欄位');
+  label('櫃買指數',date+'，收盤'+(close===null?'未辨識':'已辨識')+'、漲跌幅'+(pct===null?'未辨識':'已辨識'));
+  info.push('櫃買資料已核對');
+ }catch(e){label('櫃買指數','未採用：'+e.message)}
+ try{
+  const a=normalized(await read('taifex_putcall')),latest=latestDate(a),same=match(a);
+  if(!same.length)throw Error('未找到 '+date+'，最新 '+(latest||'未知'));
+  const x=same.at(-1).row;
+  let pct=num(get(x,['PutCallRatio','PutCallVolumeRatio','PutCallRatioVolume','VolumeRatio','PutCallRatioByVolume','買賣權成交量比率%','買賣權成交量比率','買賣權成交量比']));
+  if(pct===null){
+   const put=num(get(x,['PutVolume','putVolume','PutTradingVolume','賣權成交量']));
+   const call=num(get(x,['CallVolume','callVolume','CallTradingVolume','買權成交量']));
+   if(put!==null&&call>0)pct=100*put/call;
+  }
+  if(pct===null||pct<0||pct>1000)throw Error('成交量比欄位未辨識');
+  document.getElementById('putcall').textContent=pct.toFixed(2)+'%';
+  updateItem(warning,'Put/Call 成交量比',pct,pct>=140?5:pct>=120?3:pct>=100?1:0,pct.toFixed(2)+'%（暫定門檻）');
+  label('Put/Call',date+'，成交量比');info.push('Put/Call 已更新');
+ }catch(e){label('Put/Call','未採用：'+e.message)}
+ try{
+  const rows=normalized(await read('twse_margin')),latest=latestDate(rows);
+  // Margin API often provides only a single-day instrument breakdown. Do not treat it as a 20-day series.
+  label('融資','已下載；最新日期 '+(latest||'無法辨識')+'，缺連續20交易日餘額，暫不計分');
+ }catch(e){label('融資','無法讀取：'+e.message)}
+ label('VIX／外資期貨／外資現貨／跌停','尚未完成可驗證的同日解析，保持缺值');
  document.getElementById('marketQuality').textContent=quality.join('；');
- return info.join('；')||'官方快照已檢查，沒有其他可安全納入計分的指標';
+ return info.join('；')||'快照已檢查，無其他可安全計分指標';
 }
-
 async function refreshMarket(){
  const btn=document.getElementById('refreshBtn'),state=document.getElementById('refreshState');
  btn.disabled=true;btn.textContent='更新中…';state.textContent='按鈕已觸發｜正在讀取證交所最近 13 個月的資料…';
@@ -274,11 +288,11 @@ async function refreshMarket(){
   document.getElementById('marketChange').textContent=(change>=0?'+':'')+change.toFixed(2)+'%';
   document.getElementById('marketChange').style.color=change<0?'var(--green)':'var(--red)';
   // Clear every old snapshot value; populate only verified records.
-  for(const id of ["otcChange","vix","breadth","limitDown","foreignFlow","marginChange"])document.getElementById(id).textContent="—";
+  for(const id of ["otcChange","otcClose","putcall","vix","breadth","limitDown","foreignFlow","marginChange"])document.getElementById(id).textContent="—";
   document.getElementById("marketQuality").textContent="資料日期核對中；未取得欄位不沿用舊值。";
   document.getElementById('dataNotice').textContent=`已讀取 TWSE 官方指數至 ${date}（${a.length} 筆交易日）；只重算由指數可推導的指標。其他來源尚未連線，相關分數保留缺值。`;
   state.textContent='指數更新完成，正在核對官方快照…';
-  const snapshotMessage=await loadOfficialSnapshots(date);
+  const snapshotMessage=await loadOfficialSnapshots(date,change);
   state.textContent=`更新完成：${date}；${fail.length} 個月份未成功取得。${snapshotMessage}`;
   render();
  }catch(e){state.textContent='更新失敗：'+e.message+'。可能是 CORS／網路限制；請勿將畫面上的示範數值視為最新行情。';}
