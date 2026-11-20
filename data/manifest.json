@@ -1,0 +1,31 @@
+{
+  "fetched_at_utc": "2026-11-20T21:00:49.113044+00:00",
+  "sources": {
+    "twse_index": {
+      "status": "ok",
+      "records": 267,
+      "url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX"
+    },
+    "twse_stocks": {
+      "status": "ok",
+      "records": 1393,
+      "url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
+    },
+    "twse_margin": {
+      "status": "ok",
+      "records": 1311,
+      "url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_MARGN"
+    },
+    "twse_breadth": {
+      "status": "ok",
+      "records": 2,
+      "url": "https://openapi.twse.com.tw/v1/opendata/twtazu_od"
+    },
+    "tpex_index": {
+      "status": "ok",
+      "records": 15,
+      "url": "https://www.tpex.org.tw/openapi/v1/tpex_index"
+    }
+  },
+  "errors": {}
+}
