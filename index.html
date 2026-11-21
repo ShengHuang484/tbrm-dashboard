@@ -193,8 +193,8 @@ function swingSignals(a){
  for(let i=1;i<=14;i++){const d=v[i]-v[i-1];g+=Math.max(d,0)/14;l+=Math.max(-d,0)/14;}
  for(let i=14;i<n;i++){if(i>14){const d=v[i]-v[i-1];g=(13*g+Math.max(d,0))/14;l=(13*l+Math.max(-d,0))/14;}rs[i]=l===0?(g===0?50:100):100-100/(1+g/l);}
  for(let i=Math.max(16,n-60);i<n-2;i++)if(v[i]<v[i-1]&&v[i]<v[i-2]&&v[i]<=v[i+1]&&v[i]<=v[i+2])lows.push(i);
- if(lows.length<2)return null;
- const [p,q]=lows.slice(-2);if(n-1-q>15)return null;
+ if(lows.length<2)return {div:false,higher:false,raw:"有效行情充足，未形成兩個波段低點"};
+ const [p,q]=lows.slice(-2);if(n-1-q>15)return {div:false,higher:false,raw:"最近波段低點超過15交易日，無近期訊號"};
  return {div:v[q]<v[p]&&rs[q]>rs[p],higher:v[q]>v[p],raw:`${a[p].date} / ${a[q].date}：${v[p].toFixed(0)} → ${v[q].toFixed(0)}；RSI ${rs[p].toFixed(1)} → ${rs[q].toFixed(1)}（收盤波段低點代理）`};
 }
 function updateItem(arr,name,value,points,raw){const x=arr.find(x=>x.name===name);x.s=value===null?null:Math.max(0,Math.min(x.w,points));x.raw=value===null?'—':raw;}
@@ -447,18 +447,15 @@ async function refreshMarket(){
  for(const item of [...warning,...confirm]){item.s=null;item.raw='—';}
  render();
  const btn=document.getElementById('refreshBtn'),state=document.getElementById('refreshState');
- btn.disabled=true;btn.textContent='更新中…';state.textContent='按鈕已觸發｜正在讀取證交所最近 13 個月的資料…';
+ btn.disabled=true;btn.textContent='更新中…';state.textContent='按鈕已觸發｜正在讀取伺服器官方指數快照…';
  try{
-  const now=new Date(),months=Array.from({length:13},(_,i)=>{let d=new Date(now.getFullYear(),now.getMonth()-(12-i),1);return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}01`});
-  let all=[],fail=[];
-  for(let k=0;k<months.length;k+=4){
-   let batch=await Promise.all(months.slice(k,k+4).map(async date=>{
-    try{const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
-     try{const res=await fetch(`https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date=${date}`,{cache:'no-store',mode:'cors',signal:controller.signal});if(!res.ok)throw Error(`HTTP ${res.status}`);return parseTwse(await res.json())}finally{clearTimeout(timer)}
-    }catch(e){fail.push(`${date.slice(0,6)}：${e.message}`);return []}
-   }));all.push(...batch.flat());state.textContent=`已查詢 ${Math.min(k+4,months.length)}/${months.length} 個月份…`;
-  }
-  const map=new Map(all.map(x=>[x.date,x])),a=[...map.values()].sort((x,y)=>x.date.localeCompare(y.date));
+  const read=async key=>{const r=await fetch('./data/'+key+'.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error(key+' HTTP '+r.status);return r.json()};
+  const manifest=await read('manifest');
+  const source=manifest.sources?.index_history;
+  if(source?.status!=='ok')throw Error('指數快照未完成：'+(manifest.errors?.index_history||'請先執行新版 Workflow'));
+  const snapshot=await read('index_history');
+  const a=snapshot.rows,fail=[];
+  if(!Array.isArray(a)||a.length<252||snapshot.date!==source.date||a.at(-1)?.date!==source.date||a.some((r,i)=>!Number.isFinite(r.close)||r.close<=0||!/^\d{4}-\d{2}-\d{2}$/.test(r.date)||(i&&r.date<=a[i-1].date)))throw Error('指數快照驗證失敗');
   if(a.length<15)throw Error(`只取得 ${a.length} 個交易日，無法可靠計算 RSI；${fail.slice(0,2).join('；')||'請檢查資料來源'}`);
   const t=calculateLatest(a),date=a.at(-1).date;
   // Refresh 後所有舊日期的外部指標均失效，不可混入新日期的分數。
@@ -483,7 +480,7 @@ async function refreshMarket(){
   document.getElementById('dataNotice').textContent=`已讀取 TWSE 官方指數至 ${date}（${a.length} 筆交易日）；先計算指數指標，再依同日快照補入可驗證指標。其餘來源依快照驗證；缺值不納入計分。`;
   state.textContent='指數更新完成，正在核對官方快照…';
   const snapshotMessage=await loadOfficialSnapshots(date,change,fail.length===0?a.map(x=>x.date):[]);
-  state.textContent=`更新完成：${date}；${fail.length} 個月份未成功取得。${snapshotMessage}`;
+  state.textContent=`更新完成：${date}；${snapshotMessage}；未評分：${confirm.filter(x=>x.s===null).map(x=>x.name+"（"+x.w+"）").join("、")||"無"}`;
   render();
  }catch(e){state.textContent='更新失敗：'+e.message+'。可能是 CORS／網路限制；請勿將畫面上的示範數值視為最新行情。';}
  finally{btn.disabled=false;btn.textContent='↻ Refresh 最新資料'}
