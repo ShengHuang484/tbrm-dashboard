@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T19:43:47.727747+00:00",
+  "fetched_at_utc": "2026-11-21T19:52:42.756318+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -101,10 +101,15 @@
     "new_low": {
       "date": "2026-11-20",
       "method": "raw_close_proxy",
-      "valid_days": 20,
+      "valid_days": 40,
       "required_days": 262,
       "errors": [],
       "status": "collecting"
+    },
+    "index_history": {
+      "status": "ok",
+      "date": "2026-11-20",
+      "records": 255
     }
   },
   "errors": {}
