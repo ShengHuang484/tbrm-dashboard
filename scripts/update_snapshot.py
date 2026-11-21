@@ -241,6 +241,39 @@ def fetch_vix(data_dir):
         except Exception as exc:errors.append(str(exc))
     raise ValueError('; '.join(errors))
 
+def maintenance(raw, stocks, day):
+    from decimal import Decimal
+    def n(v):return Decimal(str(v).replace(',','').strip())
+    def clean(v):return re.sub(r'<[^>]*>|\s','',str(v))
+    if raw.get('stat')!='OK' or str(raw.get('date',''))!=day.replace('-',''):raise ValueError('margin date not verified')
+    tables=list(raw.get('tables',[]))
+    for k,v in raw.items():
+        if re.fullmatch(r'data\d*',k):tables.append({'fields':raw.get('fields'+k[4:],[]),'data':v})
+    amounts=[]; totals=[]; balances={}
+    for t in tables:
+        f=[clean(x) for x in t.get('fields',[])]; rows=t.get('data',[])
+        if '今日餘額' in f:
+            j=f.index('今日餘額')
+            for r in rows:
+                if clean(r[0])=='融資金額(仟元)':amounts.append(n(r[j]))
+                if clean(r[0])=='融資(交易單位)':totals.append(n(r[j]))
+        if '股票代號' in f and '今日餘額' in f:
+            j=f.index('今日餘額'); k=f.index('股票代號')
+            for r in rows:
+                code=clean(r[k]); val=n(r[j])
+                if code in balances or val<0:raise ValueError('invalid margin balance')
+                balances[code]=val
+    if len(amounts)!=1 or len(totals)!=1 or amounts[0]<=0 or totals[0]<=0 or sum(balances.values())!=totals[0]:raise ValueError('margin totals do not reconcile')
+    roc=str(int(day[:4])-1911)+day[5:7]+day[8:]
+    prices={str(r['Code']):r['ClosingPrice'] for r in stocks if str(r.get('Date'))==roc and 'Code' in r and 'ClosingPrice' in r}
+    value=Decimal(0)
+    for code,lots in balances.items():
+        if not lots:continue
+        price=n(prices[code])
+        if not price.is_finite() or price<=0:raise ValueError('missing valid close '+code)
+        value+=lots*price
+    return {'date':day,'ratio':float(value/amounts[0]*100),'matched_securities':sum(v>0 for v in balances.values()),'provisional':True}
+
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
@@ -328,6 +361,23 @@ def main():
         summary['sources']['taifex_vix']={'status':'failed'}
         summary['errors']['taifex_vix']=str(exc)[:240]
         print('taifex_vix failed:',exc)
+    try:
+        if summary['sources'].get('twse_stocks',{}).get('status')!='ok':raise ValueError('stock download failed')
+        stocks=json.loads((data_dir/'twse_stocks.json').read_text())
+        dates={str(r.get('Date','')) for r in stocks}
+        if len(dates)!=1:raise ValueError('mixed stock dates')
+        roc=dates.pop(); day=datetime.strptime(str(int(roc[:3])+1911)+roc[3:],'%Y%m%d').date().isoformat()
+        url='https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date='+day.replace('-','')
+        raw=fetch(url)
+        print('maintenance schema',str([(t.get('fields'),t.get('title')) for t in raw.get('tables',[])])[:3000],list(raw))
+        report=maintenance(raw,stocks,day)
+        (data_dir/'margin_maintenance.json').write_text(json.dumps(report),encoding='utf-8')
+        summary['sources']['margin_maintenance']={'status':'ok',**report,'url':url}
+    except Exception as exc:
+        (data_dir/'margin_maintenance.json').unlink(missing_ok=True)
+        summary['sources']['margin_maintenance']={'status':'failed'}
+        summary['errors']['margin_maintenance']=str(exc)[:240]
+        print('margin_maintenance failed:',exc)
     (data_dir/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
     if successful==0: raise SystemExit('All official endpoints failed; keeping old source files')
 
