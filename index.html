@@ -104,7 +104,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
   <div class="notice">目前 GitHub Actions 可下載部分官方快照，網頁 Refresh 會讀取快照並檢查日期；完整模型仍需更多歷史資料與回測。</div>
  </section>
 </div>
-<footer>模型版本 v1.9 · 門檻為研究用暫定規則，不構成投資建議。正式上線前須完成指標定義、資料品質檢查、歷史回測與樣本外驗證。</footer>
+<footer>模型版本 v2.0 · 門檻為研究用暫定規則，不構成投資建議。正式上線前須完成指標定義、資料品質檢查、歷史回測與樣本外驗證。</footer>
 </div>
 <script>
 const warning = [
@@ -153,7 +153,7 @@ function render(){
  document.getElementById("interpretation").innerHTML=`<p><b>預警：</b>${ws[0]}。目前可評分指標覆蓋 ${coverageW.toFixed(0)}% 權重，分數仍可能隨缺失指標而改變。</p><p><b>確認：</b>${cs[0]}。目前可評分指標覆蓋 ${coverageC.toFixed(0)}% 權重，尚不足以判定中期反轉。</p><p>兩個分數必須分開看；高預警不等於買點，確認分數上升也應觀察是否持續數日。</p>`;
 }
 function resetDemo(){document.getElementById("refreshState").textContent="已還原 2026/11/20 示範資料";document.getElementById("marketTag").textContent="示範資料";document.getElementById("marketHeading").textContent="市場概況｜2026/11/20";document.getElementById("marketClose").textContent="36,033.29";document.getElementById("marketChange").textContent="−6.23%";document.getElementById("dataNotice").textContent="以下預載 2026/11/20 收盤示範資料。";let o=JSON.parse(original);warning.splice(0,warning.length,...o.warning);confirm.splice(0,confirm.length,...o.confirm);render();}
-function downloadCSV(){let rows=[["model","indicator","weight","score","raw_value","status"],...warning.map(x=>["warning",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"]),...confirm.map(x=>["confirmation",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"])];let csv="\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="TBRM_v1_1_indicators.csv";a.click();URL.revokeObjectURL(a.href);}
+function downloadCSV(){let rows=[["model","indicator","weight","score","raw_value","status"],...warning.map(x=>["warning",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"]),...confirm.map(x=>["confirmation",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"])];let csv="\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="TBRM_v2_0_indicators.csv";a.click();URL.revokeObjectURL(a.href);}
 
 // 手機單一 HTML：僅能在交易所允許跨來源存取時直接取得官方資料。
 const finite = x => Number.isFinite(x);
@@ -312,6 +312,7 @@ async function loadOfficialSnapshots(date,taiexPct){
   if(sourceDate>date)throw Error('來源日期 '+sourceDate+' 晚於指數 '+date);
   const billions=amount/1e8;
   document.getElementById('foreignFlow').textContent=(billions>0?'+':'')+billions.toFixed(2)+' 億';
+  if(sourceDate===date)updateItem(confirm,'外資現貨買賣超',billions,billions>0?2:billions>=-50?1:0,`${billions.toFixed(2)} 億（單日暫定規則）`);
   label('外資現貨',`${sourceDate}，${billions.toFixed(2)} 億元${sourceDate===date?'（同日，僅市場概況）':'（非同日，僅市場概況）'}`);
   info.push('外資現貨已顯示');
  }catch(e){label('外資現貨','未顯示：'+e.message)}
@@ -348,7 +349,15 @@ async function loadOfficialSnapshots(date,taiexPct){
   const down=num(report.limit_down);
   if(down===null||down<0||!Number.isInteger(down))throw Error('跌停家數無效');
   document.getElementById('limitDown').textContent=down.toLocaleString()+' 家';
-  label('上市跌停家數',date+'，證交所指定日期收盤報表，股票類別 '+down+' 家');
+  try{
+   const stocks=normalized(await read('twse_stocks'));
+   const universe=stocks.filter(({row,date:d})=>d===date&&/^\d{4}$/.test(String(get(row,['Code','證券代號'])??'').trim()));
+   if(universe.length>=500&&down<=universe.length){
+    const ratio=100*down/universe.length;
+    updateItem(warning,'跌停家數比例',ratio,ratio>=10?5:ratio>=5?3:ratio>=2?1:0,`${down}/${universe.length} 家（${ratio.toFixed(2)}%，上市四碼股票代理分母）`);
+   }else label('跌停家數比例','上市股票有效分母不足或數值不一致，僅顯示家數不計分');
+  }catch(err){label('跌停家數比例','缺少有效分母：'+err.message)}
+  label('上市跌停家數' ,date+'，證交所指定日期收盤報表，股票類別 '+down+' 家');
  }catch(e){label('上市跌停家數','指定日期報表未採用：'+e.message)}
  label('VIXTWN','尚無經確認可自動下載的官方 JSON 來源，暫不顯示');
 
@@ -392,14 +401,12 @@ async function refreshMarket(){
   const change=(t.last/t.prev-1)*100;
   document.getElementById('marketChange').textContent=(change>=0?'+':'')+change.toFixed(2)+'%';
   document.getElementById('marketChange').style.color=change<0?'var(--green)':'var(--red)';
-  // Reset ALL indicator scores before loading new snapshots. Never carry a demo or
-  // previous trading day's score into a fresh live market assessment.
-  for(const item of [...warning,...confirm]){item.s=null;item.raw='—';}
+  // Index-derived scores were just calculated. Do not reset them again.
   // Clear every old snapshot value; populate only verified records.
   for(const id of ["otcChange","otcClose","putcall","vix","breadth","limitDown","foreignFlow","foreignFutures","marginChange","margin20"])document.getElementById(id).textContent="—";
   document.getElementById("marketQuality").textContent="資料日期核對中；未取得欄位不沿用舊值。";
   document.getElementById("putcallLabel").textContent="臺指選擇權 Put/Call 成交量比";
-  document.getElementById('dataNotice').textContent=`已讀取 TWSE 官方指數至 ${date}（${a.length} 筆交易日）；只重算由指數可推導的指標。其餘來源依快照驗證；缺值不納入計分。`;
+  document.getElementById('dataNotice').textContent=`已讀取 TWSE 官方指數至 ${date}（${a.length} 筆交易日）；先計算指數指標，再依同日快照補入可驗證指標。其餘來源依快照驗證；缺值不納入計分。`;
   state.textContent='指數更新完成，正在核對官方快照…';
   const snapshotMessage=await loadOfficialSnapshots(date,change);
   state.textContent=`更新完成：${date}；${fail.length} 個月份未成功取得。${snapshotMessage}`;
