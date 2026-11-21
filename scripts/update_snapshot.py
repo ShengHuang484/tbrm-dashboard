@@ -18,7 +18,7 @@ ENDPOINTS = {
 }
 
 def fetch(url):
-    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.3','Accept':'application/json'})
+    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.5','Accept':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as r:
         if r.status!=200: raise ValueError('HTTP '+str(r.status))
         payload=json.load(r)
@@ -39,6 +39,7 @@ def main():
             temp.replace(dest)
             summary['sources'][key]={'status':'ok','records':len(payload) if isinstance(payload,list) else None,'url':url}
             if key == 'twse_margin':
+                # Keep raw snapshots, but never label fetch dates as trading dates.
                 archive = data_dir/'history'/'twse_margin.json'
                 archive.parent.mkdir(exist_ok=True)
                 try:
@@ -46,11 +47,21 @@ def main():
                     if not isinstance(prior,list): prior=[]
                 except (ValueError,OSError):
                     prior=[]
-                snapshot={'fetched_at_utc':summary['fetched_at_utc'],'payload':payload}
                 today=summary['fetched_at_utc'][:10]
-                prior=[r for r in prior if str(r.get('fetched_at_utc',''))[:10]!=today]
-                prior.append(snapshot)
+                prior=[r for r in prior if isinstance(r,dict) and str(r.get('fetched_at_utc',''))[:10]!=today]
+                prior.append({'fetched_at_utc':summary['fetched_at_utc'],'payload':payload})
                 archive.write_text(json.dumps(prior[-90:],ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+            # Publish a small field inventory for schema troubleshooting; no credentials or private data.
+            inventory=data_dir/'source_schema.json'
+            try:
+                schemas=json.loads(inventory.read_text(encoding='utf-8')) if inventory.exists() else {}
+            except (ValueError,OSError): schemas={}
+            if isinstance(payload,list):
+                fields=list(payload[0].keys()) if payload and isinstance(payload[0],dict) else []
+            else:
+                fields=list(payload.get('fields',[])) if isinstance(payload.get('fields'),list) else list(payload.keys())
+            schemas[key]={'fetched_at_utc':summary['fetched_at_utc'],'fields':fields,'records':len(payload) if isinstance(payload,list) else None}
+            inventory.write_text(json.dumps(schemas,ensure_ascii=False,indent=2),encoding='utf-8')
             successful+=1
             print(key,'ok')
         except Exception as exc:
