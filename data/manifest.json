@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T16:03:30.587645+00:00",
+  "fetched_at_utc": "2026-11-21T16:09:10.185226+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -40,7 +40,12 @@
       "status": "ok",
       "records": null,
       "url": "https://www.twse.com.tw/fund/BFI82U?response=json"
+    },
+    "twse_dated_breadth": {
+      "status": "failed"
     }
   },
-  "errors": {}
+  "errors": {
+    "twse_dated_breadth": "cannot uniquely identify stocks limit-down table: 0"
+  }
 }
