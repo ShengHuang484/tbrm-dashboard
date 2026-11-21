@@ -13,10 +13,12 @@ ENDPOINTS = {
     'twse_breadth': 'https://openapi.twse.com.tw/v1/opendata/twtazu_od',
     'tpex_index': 'https://www.tpex.org.tw/openapi/v1/tpex_index',
     'taifex_putcall': 'https://openapi.taifex.com.tw/v1/PutCallRatio',
+    'taifex_futures': 'https://openapi.taifex.com.tw/v1/MarketDataOfMajorInstitutionalTradersDetailsOfFuturesContractsBytheDate',
+    'twse_foreign': 'https://www.twse.com.tw/fund/BFI82U?response=json',
 }
 
 def fetch(url):
-    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.1','Accept':'application/json'})
+    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.3','Accept':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as r:
         if r.status!=200: raise ValueError('HTTP '+str(r.status))
         payload=json.load(r)
