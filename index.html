@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.4 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.5 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -278,7 +278,7 @@ async function loadOfficialSnapshots(date,taiexPct){
    const history=await read('history/twse_margin');
    historyCount=Array.isArray(history)?history.length:0;
   }catch(_){}
-  label('融資','來源欄位 '+keys.slice(0,7).join('、')+'；最新日期 '+(latest||'無法辨識')+'；已保存 '+historyCount+' 次每日快照。20日變化尚未驗證，不計分');
+  label('融資','來源欄位 '+keys.slice(0,12).join('、')+'；最新交易日 '+(latest||'未能由欄位辨識')+'；已保存 '+historyCount+' 次下載快照（不等於交易日數）。尚未取得可驗證的20日同單位序列，不計分');
  }catch(e){label('融資','無法讀取：'+e.message)}
 
  // 外資現貨：嚴格挑選「外資及陸資(不含外資自營商)」，不可排除含「不含外資自營商」的正確列。
@@ -330,6 +330,11 @@ async function loadOfficialSnapshots(date,taiexPct){
   label('跌停家數',`已取得上市個股快照；目前欄位 ${Object.keys(one||{}).slice(0,6).join('、')}；未取得可核驗的跌停價，暫不顯示`);
  }catch(e){label('跌停家數','未顯示：'+e.message)}
  label('VIXTWN','尚無經確認可自動下載的官方 JSON 來源，暫不顯示');
+ try{
+  const schema=await read('source_schema');
+  const relevant=['twse_margin','twse_stocks','taifex_futures'].map(k=>k+'：'+(schema[k]?.fields||[]).slice(0,12).join('、'));
+  label('原始欄位檢查',relevant.join('｜'));
+ }catch(e){label('原始欄位檢查','尚無來源欄位清單：'+e.message)}
 
  document.getElementById('marketQuality').textContent=quality.join('；');
  return info.join('；')||'快照已檢查，無其他可安全計分指標';
