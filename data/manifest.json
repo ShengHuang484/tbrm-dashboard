@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T19:10:05.810531+00:00",
+  "fetched_at_utc": "2026-11-21T19:17:32.960392+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -61,6 +61,6 @@
     }
   },
   "errors": {
-    "margin_maintenance": "margin totals do not reconcile: amounts=[Decimal('435227267')], totals=[Decimal('8398744')], securities=0, sum_lots=0"
+    "margin_maintenance": "[<class 'decimal.ConversionSyntax'>]"
   }
 }
