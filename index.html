@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.3 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.3.1 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -274,8 +274,8 @@ async function loadOfficialSnapshots(date,taiexPct){
   const raw=await read('twse_foreign');
   if(!Array.isArray(raw.fields)||!Array.isArray(raw.data))throw Error('來源格式不是 fields/data 表格');
   const dateRaw=raw.date||raw.stat||'';
-  const parsedDate=rocDate(dateRaw);
-  const fieldIndex=raw.fields.findIndex(x=>/買賣超/.test(String(x)));
+  const parsedDate=/^\d{8}$/.test(String(dateRaw))?String(dateRaw).slice(0,4)+'-'+String(dateRaw).slice(4,6)+'-'+String(dateRaw).slice(6,8):rocDate(dateRaw);
+  const fieldIndex=raw.fields.findIndex(x=>/買賣超|買賣差額/.test(String(x)));
   const typeIndex=raw.fields.findIndex(x=>/單位名稱|名稱|類別/.test(String(x)));
   if(fieldIndex<0||typeIndex<0)throw Error('缺少買賣超或投資人類別欄位');
   const target=raw.data.find(row=>/外資及陸資|外資/.test(String(row[typeIndex]))&&!/自營商/.test(String(row[typeIndex])));
@@ -284,8 +284,9 @@ async function loadOfficialSnapshots(date,taiexPct){
   if(amount===null)throw Error('買賣超數值無效');
   // TWSE BFI82U 數值單位為元；轉為億元。
   const billions=amount/1e8;
-  document.getElementById('foreignFlow').textContent=(billions>0?'+':'')+billions.toFixed(2)+' 億';
+  document.getElementById('foreignFlow').textContent=(billions>0?'+':'')+billions.toFixed(2)+' 億'+(parsedDate&&parsedDate!==date?' ('+parsedDate.slice(5)+')':'');
   label('外資現貨',`來源日期 ${parsedDate||dateRaw||'未標示'}；${billions.toFixed(2)} 億元（未計分）`);
+  info.push('外資現貨已顯示');
  }catch(e){label('外資現貨','未顯示：'+e.message)}
  // 外資期貨：原始資料已下載；避免未辨識契約/買賣方/未平倉欄位時誤用。
  try{
