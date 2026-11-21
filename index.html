@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.3.2 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.4 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -226,12 +226,18 @@ async function loadOfficialSnapshots(date,taiexPct){
   const close=num(get(x,['Close','close','Index','index','IndexValue','收盤指數','指數','收盤價']));
   const pct=num(get(x,['ChangePercent','changePercent','ChangePercentage','漲跌幅','漲跌百分比','漲跌幅(%)']));
   if(close!==null)document.getElementById('otcClose').textContent=close.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  if(pct!==null){
-   document.getElementById('otcChange').textContent=(pct>0?'+':'')+pct.toFixed(2)+'%';
-   updateItem(confirm,'OTC 相對強度',pct,pct>taiexPct?3:0,`OTC ${pct.toFixed(2)}%／加權 ${taiexPct.toFixed(2)}%（單日代理）`);
+  // Official OTC feeds may supply point change rather than percent change.
+  const pointChange=num(get(x,['Change','change','IndexChange','ChangePoints','漲跌點數','漲跌','漲跌差']));
+  let verifiedPct=pct;
+  if(verifiedPct===null&&close!==null&&pointChange!==null&&close-pointChange>0){
+   verifiedPct=100*pointChange/(close-pointChange);
   }
-  if(close===null&&pct===null)throw Error('尚未辨識收盤／漲跌幅欄位');
-  label('櫃買指數',date+'，收盤'+(close===null?'未辨識':'已辨識')+'、漲跌幅'+(pct===null?'未辨識':'已辨識'));
+  if(verifiedPct!==null){
+   document.getElementById('otcChange').textContent=(verifiedPct>0?'+':'')+verifiedPct.toFixed(2)+'%';
+   updateItem(confirm,'OTC 相對強度',verifiedPct,verifiedPct>taiexPct?3:0,`OTC ${verifiedPct.toFixed(2)}%／加權 ${taiexPct.toFixed(2)}%（單日代理）`);
+  }
+  if(close===null&&verifiedPct===null)throw Error('尚未辨識收盤／漲跌幅欄位');
+  label('櫃買指數',date+'，收盤'+(close===null?'未辨識':'已辨識')+'、漲跌幅'+(verifiedPct===null?'未辨識':'已辨識'));
   info.push('櫃買資料已核對');
  }catch(e){label('櫃買指數','未採用：'+e.message)}
  try{
@@ -264,9 +270,15 @@ async function loadOfficialSnapshots(date,taiexPct){
   info.push('Put/Call 最新可用資料已顯示');
  }catch(e){label('Put/Call','未顯示：'+e.message)}
  try{
-  const rows=normalized(await read('twse_margin')),latest=latestDate(rows);
-  // Margin API often provides only a single-day instrument breakdown. Do not treat it as a 20-day series.
-  label('融資','已下載；最新日期 '+(latest||'無法辨識')+'，缺連續20交易日餘額，暫不計分');
+  const raw=await read('twse_margin');
+  const rows=normalized(raw),latest=latestDate(rows);
+  const keys=Array.isArray(raw)&&raw.length?Object.keys(raw[0]):Object.keys(raw||{});
+  let historyCount=0;
+  try{
+   const history=await read('history/twse_margin');
+   historyCount=Array.isArray(history)?history.length:0;
+  }catch(_){}
+  label('融資','來源欄位 '+keys.slice(0,7).join('、')+'；最新日期 '+(latest||'無法辨識')+'；已保存 '+historyCount+' 次每日快照。20日變化尚未驗證，不計分');
  }catch(e){label('融資','無法讀取：'+e.message)}
 
  // 外資現貨：嚴格挑選「外資及陸資(不含外資自營商)」，不可排除含「不含外資自營商」的正確列。
