@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T19:35:36.345648+00:00",
+  "fetched_at_utc": "2026-11-21T19:43:47.727747+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -97,6 +97,14 @@
       ],
       "price_basis_verified": false,
       "url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261120"
+    },
+    "new_low": {
+      "date": "2026-11-20",
+      "method": "raw_close_proxy",
+      "valid_days": 20,
+      "required_days": 262,
+      "errors": [],
+      "status": "collecting"
     }
   },
   "errors": {}
