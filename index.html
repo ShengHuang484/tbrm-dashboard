@@ -423,7 +423,7 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
   if(r.date!==date||!Number.isFinite(r.ratio)||r.ratio<=0)throw Error('日期或數值不符');
   const v=r.ratio;
   updateItem(warning,'融資維持率',v,v<=130?3:v<140?2:v<150?1:0,v.toFixed(2)+'%（估算／暫定）');
-  label('融資維持率',date+' 上市市場估算，非整戶維持率');
+  label('融資維持率',date+' 上市市場估算，非整戶維持率'+(Object.keys(r.fallback_prices||{}).length?'；'+Object.keys(r.fallback_prices).length+' 檔採近期收盤價，估算市值占 '+Number(r.fallback_value_pct).toFixed(5)+'%':''));
  }catch(e){label('融資維持率','未採用：'+e.message)}
  try{
   const schema=await read('source_schema');
