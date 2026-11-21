@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T19:21:46.517739+00:00",
+  "fetched_at_utc": "2026-11-21T19:31:44.463502+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -61,6 +61,6 @@
     }
   },
   "errors": {
-    "margin_maintenance": "missing valid close 00681R"
+    "margin_maintenance": "missing reliable closes: 1808"
   }
 }
