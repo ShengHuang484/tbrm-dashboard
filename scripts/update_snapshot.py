@@ -19,7 +19,7 @@ ENDPOINTS = {
 }
 
 def fetch(url):
-    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.6','Accept':'application/json'})
+    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.7.2','Accept':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as r:
         if r.status!=200: raise ValueError('HTTP '+str(r.status))
         payload=json.load(r)
@@ -37,8 +37,21 @@ def fetch_dated_limit_down(data_dir):
     url=f'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date={greg}&type=MS'
     raw=fetch(url)
     if raw.get('stat')!='OK': raise ValueError('TWSE report not OK: '+str(raw.get('stat')))
-    # TWSE may change table order, row labels and stock-count column positions.
-    # Inspect metadata, require explicit stock labeling, and fail closed if ambiguous.
+    # Record the actual response shape BEFORE filtering tables. A status of OK
+    # does not imply that the requested statistics are present.
+    def preview(value):
+        if isinstance(value, dict):
+            return {'type':'object','keys':list(value.keys())[:40],
+                    'sample':{k:str(v)[:160] for k,v in list(value.items())[:3]}}
+        if isinstance(value, list):
+            return {'type':'array','length':len(value),
+                    'first_item_type':type(value[0]).__name__ if value else None,
+                    'sample':value[:2]}
+        return {'type':type(value).__name__,'sample':str(value)[:250]}
+    diagnostic={'report_date':greg,'source_url':url,'stat':raw.get('stat'),
+                'top_level_keys':list(raw.keys()),
+                'top_level_shapes':{k:preview(v) for k,v in raw.items()},
+                'tables':[]}
     tables=[]
     for k,v in raw.items():
         if re.fullmatch(r'data\d+',k) and isinstance(v,list) and v and isinstance(v[0],list):
@@ -46,9 +59,8 @@ def fetch_dated_limit_down(data_dir):
             title=str(raw.get('title'+suffix,''))
             fields=raw.get('fields'+suffix,[])
             tables.append({'key':k,'title':title,'fields':fields,'rows':v})
-    diagnostic={'report_date':greg,'stat':raw.get('stat'),'tables':[
-        {'key':t['key'],'title':t['title'],'fields':t['fields'],
-         'sample_rows':t['rows'][:5]} for t in tables]}
+    diagnostic['tables']=[{'key':t['key'],'title':t['title'],
+        'fields':t['fields'],'sample_rows':t['rows'][:5]} for t in tables]
     (data_dir/'twse_dated_breadth_diagnostic.json').write_text(
         json.dumps(diagnostic,ensure_ascii=False,indent=2),encoding='utf-8')
     def plain(v):return re.sub(r'<[^>]*>','',str(v)).strip()
