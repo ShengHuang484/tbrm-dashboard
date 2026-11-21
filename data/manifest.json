@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T17:06:10.220411+00:00",
+  "fetched_at_utc": "2026-11-21T17:17:45.011597+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -45,6 +45,11 @@
       "status": "ok",
       "date": "2026-11-20",
       "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261120&type=MS"
+    },
+    "twse_dated_margin": {
+      "status": "ok",
+      "date": "2026-11-20",
+      "valid_days": 28
     }
   },
   "errors": {}

@@ -1,0 +1,142 @@
+[
+  {
+    "date": "2026-10-12",
+    "balance_1000_twd": 653329500.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261012"
+  },
+  {
+    "date": "2026-10-13",
+    "balance_1000_twd": 644978625.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261013"
+  },
+  {
+    "date": "2026-10-14",
+    "balance_1000_twd": 651567390.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261014"
+  },
+  {
+    "date": "2026-10-15",
+    "balance_1000_twd": 646415015.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261015"
+  },
+  {
+    "date": "2026-10-16",
+    "balance_1000_twd": 645594048.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261016"
+  },
+  {
+    "date": "2026-10-19",
+    "balance_1000_twd": 640618432.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261019"
+  },
+  {
+    "date": "2026-10-20",
+    "balance_1000_twd": 638100111.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261020"
+  },
+  {
+    "date": "2026-10-21",
+    "balance_1000_twd": 644373559.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261021"
+  },
+  {
+    "date": "2026-10-22",
+    "balance_1000_twd": 633880174.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261022"
+  },
+  {
+    "date": "2026-10-27",
+    "balance_1000_twd": 623386860.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261027"
+  },
+  {
+    "date": "2026-10-28",
+    "balance_1000_twd": 632299552.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261028"
+  },
+  {
+    "date": "2026-10-29",
+    "balance_1000_twd": 633910848.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261029"
+  },
+  {
+    "date": "2026-10-30",
+    "balance_1000_twd": 623467886.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261030"
+  },
+  {
+    "date": "2026-11-02",
+    "balance_1000_twd": 622699365.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261102"
+  },
+  {
+    "date": "2026-11-03",
+    "balance_1000_twd": 599774466.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261103"
+  },
+  {
+    "date": "2026-11-04",
+    "balance_1000_twd": 596945870.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261104"
+  },
+  {
+    "date": "2026-11-05",
+    "balance_1000_twd": 576409039.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261105"
+  },
+  {
+    "date": "2026-11-06",
+    "balance_1000_twd": 534052632.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261106"
+  },
+  {
+    "date": "2026-11-09",
+    "balance_1000_twd": 539915741.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261109"
+  },
+  {
+    "date": "2026-11-10",
+    "balance_1000_twd": 536678732.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261110"
+  },
+  {
+    "date": "2026-11-11",
+    "balance_1000_twd": 541158093.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261111"
+  },
+  {
+    "date": "2026-11-12",
+    "balance_1000_twd": 533474629.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261112"
+  },
+  {
+    "date": "2026-11-13",
+    "balance_1000_twd": 536598938.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261113"
+  },
+  {
+    "date": "2026-11-16",
+    "balance_1000_twd": 524497993.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261116"
+  },
+  {
+    "date": "2026-11-17",
+    "balance_1000_twd": 508721233.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261117"
+  },
+  {
+    "date": "2026-11-18",
+    "balance_1000_twd": 508026570.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261118"
+  },
+  {
+    "date": "2026-11-19",
+    "balance_1000_twd": 484368330.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261119"
+  },
+  {
+    "date": "2026-11-20",
+    "balance_1000_twd": 435227267.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261120"
+  }
+]
