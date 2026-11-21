@@ -250,20 +250,28 @@ def maintenance(raw, stocks, day):
     for k,v in raw.items():
         if re.fullmatch(r'data\d*',k):tables.append({'fields':raw.get('fields'+k[4:],[]),'data':v})
     amounts=[]; totals=[]; balances={}
+    seen=set(); schema=[]; labels=[]
     for t in tables:
+        signature=json.dumps([t.get('fields',[]),t.get('data',[])],ensure_ascii=False)
+        if signature in seen:continue
+        seen.add(signature)
+        schema.append({'fields':t.get('fields',[]),'rows':len(t.get('data',[]))})
         f=[clean(x) for x in t.get('fields',[])]; rows=t.get('data',[])
         if '今日餘額' in f:
             j=f.index('今日餘額')
             for r in rows:
-                if clean(r[0])=='融資金額(仟元)':amounts.append(n(r[j]))
-                if clean(r[0])=='融資(交易單位)':totals.append(n(r[j]))
+                label=clean(r[0]).replace('（','(').replace('）',')')
+                if '股票代號' not in f:labels.append([label,str(r[j])])
+                if label=='融資金額(仟元)':amounts.append(n(r[j]))
+                if label=='融資(交易單位)':totals.append(n(r[j]))
         if '股票代號' in f and '今日餘額' in f:
             j=f.index('今日餘額'); k=f.index('股票代號')
             for r in rows:
                 code=clean(r[k]); val=n(r[j])
                 if code in balances or val<0:raise ValueError('invalid margin balance')
                 balances[code]=val
-    if len(amounts)!=1 or len(totals)!=1 or amounts[0]<=0 or totals[0]<=0 or sum(balances.values())!=totals[0]:raise ValueError('margin totals do not reconcile')
+    print('maintenance diagnostics',json.dumps({'schema':schema,'summary_rows':labels,'amounts':[str(x) for x in amounts],'totals':[str(x) for x in totals],'security_count':len(balances),'sum_lots':str(sum(balances.values()))},ensure_ascii=False))
+    if len(amounts)!=1 or len(totals)!=1 or amounts[0]<=0 or totals[0]<=0 or sum(balances.values())!=totals[0]:raise ValueError(f'margin totals do not reconcile: amounts={amounts}, totals={totals}, securities={len(balances)}, sum_lots={sum(balances.values())}')
     roc=str(int(day[:4])-1911)+day[5:7]+day[8:]
     prices={str(r['Code']):r['ClosingPrice'] for r in stocks if str(r.get('Date'))==roc and 'Code' in r and 'ClosingPrice' in r}
     value=Decimal(0)
