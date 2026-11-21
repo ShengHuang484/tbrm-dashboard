@@ -1,0 +1,125 @@
+{
+  "twse_index": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "日期",
+      "指數",
+      "收盤指數",
+      "漲跌",
+      "漲跌點數",
+      "漲跌百分比",
+      "特殊處理註記"
+    ],
+    "records": 267
+  },
+  "twse_stocks": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "Date",
+      "Code",
+      "Name",
+      "TradeVolume",
+      "TradeValue",
+      "OpeningPrice",
+      "HighestPrice",
+      "LowestPrice",
+      "ClosingPrice",
+      "Change",
+      "Transaction"
+    ],
+    "records": 1393
+  },
+  "twse_margin": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "股票代號",
+      "股票名稱",
+      "融資買進",
+      "融資賣出",
+      "融資現金償還",
+      "融資前日餘額",
+      "融資今日餘額",
+      "融資限額",
+      "融券買進",
+      "融券賣出",
+      "融券現券償還",
+      "融券前日餘額",
+      "融券今日餘額",
+      "融券限額",
+      "資券互抵",
+      "註記"
+    ],
+    "records": 1311
+  },
+  "twse_breadth": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "出表日期",
+      "類型",
+      "上漲",
+      "漲停",
+      "下跌",
+      "跌停",
+      "持平",
+      "未成交",
+      "無比價"
+    ],
+    "records": 2
+  },
+  "tpex_index": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "Date",
+      "Open",
+      "High",
+      "Low",
+      "Close",
+      "Change"
+    ],
+    "records": 15
+  },
+  "taifex_putcall": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "Date",
+      "PutVolume",
+      "CallVolume",
+      "PutCallVolumeRatio%",
+      "PutOI",
+      "CallOI",
+      "PutCallOIRatio%"
+    ],
+    "records": 21
+  },
+  "taifex_futures": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "Date",
+      "ContractCode",
+      "Item",
+      "TradingVolume(Long)",
+      "TradingValue(Long)(Thousands)",
+      "TradingVolume(Short)",
+      "TradingValue(Short)(Thousands)",
+      "TradingVolume(Net)",
+      "TradingValue(Net)(Thousands)",
+      "OpenInterest(Long)",
+      "ContractValueofOpenInterest(Long)(Thousands)",
+      "OpenInterest(Short)",
+      "ContractValueofOpenInterest(Short)(Thousands)",
+      "OpenInterest(Net)",
+      "ContractValueofOpenInterest(Net)(Thousands)"
+    ],
+    "records": 66
+  },
+  "twse_foreign": {
+    "fetched_at_utc": "2026-11-21T15:58:51.913319+00:00",
+    "fields": [
+      "單位名稱",
+      "買進金額",
+      "賣出金額",
+      "買賣差額"
+    ],
+    "records": null
+  }
+}
