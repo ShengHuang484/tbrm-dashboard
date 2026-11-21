@@ -318,7 +318,7 @@ def maintenance(raw, stocks, day, stocks_backup=None):
         from datetime import timedelta
         import time
         anchor=datetime.fromisoformat(day).date()
-        for offset in range(1,8):
+        for offset in range(1,31):
             prior=(anchor-timedelta(days=offset)).isoformat()
             if datetime.fromisoformat(prior).weekday()>=5:continue
             try: older=dated_maintenance_prices(prior)
@@ -328,7 +328,7 @@ def maintenance(raw, stocks, day, stocks_backup=None):
                 code=r['Code']; price=valid(r['ClosingPrice'])
                 if code in missing and price is not None:
                     selected[code]=price; missing.remove(code)
-                    fallback[code]={'date':prior,'price':str(price),'lots':str(balances[code])}
+                    fallback[code]={'date':prior,'price':str(price),'lots':str(balances[code]),'age_days':offset,'source':'TWSE MI_INDEX','basis_verified':False,'reason':'extended quote gap; corporate action basis unverified' if offset>7 else 'missing same-day close'}
             if not missing:break
             time.sleep(0.5)
     if missing:raise ValueError('missing reliable closes: '+','.join(sorted(missing)))
@@ -338,7 +338,7 @@ def maintenance(raw, stocks, day, stocks_backup=None):
     share=fallback_value/value
     if share>Decimal('0.001'):raise ValueError('historical price share exceeds 0.1%: '+str(share))
     print('maintenance fallback',json.dumps(fallback,ensure_ascii=False),'value share',str(share))
-    return {'date':day,'ratio':float(value/amounts[0]*100),'matched_securities':len(selected),'provisional':True,'fallback_prices':fallback,'fallback_value_pct':float(share*100)}
+    return {'date':day,'ratio':float(value/amounts[0]*100),'matched_securities':len(selected),'provisional':True,'fallback_prices':fallback,'fallback_value_pct':float(share*100),'extended_gap_codes':sorted(c for c,r in fallback.items() if r['age_days']>7),'price_basis_verified':not bool(fallback)}
 
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
@@ -436,7 +436,7 @@ def main():
         url='https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date='+day.replace('-','')
         raw=fetch(url)
         print('maintenance schema',str([(t.get('fields'),t.get('title')) for t in raw.get('tables',[])])[:3000],list(raw))
-        print('maintenance parser v2.4.4')
+        print('maintenance parser v2.4.5')
         report=maintenance(raw,dated_maintenance_prices(day),day,stocks)
         (data_dir/'margin_maintenance.json').write_text(json.dumps(report),encoding='utf-8')
         summary['sources']['margin_maintenance']={'status':'ok',**report,'url':url}
