@@ -38,6 +38,19 @@ def main():
             temp.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
             temp.replace(dest)
             summary['sources'][key]={'status':'ok','records':len(payload) if isinstance(payload,list) else None,'url':url}
+            if key == 'twse_margin':
+                archive = data_dir/'history'/'twse_margin.json'
+                archive.parent.mkdir(exist_ok=True)
+                try:
+                    prior=json.loads(archive.read_text(encoding='utf-8')) if archive.exists() else []
+                    if not isinstance(prior,list): prior=[]
+                except (ValueError,OSError):
+                    prior=[]
+                snapshot={'fetched_at_utc':summary['fetched_at_utc'],'payload':payload}
+                today=summary['fetched_at_utc'][:10]
+                prior=[r for r in prior if str(r.get('fetched_at_utc',''))[:10]!=today]
+                prior.append(snapshot)
+                archive.write_text(json.dumps(prior[-90:],ensure_ascii=False,separators=(',',':')),encoding='utf-8')
             successful+=1
             print(key,'ok')
         except Exception as exc:
