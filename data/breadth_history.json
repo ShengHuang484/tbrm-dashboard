@@ -1,0 +1,10 @@
+[
+  {
+    "date": "2026-11-20",
+    "up": 16,
+    "limit_up": 4,
+    "down": 1058,
+    "limit_down": 179,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261120&type=MS"
+  }
+]
