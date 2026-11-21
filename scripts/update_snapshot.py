@@ -19,7 +19,7 @@ ENDPOINTS = {
 }
 
 def fetch(url):
-    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.8','Accept':'application/json'})
+    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.9','Accept':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as r:
         if r.status!=200: raise ValueError('HTTP '+str(r.status))
         payload=json.load(r)
