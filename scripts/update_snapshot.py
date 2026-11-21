@@ -18,7 +18,7 @@ ENDPOINTS = {
 }
 
 def fetch(url):
-    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.5','Accept':'application/json'})
+    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.6','Accept':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as r:
         if r.status!=200: raise ValueError('HTTP '+str(r.status))
         payload=json.load(r)
@@ -38,6 +38,18 @@ def main():
             temp.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
             temp.replace(dest)
             summary['sources'][key]={'status':'ok','records':len(payload) if isinstance(payload,list) else None,'url':url}
+            if key == 'twse_breadth' and isinstance(payload,list):
+                history_path=data_dir/'history'/'twse_breadth.json'
+                history_path.parent.mkdir(exist_ok=True)
+                try:
+                    old=json.loads(history_path.read_text(encoding='utf-8')) if history_path.exists() else []
+                    if not isinstance(old,list): old=[]
+                except (OSError,ValueError): old=[]
+                for record in payload:
+                    if isinstance(record,dict) and record.get('出表日期') and record.get('類型'):
+                        old=[r for r in old if not (isinstance(r,dict) and r.get('出表日期')==record['出表日期'] and r.get('類型')==record['類型'])]
+                        old.append(record)
+                history_path.write_text(json.dumps(old[-240:],ensure_ascii=False,separators=(',',':')),encoding='utf-8')
             if key == 'twse_margin':
                 # Keep raw snapshots, but never label fetch dates as trading dates.
                 archive = data_dir/'history'/'twse_margin.json'
