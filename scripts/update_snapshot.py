@@ -404,6 +404,37 @@ def new_low_counts(history,dates):
     decline=(old-recent)/old*100 if old else 0
     return {'status':'ok','eligible':len(universe),'coverage':coverage,'counts':counts,'previous_avg':old,'recent_avg':recent,'decline_pct':decline,'points':5 if decline>=50 else 3 if decline>=30 else 1 if decline>=15 else 0}
 
+def index_history(data_dir, day):
+    from datetime import date
+    import time
+    end=date.fromisoformat(day)
+    path=data_dir/'index_history.json'
+    old=json.loads(path.read_text()) if path.exists() else {}
+    cache=old.get('months',{})
+    months={}
+    for offset in range(13):
+        month=date(end.year+(end.month-1-offset)//12,(end.month-1-offset)%12+1,1)
+        key=month.isoformat()[:7]
+        if offset and key in cache and cache[key]:
+            months[key]=cache[key];continue
+        raw=fetch('https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date='+month.strftime('%Y%m%d'))
+        if raw.get('stat')!='OK':raise ValueError('index month unavailable '+key)
+        fields=raw['fields']; di=fields.index('日期'); ci=fields.index('發行量加權股價指數')
+        rows=[]
+        for r in raw['data']:
+            y,m,d=map(int,r[di].split('/')); dt=date(y+1911 if y<1911 else y,m,d).isoformat()
+            close=float(str(r[ci]).replace(',',''))
+            if dt[:7]!=key or not 0<close<float('inf'):raise ValueError('invalid index row '+dt)
+            if dt<=day:rows.append({'date':dt,'close':close})
+        if not rows or len({r['date'] for r in rows})!=len(rows):raise ValueError('invalid month '+key)
+        months[key]=rows;time.sleep(.4)
+    rows=sorted([r for values in months.values() for r in values],key=lambda r:r['date'])
+    if len(rows)<252 or rows[-1]['date']!=day:raise ValueError('index history incomplete or date mismatch')
+    result={'date':day,'months':months,'rows':rows}
+    tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(result,separators=(',',':')));tmp.replace(path)
+    return {'status':'ok','date':day,'records':len(rows)}
+
+
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
@@ -523,6 +554,18 @@ def main():
         (data_dir/'new_low.json').unlink(missing_ok=True)
         summary['sources']['new_low']={'status':'failed'}
         summary['errors']['new_low']=str(exc)[:240]
+    try:
+        if summary['sources'].get('twse_stocks',{}).get('status')!='ok':raise ValueError('stock download failed')
+        stocks=json.loads((data_dir/'twse_stocks.json').read_text())
+        dates={str(r.get('Date','')) for r in stocks}
+        if len(dates)!=1:raise ValueError('mixed stock dates')
+        roc=dates.pop(); day=datetime.strptime(str(int(roc[:3])+1911)+roc[3:],'%Y%m%d').date().isoformat()
+        summary['sources']['index_history']=index_history(data_dir,day)
+        print('index_history ok',summary['sources']['index_history'])
+    except Exception as exc:
+        summary['sources']['index_history']={'status':'failed'}
+        summary['errors']['index_history']=str(exc)[:240]
+        print('index_history failed:',exc)
     (data_dir/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
     if successful==0: raise SystemExit('All official endpoints failed; keeping old source files')
 
