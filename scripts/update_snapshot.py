@@ -19,7 +19,7 @@ ENDPOINTS = {
 }
 
 def fetch(url):
-    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.7.3','Accept':'application/json'})
+    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.8','Accept':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as r:
         if r.status!=200: raise ValueError('HTTP '+str(r.status))
         payload=json.load(r)
@@ -113,6 +113,75 @@ def fetch_dated_limit_down(data_dir):
 
     return {'date':f'{greg[:4]}-{greg[4:6]}-{greg[6:]}','up':up,'limit_up':limit_up,'down':down,'limit_down':limit_down,'source_url':url}
 
+
+
+def fetch_dated_margin(data_dir):
+    """Fetch official daily aggregate margin balance; never treat a fetch as a trading day."""
+    from datetime import date, timedelta
+    import time
+    stocks=json.loads((data_dir/'twse_stocks.json').read_text(encoding='utf-8'))
+    dates=sorted({str(x.get('Date','')) for x in stocks if isinstance(x,dict) and re.fullmatch(r'\d{7}',str(x.get('Date','')))})
+    if not dates:raise ValueError('cannot establish TWSE trading date')
+    roc=dates[-1]; latest=date(int(roc[:3])+1911,int(roc[3:5]),int(roc[5:]))
+    path=data_dir/'twse_dated_margin.json'
+    try:
+        old=json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
+        if not isinstance(old,list):old=[]
+    except (ValueError,OSError):old=[]
+    by_date={r['date']:r for r in old if isinstance(r,dict) and isinstance(r.get('date'),str) and isinstance(r.get('balance_1000_twd'),(int,float))}
+    diagnostics=[]
+    # Collect up to 45 calendar days, enough for 20 trading-day intervals.
+    # Reuse validated history and limit requests to 30 per execution.
+    for i in range(45):
+        day=latest-timedelta(days=i)
+        if day.weekday()>=5:continue
+        iso=day.isoformat()
+        if iso in by_date:continue
+        if len(diagnostics)>=30:break
+        url='https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date='+day.strftime('%Y%m%d')
+        try:
+            raw=fetch(url)
+            if raw.get('stat')!='OK':
+                diagnostics.append({'date':iso,'status':'not_available','stat':str(raw.get('stat'))[:90]});continue
+            tables=[]
+            if isinstance(raw.get('tables'),list):
+                for t in raw['tables']:
+                    if isinstance(t,dict):tables.append((t.get('fields',[]),t.get('data',[])))
+            for key,val in raw.items():
+                if re.fullmatch(r'data\d*',key) and isinstance(val,list):
+                    suffix=key[4:];tables.append((raw.get('fields'+suffix,[]),val))
+            if isinstance(raw.get('data'),list):tables.append((raw.get('fields',[]),raw['data']))
+            values=[]
+            for fields,rows in tables:
+                if not isinstance(rows,list):continue
+                for row in rows:
+                    if isinstance(row,dict):
+                        name=str(next((v for k,v in row.items() if '項目' in k),'')).strip()
+                        val=next((v for k,v in row.items() if '今日餘額' in k),None)
+                    elif isinstance(row,list):
+                        name=str(row[0]) if row else ''
+                        j=next((j for j,f in enumerate(fields) if '今日餘額' in str(f)),4 if len(row)>=5 else -1)
+                        val=row[j] if j>=0 and j<len(row) else None
+                    else:continue
+                    name=re.sub(r'<[^>]+>','',name).replace(' ','')
+                    if '融資金額' not in name:continue
+                    try:amount=float(str(val).replace(',','').strip())
+                    except (TypeError,ValueError):continue
+                    if amount>0:values.append(amount)
+            if len(values)!=1:
+                diagnostics.append({'date':iso,'status':'unrecognized','tables':len(tables),'matching_values':len(values),'keys':list(raw)[:20]});continue
+            by_date[iso]={'date':iso,'balance_1000_twd':values[0],'source_url':url}
+            diagnostics.append({'date':iso,'status':'ok'})
+        except Exception as exc:
+            diagnostics.append({'date':iso,'status':'error','message':str(exc)[:120]})
+        time.sleep(.12)
+    entries=sorted(by_date.values(),key=lambda x:x['date'])[-100:]
+    path.write_text(json.dumps(entries,ensure_ascii=False,indent=2),encoding='utf-8')
+    (data_dir/'twse_dated_margin_diagnostic.json').write_text(json.dumps({'latest_index_date':latest.isoformat(),'attempts':diagnostics,'valid_days':len(entries)},ensure_ascii=False,indent=2),encoding='utf-8')
+    if not entries or entries[-1]['date']!=latest.isoformat():
+        raise ValueError('dated margin balance missing for index trading date; inspect diagnostic')
+    return {'date':latest.isoformat(),'valid_days':len(entries)}
+
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
@@ -177,6 +246,14 @@ def main():
         summary['sources']['twse_dated_breadth']={'status':'failed'}
         summary['errors']['twse_dated_breadth']=str(exc)[:240]
         print('twse_dated_breadth failed:',exc)
+    try:
+        margin=fetch_dated_margin(data_dir)
+        summary['sources']['twse_dated_margin']={'status':'ok',**margin}
+        print('twse_dated_margin ok',margin)
+    except Exception as exc:
+        summary['sources']['twse_dated_margin']={'status':'failed'}
+        summary['errors']['twse_dated_margin']=str(exc)[:240]
+        print('twse_dated_margin failed:',exc)
     (data_dir/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
     if successful==0: raise SystemExit('All official endpoints failed; keeping old source files')
 
