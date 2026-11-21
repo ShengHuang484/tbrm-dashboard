@@ -104,7 +104,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
   <div class="notice">目前 GitHub Actions 可下載部分官方快照，網頁 Refresh 會讀取快照並檢查日期；完整模型仍需更多歷史資料與回測。</div>
  </section>
 </div>
-<footer>模型版本 v2.2 · 門檻為研究用暫定規則，不構成投資建議。正式上線前須完成指標定義、資料品質檢查、歷史回測與樣本外驗證。</footer>
+<footer>模型版本 v2.3 · 門檻為研究用暫定規則，不構成投資建議。正式上線前須完成指標定義、資料品質檢查、歷史回測與樣本外驗證。</footer>
 </div>
 <script>
 const warning = [
@@ -408,7 +408,15 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
   }catch(err){label('跌停家數比例','缺少有效分母：'+err.message)}
   label('上市跌停家數' ,date+'，證交所指定日期收盤報表，股票類別 '+down+' 家');
  }catch(e){label('上市跌停家數','指定日期報表未採用：'+e.message)}
- label('VIXTWN','尚無經確認可自動下載的官方 JSON 來源，暫不顯示');
+ try{
+  const report=await read('taifex_vix');
+  if(report.date!==date)throw Error('交易日期不符：'+report.date+' ≠ '+date);
+  const v=num(report.close);
+  if(v===null||v<=0)throw Error('收盤指數無效');
+  document.getElementById('vix').textContent=v.toFixed(2);
+  updateItem(warning,'VIXTWN',v,v>=40?10:v>=35?8:v>=30?6:v>=25?3:v>=20?1:0,v.toFixed(2));
+  label('VIXTWN',date+'，期交所正式收盤指數');info.push('VIXTWN 已更新');
+ }catch(e){label('VIXTWN','未採用：'+e.message)}
 
  try{
   const schema=await read('source_schema');
