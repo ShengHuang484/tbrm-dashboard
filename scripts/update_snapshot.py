@@ -75,7 +75,7 @@ def fetch_dated_limit_down(data_dir):
             for down in rows:
                 if up is down:continue
                 up_label=' '.join(plain(c) for c in up[:2]);down_label=' '.join(plain(c) for c in down[:2])
-                if not('ä¸æ¼²' in up_label and 'æ¼²å' in up_label and 'ä¸è·' in down_label and 'è·å' in down_label):continue
+                if not('上漲' in up_label and '漲停' in up_label and '下跌' in down_label and '跌停' in down_label):continue
                 for i in range(1,min(len(up),len(down))):
                     u=parse_count(up[i]);d=parse_count(down[i])
                     if not(u and d):continue
@@ -83,7 +83,7 @@ def fetch_dated_limit_down(data_dir):
                     # Stock-only column must be explicitly identified in a header or table title.
                     fields=t['fields'] if isinstance(t['fields'],list) else []
                     column_label=plain(fields[i]) if i<len(fields) else ''
-                    if not('è¡ç¥¨' in column_label or ('è¡ç¥¨' in t['title'] and len(fields)<=2)):
+                    if not('股票' in column_label or ('股票' in t['title'] and len(fields)<=2)):
                         continue
                     candidates.append((t['key'],i,u,d))
     unique={(u,d) for _,_,u,d in candidates}
@@ -114,8 +114,8 @@ def main():
                     if not isinstance(old,list): old=[]
                 except (OSError,ValueError): old=[]
                 for record in payload:
-                    if isinstance(record,dict) and record.get('åºè¡¨æ¥æ') and record.get('é¡å'):
-                        old=[r for r in old if not (isinstance(r,dict) and r.get('åºè¡¨æ¥æ')==record['åºè¡¨æ¥æ'] and r.get('é¡å')==record['é¡å'])]
+                    if isinstance(record,dict) and record.get('出表日期') and record.get('類型'):
+                        old=[r for r in old if not (isinstance(r,dict) and r.get('出表日期')==record['出表日期'] and r.get('類型')==record['類型'])]
                         old.append(record)
                 history_path.write_text(json.dumps(old[-240:],ensure_ascii=False,separators=(',',':')),encoding='utf-8')
             if key == 'twse_margin':
