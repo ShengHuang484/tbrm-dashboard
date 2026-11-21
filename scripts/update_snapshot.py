@@ -37,28 +37,49 @@ def fetch_dated_limit_down(data_dir):
     url=f'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date={greg}&type=MS'
     raw=fetch(url)
     if raw.get('stat')!='OK': raise ValueError('TWSE report not OK: '+str(raw.get('stat')))
-    # MI_INDEX MS table 8: rows [up/down/flat..., overall-market, stocks].
+    # TWSE may change table order, row labels and stock-count column positions.
+    # Inspect metadata, require explicit stock labeling, and fail closed if ambiguous.
     tables=[]
     for k,v in raw.items():
         if re.fullmatch(r'data\d+',k) and isinstance(v,list) and v and isinstance(v[0],list):
-            tables.append(v)
-    def parse_count(cell):
-        m=re.search(r'([\d,]+)\s*\(\s*([\d,]+)\s*\)',str(cell))
-        return (int(m.group(1).replace(',','')),int(m.group(2).replace(',',''))) if m else None
+            suffix=k[4:]
+            title=str(raw.get('title'+suffix,''))
+            fields=raw.get('fields'+suffix,[])
+            tables.append({'key':k,'title':title,'fields':fields,'rows':v})
+    diagnostic={'report_date':greg,'stat':raw.get('stat'),'tables':[
+        {'key':t['key'],'title':t['title'],'fields':t['fields'],
+         'sample_rows':t['rows'][:5]} for t in tables]}
+    (data_dir/'twse_dated_breadth_diagnostic.json').write_text(
+        json.dumps(diagnostic,ensure_ascii=False,indent=2),encoding='utf-8')
+    def plain(v):return re.sub(r'<[^>]*>','',str(v)).strip()
+    def parse_count(v):
+        text=plain(v).replace(',','')
+        m=re.fullmatch(r'\s*(\d+)\s*\(\s*(\d+)\s*\)\s*',text)
+        return (int(m.group(1)),int(m.group(2))) if m else None
     candidates=[]
-    for table in tables:
-        rows={}
-        for row in table:
-            if len(row)<3:continue
-            label=re.sub(r'<[^>]+>','',str(row[0])).strip()
-            if '上漲' in label and '漲停' in label:rows['up']=row
-            if '下跌' in label and '跌停' in label:rows['down']=row
-        if 'up' in rows and 'down' in rows:
-            up=parse_count(rows['up'][2]);down=parse_count(rows['down'][2])
-            if up and down:candidates.append((up,down))
-    if len(candidates)!=1:raise ValueError(f'cannot uniquely identify stocks limit-down table: {len(candidates)}')
-    (up,limit_up),(down,limit_down)=candidates[0]
-    if not(0<=limit_down<=down and 0<=limit_up<=up and down+up>100):raise ValueError('implausible counts')
+    for t in tables:
+        rows=t['rows']
+        for up in rows:
+            for down in rows:
+                if up is down:continue
+                up_label=' '.join(plain(c) for c in up[:2]);down_label=' '.join(plain(c) for c in down[:2])
+                if not('上漲' in up_label and '漲停' in up_label and '下跌' in down_label and '跌停' in down_label):continue
+                for i in range(1,min(len(up),len(down))):
+                    u=parse_count(up[i]);d=parse_count(down[i])
+                    if not(u and d):continue
+                    if not(0<=u[1]<=u[0] and 0<=d[1]<=d[0] and u[0]+d[0]>100):continue
+                    # Stock-only column must be explicitly identified in a header or table title.
+                    fields=t['fields'] if isinstance(t['fields'],list) else []
+                    column_label=plain(fields[i]) if i<len(fields) else ''
+                    if not('股票' in column_label or ('股票' in t['title'] and len(fields)<=2)):
+                        continue
+                    candidates.append((t['key'],i,u,d))
+    unique={(u,d) for _,_,u,d in candidates}
+    if len(unique)!=1:
+        raise ValueError('stocks limit-down table candidates '+str(len(unique))+
+            '; inspect data/twse_dated_breadth_diagnostic.json')
+    (up,limit_up),(down,limit_down)=next(iter(unique))
+
     return {'date':f'{greg[:4]}-{greg[4:6]}-{greg[6:]}','up':up,'limit_up':limit_up,'down':down,'limit_down':limit_down,'source_url':url}
 
 def main():
