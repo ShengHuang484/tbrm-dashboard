@@ -257,15 +257,15 @@ def maintenance(raw, stocks, day):
         seen.add(signature)
         schema.append({'fields':t.get('fields',[]),'rows':len(t.get('data',[]))})
         f=[clean(x) for x in t.get('fields',[])]; rows=t.get('data',[])
-        if '今日餘額' in f:
+        if '項目' in f and '今日餘額' in f:
             j=f.index('今日餘額')
             for r in rows:
                 label=clean(r[0]).replace('（','(').replace('）',')')
                 if '股票代號' not in f:labels.append([label,str(r[j])])
                 if label=='融資金額(仟元)':amounts.append(n(r[j]))
                 if label=='融資(交易單位)':totals.append(n(r[j]))
-        if '股票代號' in f and '今日餘額' in f:
-            j=f.index('今日餘額'); k=f.index('股票代號')
+        if ('股票代號' in f or '代號' in f) and '今日餘額' in f:
+            j=f.index('今日餘額'); k=f.index('股票代號' if '股票代號' in f else '代號')
             for r in rows:
                 code=clean(r[k]); val=n(r[j])
                 if code in balances or val<0:raise ValueError('invalid margin balance')
@@ -277,6 +277,7 @@ def maintenance(raw, stocks, day):
     value=Decimal(0)
     for code,lots in balances.items():
         if not lots:continue
+        if code not in prices:raise ValueError('missing same-day close '+code)
         price=n(prices[code])
         if not price.is_finite() or price<=0:raise ValueError('missing valid close '+code)
         value+=lots*price
