@@ -340,6 +340,70 @@ def maintenance(raw, stocks, day, stocks_backup=None):
     print('maintenance fallback',json.dumps(fallback,ensure_ascii=False),'value share',str(share))
     return {'date':day,'ratio':float(value/amounts[0]*100),'matched_securities':len(selected),'provisional':True,'fallback_prices':fallback,'fallback_value_pct':float(share*100),'extended_gap_codes':sorted(c for c,r in fallback.items() if r['age_days']>7),'price_basis_verified':not bool(fallback)}
 
+def new_low_history(data_dir, day):
+    """Raw-close proxy; no corporate-action adjustment claimed."""
+    from datetime import date, timedelta
+    import time
+    from decimal import Decimal, InvalidOperation
+    end=date.fromisoformat(day)
+    path=data_dir/'history'/'new_low_closes.json'
+    path.parent.mkdir(exist_ok=True)
+    history=json.loads(path.read_text()) if path.exists() else {}
+    if not isinstance(history,dict): raise ValueError('invalid close history')
+    dates=[]
+    for offset in range(15):
+        month=date(end.year+(end.month-1-offset)//12,(end.month-1-offset)%12+1,1)
+        raw=fetch('https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date='+month.strftime('%Y%m%d'))
+        if raw.get('stat')!='OK' or not isinstance(raw.get('data'),list):raise ValueError('calendar unavailable '+str(month))
+        for row in raw['data']:
+            m=re.fullmatch(r'(\d{2,3})/(\d{1,2})/(\d{1,2})',str(row[0]))
+            if not m:raise ValueError('calendar schema changed')
+            d=date(int(m[1])+1911,int(m[2]),int(m[3]))
+            if d.year!=month.year or d.month!=month.month:raise ValueError('calendar month mismatch')
+            if d<=end:dates.append(d.isoformat())
+        time.sleep(.4)
+        if len(set(dates))>=262:break
+    dates=sorted(set(dates))[-262:]
+    if len(dates)!=262 or dates[-1]!=day:raise ValueError('calendar incomplete')
+    history={d:v for d,v in history.items() if d in dates}
+    errors=[]
+    for d in [d for d in reversed(dates) if d not in history][:20]:
+        try:
+            rows=dated_maintenance_prices(d)
+            prices={}
+            for r in rows:
+                code=r['Code']
+                if not re.fullmatch(r'[1-9]\d{3}',code):continue
+                try:p=Decimal(r['ClosingPrice'].replace(',',''))
+                except InvalidOperation:continue
+                if p.is_finite() and p>0:prices[code]=float(p)
+            if len(prices)<500:raise ValueError('too few four-digit securities')
+            history[d]=prices
+        except Exception as exc:
+            errors.append(d+': '+str(exc)[:100]);break
+        finally:time.sleep(2)
+    tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(history,separators=(',',':')));tmp.replace(path)
+    result={'date':day,'method':'raw_close_proxy','valid_days':len(history),'required_days':262,'errors':errors,'status':'collecting'}
+    if len(history)==262:
+        result.update(new_low_counts(history,dates))
+    return result
+
+
+def new_low_counts(history,dates):
+    # Fixed cohort with valid closes throughout; strict new low versus prior 252 sessions.
+    universe=set.intersection(*(set(history[d]) for d in dates))
+    coverage=len(universe)/max(1,len(history[dates[-1]]))
+    if len(universe)<500 or coverage<.85:
+        return {'status':'insufficient_coverage','eligible':len(universe),'coverage':coverage}
+    counts=[0]*10
+    for code in universe:
+        p=[history[d][code] for d in dates]
+        for i in range(252,262):
+            counts[i-252]+=p[i]<min(p[i-252:i])
+    old=sum(counts[:5])/5; recent=sum(counts[5:])/5
+    decline=(old-recent)/old*100 if old else 0
+    return {'status':'ok','eligible':len(universe),'coverage':coverage,'counts':counts,'previous_avg':old,'recent_avg':recent,'decline_pct':decline,'points':5 if decline>=50 else 3 if decline>=30 else 1 if decline>=15 else 0}
+
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
@@ -445,6 +509,20 @@ def main():
         summary['sources']['margin_maintenance']={'status':'failed'}
         summary['errors']['margin_maintenance']=str(exc)[:240]
         print('margin_maintenance failed:',exc)
+    try:
+        if summary['sources'].get('twse_stocks',{}).get('status')!='ok':raise ValueError('stock download failed')
+        stocks=json.loads((data_dir/'twse_stocks.json').read_text())
+        dates={str(r.get('Date','')) for r in stocks}
+        if len(dates)!=1:raise ValueError('mixed stock dates')
+        roc=dates.pop(); day=datetime.strptime(str(int(roc[:3])+1911)+roc[3:],'%Y%m%d').date().isoformat()
+        report=new_low_history(data_dir,day)
+        (data_dir/'new_low.json').write_text(json.dumps(report,ensure_ascii=False))
+        summary['sources']['new_low']=report
+        print('new_low',report)
+    except Exception as exc:
+        (data_dir/'new_low.json').unlink(missing_ok=True)
+        summary['sources']['new_low']={'status':'failed'}
+        summary['errors']['new_low']=str(exc)[:240]
     (data_dir/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
     if successful==0: raise SystemExit('All official endpoints failed; keeping old source files')
 
