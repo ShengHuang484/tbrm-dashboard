@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.5 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.6 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -65,13 +65,13 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
    <div class="kpi"><b id="marketClose">36,033.29</b><span>加權指數</span></div>
    <div class="kpi"><b id="marketChange" style="color:var(--red)">−6.23%</b><span>加權指數單日漲跌</span></div>
    <div class="kpi"><b id="otcChange" style="color:var(--red)">−7.72%</b><span>櫃買指數單日漲跌</span></div>
-   <div class="kpi"><b id="vix">52.13</b><span>VIXTWN</span></div>
+   <div class="kpi"><b id="vix">—</b><span>VIXTWN</span></div>
   </div>
   <div class="kpis">
    <div class="kpi"><b id="breadth">16 / 1,058</b><span>上市上漲／下跌家數</span></div>
-   <div class="kpi"><b id="limitDown">179 家</b><span>上市跌停家數</span></div>
+   <div class="kpi"><b id="limitDown">—</b><span>上市跌停家數</span></div>
    <div class="kpi"><b id="foreignFlow">−95.11 億</b><span>外資現貨買賣超</span></div>
-   <div class="kpi"><b id="marginChange">−491.41 億</b><span>上市融資餘額單日變化*</span></div>
+   <div class="kpi"><b id="marginChange">—</b><span>上市融資餘額單日變化*</span></div>
   </div>
   <div class="kpis"><div class="kpi"><b id="putcall">—</b><span id="putcallLabel">臺指選擇權 Put/Call 成交量比</span></div><div class="kpi"><b id="otcClose">—</b><span>櫃買指數收盤</span></div><div class="kpi"><b id="foreignFutures">—</b><span>外資臺股期貨淨未平倉（口）</span></div></div><p class="small" id="marketQuality">市場概況為示範資料；Refresh 後逐項顯示來源、日期及可用性。</p><p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
  </section>
@@ -329,7 +329,24 @@ async function loadOfficialSnapshots(date,taiexPct){
   const one=Array.isArray(rows)?rows.find(x=>x&&typeof x==='object'):{};
   label('跌停家數',`已取得上市個股快照；目前欄位 ${Object.keys(one||{}).slice(0,6).join('、')}；未取得可核驗的跌停價，暫不顯示`);
  }catch(e){label('跌停家數','未顯示：'+e.message)}
+
+ // Official TWSE breadth feed has an explicit limit-down count, but can be months stale.
+ // Show it ONLY if its report date equals the index trading date.
+ try{
+  const rows=await read('twse_breadth');
+  if(!Array.isArray(rows))throw Error('非陣列格式');
+  const stock=rows.find(r=>String(r['類型']||'').trim()==='股票');
+  if(!stock)throw Error('找不到「股票」統計列');
+  const reportDate=rocDate(stock['出表日期']||'');
+  const down=num(stock['跌停']);
+  if(reportDate!==date)throw Error('官方報表日期 '+(reportDate||'無法辨識')+'，與指數 '+date+' 不同，未顯示');
+  if(down===null||down<0||!Number.isInteger(down))throw Error('跌停家數無效');
+  document.getElementById('limitDown').textContent=down.toLocaleString()+' 家';
+  label('上市跌停家數',date+'，官方「股票」類型 '+down+' 家；同交易日');
+  // Do not score without validated denominator and model threshold.
+ }catch(e){label('上市跌停家數','未採用：'+e.message)}
  label('VIXTWN','尚無經確認可自動下載的官方 JSON 來源，暫不顯示');
+
  try{
   const schema=await read('source_schema');
   const relevant=['twse_margin','twse_stocks','taifex_futures'].map(k=>k+'：'+(schema[k]?.fields||[]).slice(0,12).join('、'));
