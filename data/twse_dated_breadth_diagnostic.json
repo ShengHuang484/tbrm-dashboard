@@ -1,5 +1,35 @@
 {
   "report_date": "20261120",
+  "source_url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261120&type=MS",
   "stat": "OK",
+  "top_level_keys": [
+    "tables",
+    "type",
+    "stat",
+    "date"
+  ],
+  "top_level_shapes": {
+    "tables": {
+      "type": "array",
+      "length": 10,
+      "first_item_type": "dict",
+      "sample": [
+        {},
+        {}
+      ]
+    },
+    "type": {
+      "type": "str",
+      "sample": "MS"
+    },
+    "stat": {
+      "type": "str",
+      "sample": "OK"
+    },
+    "date": {
+      "type": "str",
+      "sample": "20261120"
+    }
+  },
   "tables": []
 }
