@@ -31,5 +31,140 @@
       "sample": "20261120"
     }
   },
-  "tables": []
+  "tables": [
+    {
+      "key": "tables[0]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[1]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[2]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[3]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[4]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[5]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[6]",
+      "title": "115年11月20日 大盤統計資訊",
+      "keys": [
+        "title",
+        "fields",
+        "data",
+        "hints"
+      ],
+      "fields": [
+        "成交統計",
+        "成交金額(元)",
+        "成交股數(股)",
+        "成交筆數"
+      ],
+      "row_count": 17,
+      "sample_rows": [
+        [
+          "1.一般股票",
+          "722,450,865,992",
+          "5,074,014,154",
+          "4,295,502"
+        ],
+        [
+          "2.台灣存託憑證",
+          "137,902,537",
+          "27,988,612",
+          "5,666"
+        ],
+        [
+          "3.受益憑證",
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    {
+      "key": "tables[7]",
+      "title": "漲跌證券數合計",
+      "keys": [
+        "title",
+        "fields",
+        "data",
+        "notes"
+      ],
+      "fields": [
+        "類型",
+        "整體市場",
+        "股票"
+      ],
+      "row_count": 5,
+      "sample_rows": [
+        [
+          "上漲(漲停)",
+          "1,354(49)",
+          "16(4)"
+        ],
+        [
+          "下跌(跌停)",
+          "9,121(695)",
+          "1,058(179)"
+        ],
+        [
+          "持平",
+          "145",
+          "11"
+        ]
+      ]
+    },
+    {
+      "key": "tables[8]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[9]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    }
+  ]
 }
