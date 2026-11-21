@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.3.1 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.3.2 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -73,7 +73,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
    <div class="kpi"><b id="foreignFlow">−95.11 億</b><span>外資現貨買賣超</span></div>
    <div class="kpi"><b id="marginChange">−491.41 億</b><span>上市融資餘額單日變化*</span></div>
   </div>
-  <div class="kpis"><div class="kpi"><b id="putcall">—</b><span id="putcallLabel">臺指選擇權 Put/Call 成交量比</span></div><div class="kpi"><b id="otcClose">—</b><span>櫃買指數收盤</span></div></div><p class="small" id="marketQuality">市場概況為示範資料；Refresh 後逐項顯示來源、日期及可用性。</p><p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
+  <div class="kpis"><div class="kpi"><b id="putcall">—</b><span id="putcallLabel">臺指選擇權 Put/Call 成交量比</span></div><div class="kpi"><b id="otcClose">—</b><span>櫃買指數收盤</span></div><div class="kpi"><b id="foreignFutures">—</b><span>外資臺股期貨淨未平倉（口）</span></div></div><p class="small" id="marketQuality">市場概況為示範資料；Refresh 後逐項顯示來源、日期及可用性。</p><p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
  </section>
 
  <section class="card half">
@@ -269,31 +269,47 @@ async function loadOfficialSnapshots(date,taiexPct){
   label('融資','已下載；最新日期 '+(latest||'無法辨識')+'，缺連續20交易日餘額，暫不計分');
  }catch(e){label('融資','無法讀取：'+e.message)}
 
- // 外資現貨：BFI82U 常用 fields/data 表格格式，只有辨識出完整名稱與數值才顯示。
+ // 外資現貨：嚴格挑選「外資及陸資(不含外資自營商)」，不可排除含「不含外資自營商」的正確列。
  try{
   const raw=await read('twse_foreign');
   if(!Array.isArray(raw.fields)||!Array.isArray(raw.data))throw Error('來源格式不是 fields/data 表格');
-  const dateRaw=raw.date||raw.stat||'';
-  const parsedDate=/^\d{8}$/.test(String(dateRaw))?String(dateRaw).slice(0,4)+'-'+String(dateRaw).slice(4,6)+'-'+String(dateRaw).slice(6,8):rocDate(dateRaw);
-  const fieldIndex=raw.fields.findIndex(x=>/買賣超|買賣差額/.test(String(x)));
+  const sourceDate=rocDate(raw.date||'');
+  const fieldIndex=raw.fields.findIndex(x=>/買賣差額|買賣超/.test(String(x)));
   const typeIndex=raw.fields.findIndex(x=>/單位名稱|名稱|類別/.test(String(x)));
-  if(fieldIndex<0||typeIndex<0)throw Error('缺少買賣超或投資人類別欄位');
-  const target=raw.data.find(row=>/外資及陸資|外資/.test(String(row[typeIndex]))&&!/自營商/.test(String(row[typeIndex])));
-  if(!target)throw Error('找不到外資投資人類別');
+  if(fieldIndex<0||typeIndex<0)throw Error('缺少買賣差額或投資人類別欄位');
+  const normalizedName=x=>String(x??'').replace(/[\s（）()]/g,'');
+  const target=raw.data.find(row=>{
+   const name=normalizedName(row[typeIndex]);
+   return name.startsWith('外資及陸資')&&(name.includes('不含外資自營商')||name==='外資及陸資');
+  });
+  if(!target)throw Error('找不到外資及陸資（不含外資自營商）資料列');
   const amount=num(target[fieldIndex]);
-  if(amount===null)throw Error('買賣超數值無效');
-  // TWSE BFI82U 數值單位為元；轉為億元。
+  if(amount===null)throw Error('買賣差額數值無效');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(sourceDate))throw Error('來源日期無法辨識：'+(raw.date||'缺日期'));
+  if(sourceDate>date)throw Error('來源日期 '+sourceDate+' 晚於指數 '+date);
   const billions=amount/1e8;
-  document.getElementById('foreignFlow').textContent=(billions>0?'+':'')+billions.toFixed(2)+' 億'+(parsedDate&&parsedDate!==date?' ('+parsedDate.slice(5)+')':'');
-  label('外資現貨',`來源日期 ${parsedDate||dateRaw||'未標示'}；${billions.toFixed(2)} 億元（未計分）`);
+  document.getElementById('foreignFlow').textContent=(billions>0?'+':'')+billions.toFixed(2)+' 億';
+  label('外資現貨',`${sourceDate}，${billions.toFixed(2)} 億元${sourceDate===date?'（同日，僅市場概況）':'（非同日，僅市場概況）'}`);
   info.push('外資現貨已顯示');
  }catch(e){label('外資現貨','未顯示：'+e.message)}
- // 外資期貨：原始資料已下載；避免未辨識契約/買賣方/未平倉欄位時誤用。
+ // 外資期貨：只讀「臺股期貨」契約的外資淨未平倉，不混入其他契約。
  try{
   const rows=await read('taifex_futures');
   if(!Array.isArray(rows)||!rows.length)throw Error('來源為空');
-  const fields=Object.keys(rows[0]);
-  label('外資期貨',`原始資料 ${rows.length} 筆，欄位 ${fields.slice(0,4).join('、')}；待確認臺股期貨 TX 契約與淨部位後顯示`);
+  const keys=Object.keys(rows[0]);
+  const contractKey=keys.find(k=>/^(ContractCode|Contract|商品|契約)$/.test(k));
+  const itemKey=keys.find(k=>/^(Item|Investor|InvestorType|身份別|身分別|法人別)$/.test(k));
+  const netKey=keys.find(k=>/^OpenInterest\(Net\)$|^OpenInterestNet$|^未平倉餘額\(淨額\)$|^未平倉淨額$/.test(k));
+  if(!contractKey||!itemKey||!netKey)throw Error('欄位待確認：'+keys.join('、'));
+  const candidates=rows.map(row=>({row,date:dateOf(row)})).filter(x=>x.date<=date&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&/^(TX|臺股期貨|台股期貨)$/.test(String(x.row[contractKey]).trim())&&/外資及陸資|外資/.test(String(x.row[itemKey])));
+  const latest=latestDate(candidates);
+  const same=candidates.filter(x=>x.date===latest);
+  if(same.length!==1)throw Error('臺股期貨外資資料列不唯一或不存在（'+same.length+' 筆）');
+  const value=num(same[0].row[netKey]);
+  if(value===null||!Number.isInteger(value))throw Error('淨未平倉口數無效');
+  document.getElementById('foreignFutures').textContent=(value>0?'+':'')+value.toLocaleString('en-US');
+  label('外資期貨',`${latest}，臺股期貨外資淨未平倉 ${value.toLocaleString('en-US')} 口（僅市場概況）`);
+  info.push('外資期貨已顯示');
  }catch(e){label('外資期貨','未顯示：'+e.message)}
  // 漲跌停必須使用官方收盤價及漲跌停價欄位，不能用 -10% 粗估。
  try{
@@ -336,7 +352,7 @@ async function refreshMarket(){
   document.getElementById('marketChange').textContent=(change>=0?'+':'')+change.toFixed(2)+'%';
   document.getElementById('marketChange').style.color=change<0?'var(--green)':'var(--red)';
   // Clear every old snapshot value; populate only verified records.
-  for(const id of ["otcChange","otcClose","putcall","vix","breadth","limitDown","foreignFlow","marginChange"])document.getElementById(id).textContent="—";
+  for(const id of ["otcChange","otcClose","putcall","vix","breadth","limitDown","foreignFlow","foreignFutures","marginChange"])document.getElementById(id).textContent="—";
   document.getElementById("marketQuality").textContent="資料日期核對中；未取得欄位不沿用舊值。";
   document.getElementById("putcallLabel").textContent="臺指選擇權 Put/Call 成交量比";
   document.getElementById('dataNotice').textContent=`已讀取 TWSE 官方指數至 ${date}（${a.length} 筆交易日）；只重算由指數可推導的指標。其餘來源依快照驗證；缺值不納入計分。`;
