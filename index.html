@@ -71,7 +71,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
    <div class="kpi"><b id="breadth">16 / 1,058</b><span>上市上漲／下跌家數</span></div>
    <div class="kpi"><b id="limitDown">—</b><span>上市跌停家數</span></div>
    <div class="kpi"><b id="foreignFlow">−95.11 億</b><span>外資現貨買賣超</span></div>
-   <div class="kpi"><b id="marginChange">—</b><span>上市融資餘額單日變化*</span></div>
+   <div class="kpi"><b id="marginChange">—</b><span>上市融資金額單日變化*</span></div>
   </div>
   <div class="kpis"><div class="kpi"><b id="putcall">—</b><span id="putcallLabel">臺指選擇權 Put/Call 成交量比</span></div><div class="kpi"><b id="otcClose">—</b><span>櫃買指數收盤</span></div><div class="kpi"><b id="foreignFutures">—</b><span>外資臺股期貨淨未平倉（口）</span></div></div><p class="small" id="marketQuality">市場概況為示範資料；Refresh 後逐項顯示來源、日期及可用性。</p><p class="small">*融資單日變化數字需再與官方原始資料核對；本版不拿它直接代替模型要求的 20 日融資變化。</p>
  </section>
@@ -270,16 +270,25 @@ async function loadOfficialSnapshots(date,taiexPct){
   info.push('Put/Call 最新可用資料已顯示');
  }catch(e){label('Put/Call','未顯示：'+e.message)}
  try{
-  const raw=await read('twse_margin');
-  const rows=normalized(raw),latest=latestDate(rows);
-  const keys=Array.isArray(raw)&&raw.length?Object.keys(raw[0]):Object.keys(raw||{});
-  let historyCount=0;
-  try{
-   const history=await read('history/twse_margin');
-   historyCount=Array.isArray(history)?history.length:0;
-  }catch(_){}
-  label('融資','來源欄位 '+keys.slice(0,12).join('、')+'；最新交易日 '+(latest||'未能由欄位辨識')+'；已保存 '+historyCount+' 次下載快照（不等於交易日數）。尚未取得可驗證的20日同單位序列，不計分');
- }catch(e){label('融資','無法讀取：'+e.message)}
+  const rows=await read('twse_dated_margin');
+  if(!Array.isArray(rows)||!rows.length)throw Error('無有效每日融資餘額');
+  const valid=rows.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&num(x.balance_1000_twd)!==null).sort((a,b)=>a.date.localeCompare(b.date));
+  const current=valid.find(x=>x.date===date);
+  if(!current)throw Error('最新融資資料與加權指數 '+date+' 不同日');
+  const ix=valid.indexOf(current);
+  const prev=valid[ix-1];
+  if(prev){
+   const diff=(num(current.balance_1000_twd)-num(prev.balance_1000_twd))/100000;
+   document.getElementById('marginChange').textContent=(diff>0?'+':'')+diff.toFixed(2)+' 億';
+   label('融資單日',`${date} 與 ${prev.date}，上市融資金額餘額差 ${diff.toFixed(2)} 億元（依官方每日餘額，未計分）`);
+  }else label('融資單日','僅有當日資料，尚無前一交易日');
+  const base=valid[ix-20];
+  if(base){
+   const diff20=(num(current.balance_1000_twd)-num(base.balance_1000_twd))/100000;
+   label('融資20筆',`已取得 ${base.date} 至 ${date} 的第20筆歷史餘額差 ${diff20.toFixed(2)} 億；需確認連續交易日完整性，暫不計分`);
+  }else label('融資20筆',`僅有 ${ix+1} 筆截至當日的官方有效餘額，尚不足21筆，不計分`);
+  info.push('官方融資餘額已讀取');
+ }catch(e){label('融資','未顯示：'+e.message)}
 
  // 外資現貨：嚴格挑選「外資及陸資(不含外資自營商)」，不可排除含「不含外資自營商」的正確列。
  try{
