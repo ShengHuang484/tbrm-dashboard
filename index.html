@@ -104,7 +104,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
   <div class="notice">目前 GitHub Actions 可下載部分官方快照，網頁 Refresh 會讀取快照並檢查日期；完整模型仍需更多歷史資料與回測。</div>
  </section>
 </div>
-<footer>模型版本 v2.0 · 門檻為研究用暫定規則，不構成投資建議。正式上線前須完成指標定義、資料品質檢查、歷史回測與樣本外驗證。</footer>
+<footer>模型版本 v2.1 · 門檻為研究用暫定規則，不構成投資建議。正式上線前須完成指標定義、資料品質檢查、歷史回測與樣本外驗證。</footer>
 </div>
 <script>
 const warning = [
@@ -153,7 +153,7 @@ function render(){
  document.getElementById("interpretation").innerHTML=`<p><b>預警：</b>${ws[0]}。目前可評分指標覆蓋 ${coverageW.toFixed(0)}% 權重，分數仍可能隨缺失指標而改變。</p><p><b>確認：</b>${cs[0]}。目前可評分指標覆蓋 ${coverageC.toFixed(0)}% 權重，尚不足以判定中期反轉。</p><p>兩個分數必須分開看；高預警不等於買點，確認分數上升也應觀察是否持續數日。</p>`;
 }
 function resetDemo(){document.getElementById("refreshState").textContent="已還原 2026/11/20 示範資料";document.getElementById("marketTag").textContent="示範資料";document.getElementById("marketHeading").textContent="市場概況｜2026/11/20";document.getElementById("marketClose").textContent="36,033.29";document.getElementById("marketChange").textContent="−6.23%";document.getElementById("dataNotice").textContent="以下預載 2026/11/20 收盤示範資料。";let o=JSON.parse(original);warning.splice(0,warning.length,...o.warning);confirm.splice(0,confirm.length,...o.confirm);render();}
-function downloadCSV(){let rows=[["model","indicator","weight","score","raw_value","status"],...warning.map(x=>["warning",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"]),...confirm.map(x=>["confirmation",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"])];let csv="\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="TBRM_v2_0_indicators.csv";a.click();URL.revokeObjectURL(a.href);}
+function downloadCSV(){let rows=[["model","indicator","weight","score","raw_value","status"],...warning.map(x=>["warning",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"]),...confirm.map(x=>["confirmation",x.name,x.w,x.s===null?"":x.s,x.raw,x.s===null?"missing":"scored"])];let csv="\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="TBRM_v2_1_indicators.csv";a.click();URL.revokeObjectURL(a.href);}
 
 // 手機單一 HTML：僅能在交易所允許跨來源存取時直接取得官方資料。
 const finite = x => Number.isFinite(x);
@@ -186,6 +186,17 @@ function calculateLatest(a){
  const maScore=n>=10?(last>ma(5)&&last>ma(10)?4:last>ma(5)||last>ma(10)?2:0):null;
  return {last,prev,bias,rsi,dd,histScore,maScore};
 }
+function swingSignals(a){
+ const v=a.map(x=>x.close), n=v.length, rs=Array(n).fill(null), lows=[];
+ if(n<60)return null;
+ let g=0,l=0;
+ for(let i=1;i<=14;i++){const d=v[i]-v[i-1];g+=Math.max(d,0)/14;l+=Math.max(-d,0)/14;}
+ for(let i=14;i<n;i++){if(i>14){const d=v[i]-v[i-1];g=(13*g+Math.max(d,0))/14;l=(13*l+Math.max(-d,0))/14;}rs[i]=l===0?(g===0?50:100):100-100/(1+g/l);}
+ for(let i=Math.max(16,n-60);i<n-2;i++)if(v[i]<v[i-1]&&v[i]<v[i-2]&&v[i]<=v[i+1]&&v[i]<=v[i+2])lows.push(i);
+ if(lows.length<2)return null;
+ const [p,q]=lows.slice(-2);if(n-1-q>15)return null;
+ return {div:v[q]<v[p]&&rs[q]>rs[p],higher:v[q]>v[p],raw:`${a[p].date} / ${a[q].date}：${v[p].toFixed(0)} → ${v[q].toFixed(0)}；RSI ${rs[p].toFixed(1)} → ${rs[q].toFixed(1)}（收盤波段低點代理）`};
+}
 function updateItem(arr,name,value,points,raw){const x=arr.find(x=>x.name===name);x.s=value===null?null:Math.max(0,Math.min(x.w,points));x.raw=value===null?'—':raw;}
 
 // GitHub Actions official snapshots: freshness and date are checked before scoring.
@@ -205,11 +216,13 @@ async function loadOfficialSnapshots(date,taiexPct){
  try{
   const a=normalized(await read('twse_stocks')),latest=latestDate(a);
   if(latest!==date)throw Error('日期 '+(latest||'未知')+' ≠ '+date);
-  let up=0,down=0,flat=0;
+  let up=0,down=0,flat=0,upVol=0,totalVol=0,volCount=0;
   for(const {row:x} of match(a)){
    if(!/^\d{4}$/.test(String(get(x,['Code','證券代號'])??'').trim()))continue;
    const change=signChange(get(x,['Change','漲跌價差']));
    if(change===null)continue;
+   const vol=num(get(x,['TradeVolume','成交股數']));
+   if(vol!==null&&vol>=0){totalVol+=vol;volCount++;if(change>0)upVol+=vol;}
    if(change>0)up++;else if(change<0)down++;else flat++;
   }
   if(up+down<100)throw Error('有效上市股票少於100家');
@@ -217,6 +230,11 @@ async function loadOfficialSnapshots(date,taiexPct){
   // Single-day up/down ratio is a proxy, not a historical ADR.
   const ratio=down?up/down:Infinity;
   updateItem(warning,'ADR（上市）',ratio,ratio<=.2?5:ratio<=.5?3:ratio<=.8?1:0,`${up} 漲 / ${down} 跌（單日代理指標）`);
+  if(volCount===up+down+flat&&totalVol>0){
+   const pct=100*upVol/totalVol;
+   updateItem(confirm,'上漲成交量比例',pct,pct>=70?5:pct>=60?3:pct>=50?1:0,pct.toFixed(2)+'%（四碼股票成交股數）');
+   label('上漲成交量比例',date+'，'+pct.toFixed(2)+'%');
+  }
   label('上市漲跌家數',date+'，股票代號四碼之單日統計');info.push('上市漲跌家數已更新');
  }catch(e){label('上市漲跌家數','未採用：'+e.message)}
  try{
@@ -395,6 +413,7 @@ async function refreshMarket(){
   updateItem(warning,'52 週高點回檔',t.dd,t.dd===null?0:t.dd<=-25?3:t.dd<=-15?2:t.dd<=-8?1:0,t.dd?.toFixed(2)+'%');
   updateItem(confirm,'MACD 柱體收斂',t.histScore,t.histScore??0,t.histScore===null?'—':'依最近三日柱體變化（暫定規則）');
   updateItem(confirm,'MA5／MA10 收復',t.maScore,t.maScore??0,t.maScore===null?'—':'依收盤價與 MA5、MA10（暫定規則）');
+  if(fail.length===0){const sw=swingSignals(a);if(sw){updateItem(confirm,'RSI 底背離',sw.div,sw.div?8:0,sw.raw);updateItem(confirm,'低點墊高',sw.higher,sw.higher?3:0,sw.raw);}}
   document.getElementById('marketHeading').textContent='市場概況｜'+date;
   document.getElementById('marketTag').textContent='官方指數／部分指標';
   document.getElementById('marketClose').textContent=t.last.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
