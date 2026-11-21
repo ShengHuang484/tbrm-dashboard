@@ -2,7 +2,9 @@ name: Update official market snapshots
 on:
   workflow_dispatch:
   schedule:
+    - cron: '30 6 * * 1-5' # 14:30 Taiwan time, weekdays
     - cron: '15 9 * * 1-5' # 17:15 Taiwan time, weekdays
+    - cron: '15 15 * * 1-5' # 23:15 Taiwan time, weekdays
 permissions:
   contents: write
 jobs:
