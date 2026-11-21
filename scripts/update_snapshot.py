@@ -241,6 +241,31 @@ def fetch_vix(data_dir):
         except Exception as exc:errors.append(str(exc))
     raise ValueError('; '.join(errors))
 
+def dated_maintenance_prices(day):
+    date=day.replace('-', '')
+    url=f'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date={date}&type=ALLBUT0999'
+    raw=fetch(url)
+    if raw.get('stat')!='OK' or str(raw.get('date',''))!=date:
+        raise ValueError('maintenance quote date not verified')
+    tables=list(raw.get('tables',[]))
+    for k,v in raw.items():
+        if re.fullmatch(r'data\d*',k):
+            tables.append({'fields':raw.get('fields'+k[4:],[]),'data':v})
+    prices={}
+    roc=str(int(day[:4])-1911)+day[5:7]+day[8:]
+    for t in tables:
+        f=[re.sub(r'<[^>]*>|\s','',str(x)) for x in t.get('fields',[])]
+        if '證券代號' not in f or '收盤價' not in f:continue
+        i,j=f.index('證券代號'),f.index('收盤價')
+        for r in t.get('data',[]):
+            code=str(r[i]).strip(); price=str(r[j]).strip()
+            if code in prices and prices[code]['ClosingPrice']!=price:
+                raise ValueError('conflicting same-day close '+code)
+            prices[code]={'Code':code,'ClosingPrice':price,'Date':roc}
+    if not prices:raise ValueError('dated quote table not found')
+    print('maintenance dated quotes',day,len(prices))
+    return list(prices.values())
+
 def maintenance(raw, stocks, day):
     from decimal import Decimal
     def n(v):return Decimal(str(v).replace(',','').strip())
@@ -270,7 +295,7 @@ def maintenance(raw, stocks, day):
                 code=clean(r[k]); val=n(r[j])
                 if code in balances or val<0:raise ValueError('invalid margin balance')
                 balances[code]=val
-    print('maintenance diagnostics',json.dumps({'schema':schema,'summary_rows':labels,'amounts':[str(x) for x in amounts],'totals':[str(x) for x in totals],'security_count':len(balances),'sum_lots':str(sum(balances.values()))},ensure_ascii=False))
+    print('maintenance diagnostics',json.dumps({'schema':schema,'summary_rows':labels[:10],'amounts':[str(x) for x in amounts],'totals':[str(x) for x in totals],'security_count':len(balances),'sum_lots':str(sum(balances.values()))},ensure_ascii=False))
     if len(amounts)!=1 or len(totals)!=1 or amounts[0]<=0 or totals[0]<=0 or sum(balances.values())!=totals[0]:raise ValueError(f'margin totals do not reconcile: amounts={amounts}, totals={totals}, securities={len(balances)}, sum_lots={sum(balances.values())}')
     roc=str(int(day[:4])-1911)+day[5:7]+day[8:]
     prices={str(r['Code']):r['ClosingPrice'] for r in stocks if str(r.get('Date'))==roc and 'Code' in r and 'ClosingPrice' in r}
@@ -278,7 +303,8 @@ def maintenance(raw, stocks, day):
     for code,lots in balances.items():
         if not lots:continue
         if code not in prices:raise ValueError('missing same-day close '+code)
-        price=n(prices[code])
+        try: price=n(prices[code])
+        except Exception: raise ValueError('missing valid close '+code) from None
         if not price.is_finite() or price<=0:raise ValueError('missing valid close '+code)
         value+=lots*price
     return {'date':day,'ratio':float(value/amounts[0]*100),'matched_securities':sum(v>0 for v in balances.values()),'provisional':True}
@@ -379,7 +405,8 @@ def main():
         url='https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date='+day.replace('-','')
         raw=fetch(url)
         print('maintenance schema',str([(t.get('fields'),t.get('title')) for t in raw.get('tables',[])])[:3000],list(raw))
-        report=maintenance(raw,stocks,day)
+        print('maintenance parser v2.4.3')
+        report=maintenance(raw,dated_maintenance_prices(day),day)
         (data_dir/'margin_maintenance.json').write_text(json.dumps(report),encoding='utf-8')
         summary['sources']['margin_maintenance']={'status':'ok',**report,'url':url}
     except Exception as exc:
