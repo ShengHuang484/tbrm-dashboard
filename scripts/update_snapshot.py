@@ -182,6 +182,26 @@ def fetch_dated_margin(data_dir):
         raise ValueError('dated margin balance missing for index trading date; inspect diagnostic')
     return {'date':latest.isoformat(),'valid_days':len(entries)}
 
+def archive_daily(data_dir, name, rows):
+    path=data_dir/(name+'.json')
+    old=json.loads(path.read_text()) if path.exists() else []
+    by_date={r['date']:r for r in old}
+    by_date.update({r['date']:r for r in rows})
+    path.write_text(json.dumps(sorted(by_date.values(),key=lambda r:r['date'])[-120:],ensure_ascii=False,indent=2),encoding='utf-8')
+
+def archive_futures(data_dir):
+    rows=json.loads((data_dir/'taifex_futures.json').read_text())
+    grouped={}
+    for r in rows:
+        if str(r.get('ContractCode','')).strip() not in ('TX','臺股期貨','台股期貨') or '外資' not in str(r.get('Item','')):continue
+        d=str(r.get('Date','')).replace('/','-')
+        if re.fullmatch(r'[0-9]{8}',d):d=d[:4]+'-'+d[4:6]+'-'+d[6:]
+        if not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}',d):continue
+        try:v=int(str(r['OpenInterest(Net)']).replace(',',''))
+        except (ValueError,KeyError):continue
+        grouped.setdefault(d,[]).append(v)
+    archive_daily(data_dir,'futures_history',[{'date':d,'net':v[0]} for d,v in grouped.items() if len(v)==1])
+
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
@@ -240,6 +260,7 @@ def main():
         counts=fetch_dated_limit_down(data_dir)
         (data_dir/'twse_dated_breadth.json').write_text(json.dumps(counts,ensure_ascii=False,indent=2),encoding='utf-8')
         summary['sources']['twse_dated_breadth']={'status':'ok','date':counts['date'],'url':counts['source_url']}
+        archive_daily(data_dir,'breadth_history',[counts])
         print('twse_dated_breadth ok',counts['date'],counts['limit_down'])
     except Exception as exc:
         (data_dir/'twse_dated_breadth.json').unlink(missing_ok=True)
@@ -254,6 +275,9 @@ def main():
         summary['sources']['twse_dated_margin']={'status':'failed'}
         summary['errors']['twse_dated_margin']=str(exc)[:240]
         print('twse_dated_margin failed:',exc)
+    try:
+        if summary['sources'].get('taifex_futures',{}).get('status')=='ok':archive_futures(data_dir)
+    except Exception as exc:summary['errors']['futures_history']=str(exc)[:240]
     (data_dir/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
     if successful==0: raise SystemExit('All official endpoints failed; keeping old source files')
 
