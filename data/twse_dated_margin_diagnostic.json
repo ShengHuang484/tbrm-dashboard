@@ -2,82 +2,6 @@
   "latest_index_date": "2026-11-20",
   "attempts": [
     {
-      "date": "2026-11-20",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-19",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-18",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-17",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-16",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-13",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-12",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-11",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-10",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-09",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-06",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-05",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-04",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-03",
-      "status": "ok"
-    },
-    {
-      "date": "2026-11-02",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-30",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-29",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-28",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-27",
-      "status": "ok"
-    },
-    {
       "date": "2026-10-26",
       "status": "not_available",
       "stat": "很抱歉，沒有符合條件的資料"
@@ -88,41 +12,18 @@
       "stat": "很抱歉，沒有符合條件的資料"
     },
     {
-      "date": "2026-10-22",
+      "date": "2026-10-09",
+      "status": "not_available",
+      "stat": "很抱歉，沒有符合條件的資料"
+    },
+    {
+      "date": "2026-10-08",
       "status": "ok"
     },
     {
-      "date": "2026-10-21",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-20",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-19",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-16",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-15",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-14",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-13",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-12",
+      "date": "2026-10-07",
       "status": "ok"
     }
   ],
-  "valid_days": 28
+  "valid_days": 30
 }

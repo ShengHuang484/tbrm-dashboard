@@ -1,5 +1,15 @@
 [
   {
+    "date": "2026-10-07",
+    "balance_1000_twd": 640000774.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261007"
+  },
+  {
+    "date": "2026-10-08",
+    "balance_1000_twd": 646405767.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261008"
+  },
+  {
     "date": "2026-10-12",
     "balance_1000_twd": 653329500.0,
     "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date=20261012"

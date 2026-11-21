@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T17:17:45.011597+00:00",
+  "fetched_at_utc": "2026-11-21T17:37:07.883901+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -49,7 +49,7 @@
     "twse_dated_margin": {
       "status": "ok",
       "date": "2026-11-20",
-      "valid_days": 28
+      "valid_days": 30
     }
   },
   "errors": {}
