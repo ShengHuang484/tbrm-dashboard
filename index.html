@@ -40,7 +40,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header>
- <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.6 · 簡潔 Refresh 版</div></div>
+ <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.7 · 簡潔 Refresh 版</div></div>
  <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
 </header>
 
@@ -330,21 +330,15 @@ async function loadOfficialSnapshots(date,taiexPct){
   label('跌停家數',`已取得上市個股快照；目前欄位 ${Object.keys(one||{}).slice(0,6).join('、')}；未取得可核驗的跌停價，暫不顯示`);
  }catch(e){label('跌停家數','未顯示：'+e.message)}
 
- // Official TWSE breadth feed has an explicit limit-down count, but can be months stale.
- // Show it ONLY if its report date equals the index trading date.
+ // Dated TWSE close report takes priority; old OpenAPI breadth must never be substituted.
  try{
-  const rows=await read('twse_breadth');
-  if(!Array.isArray(rows))throw Error('非陣列格式');
-  const stock=rows.find(r=>String(r['類型']||'').trim()==='股票');
-  if(!stock)throw Error('找不到「股票」統計列');
-  const reportDate=rocDate(stock['出表日期']||'');
-  const down=num(stock['跌停']);
-  if(reportDate!==date)throw Error('官方報表日期 '+(reportDate||'無法辨識')+'，與指數 '+date+' 不同，未顯示');
+  const report=await read('twse_dated_breadth');
+  if(report.date!==date)throw Error('指定日期報表 '+report.date+' 與指數 '+date+' 不符');
+  const down=num(report.limit_down);
   if(down===null||down<0||!Number.isInteger(down))throw Error('跌停家數無效');
   document.getElementById('limitDown').textContent=down.toLocaleString()+' 家';
-  label('上市跌停家數',date+'，官方「股票」類型 '+down+' 家；同交易日');
-  // Do not score without validated denominator and model threshold.
- }catch(e){label('上市跌停家數','未採用：'+e.message)}
+  label('上市跌停家數',date+'，證交所指定日期收盤報表，股票類別 '+down+' 家');
+ }catch(e){label('上市跌停家數','指定日期報表未採用：'+e.message)}
  label('VIXTWN','尚無經確認可自動下載的官方 JSON 來源，暫不顯示');
 
  try{
