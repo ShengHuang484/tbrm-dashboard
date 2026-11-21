@@ -202,6 +202,45 @@ def archive_futures(data_dir):
         grouped.setdefault(d,[]).append(v)
     archive_daily(data_dir,'futures_history',[{'date':d,'net':v[0]} for d,v in grouped.items() if len(v)==1])
 
+def parse_vix(raw, month):
+    import math
+    try: text=raw.decode('utf-8-sig')
+    except UnicodeDecodeError: text=raw.decode('cp950')
+    lines=text.splitlines()
+    if not lines or not (('Daily Index' in lines[0] and 'Last 1 min AVG' in lines[0]) or ('臺指選擇權波動率指數' in lines[0] and '收盤前1分鐘平均指數' in lines[0])):
+        raise ValueError('unrecognized VIX header')
+    rows={}
+    for line in lines[2:]:
+        if not line.strip():continue
+        parts=line.split()
+        if len(parts)!=4 or not re.fullmatch(r'\d{8}',parts[0]) or not parts[0].startswith(month):raise ValueError('invalid VIX row')
+        day=datetime.strptime(parts[0],'%Y%m%d').date().isoformat()
+        if parts[1]!='13450000':raise ValueError('unexpected VIX closing time')
+        v,avg=map(float,parts[2:])
+        if not all(math.isfinite(x) and x>0 for x in (v,avg)) or day in rows:raise ValueError('invalid or duplicate VIX value')
+        rows[day]={'date':day,'close':v,'last_minute_avg':avg}
+    if not rows:raise ValueError('empty VIX data')
+    return rows
+
+def fetch_vix(data_dir):
+    stocks=json.loads((data_dir/'twse_stocks.json').read_text(encoding='utf-8'))
+    dates=sorted({str(x.get('Date','')) for x in stocks if isinstance(x,dict) and re.fullmatch(r'\d{7}',str(x.get('Date','')))})
+    if not dates:raise ValueError('no TWSE trading date')
+    roc=dates[-1]; day=datetime.strptime(str(int(roc[:3])+1911)+roc[3:],'%Y%m%d').date()
+    month=day.strftime('%Y%m'); errors=[]
+    for folder in ('log2data','log2data_eng'):
+        url=f'https://www.taifex.com.tw/file/taifex/Dailydownload/vix/{folder}/{month}new.txt'
+        try:
+            req=urllib.request.Request(url,headers={'User-Agent':'TBRM-research-dashboard/2.3'})
+            with urllib.request.urlopen(req,timeout=30) as r:
+                if r.status!=200:raise ValueError('HTTP '+str(r.status))
+                rows=parse_vix(r.read(),month)
+            record=rows.get(day.isoformat())
+            if record is None:raise ValueError('missing trading date '+day.isoformat())
+            return {**record,'source_url':url}
+        except Exception as exc:errors.append(str(exc))
+    raise ValueError('; '.join(errors))
+
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
@@ -278,6 +317,17 @@ def main():
     try:
         if summary['sources'].get('taifex_futures',{}).get('status')=='ok':archive_futures(data_dir)
     except Exception as exc:summary['errors']['futures_history']=str(exc)[:240]
+    try:
+        if summary['sources'].get('twse_stocks',{}).get('status')!='ok':raise ValueError('TWSE stock download failed')
+        vix=fetch_vix(data_dir)
+        (data_dir/'taifex_vix.json').write_text(json.dumps(vix,ensure_ascii=False,indent=2),encoding='utf-8')
+        summary['sources']['taifex_vix']={'status':'ok','date':vix['date'],'url':vix['source_url']}
+        print('taifex_vix ok',vix['date'],vix['close'])
+    except Exception as exc:
+        (data_dir/'taifex_vix.json').unlink(missing_ok=True)
+        summary['sources']['taifex_vix']={'status':'failed'}
+        summary['errors']['taifex_vix']=str(exc)[:240]
+        print('taifex_vix failed:',exc)
     (data_dir/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
     if successful==0: raise SystemExit('All official endpoints failed; keeping old source files')
 
