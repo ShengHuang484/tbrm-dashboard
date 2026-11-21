@@ -266,7 +266,7 @@ def dated_maintenance_prices(day):
     print('maintenance dated quotes',day,len(prices))
     return list(prices.values())
 
-def maintenance(raw, stocks, day):
+def maintenance(raw, stocks, day, stocks_backup=None):
     from decimal import Decimal
     def n(v):return Decimal(str(v).replace(',','').strip())
     def clean(v):return re.sub(r'<[^>]*>|\s','',str(v))
@@ -299,15 +299,46 @@ def maintenance(raw, stocks, day):
     if len(amounts)!=1 or len(totals)!=1 or amounts[0]<=0 or totals[0]<=0 or sum(balances.values())!=totals[0]:raise ValueError(f'margin totals do not reconcile: amounts={amounts}, totals={totals}, securities={len(balances)}, sum_lots={sum(balances.values())}')
     roc=str(int(day[:4])-1911)+day[5:7]+day[8:]
     prices={str(r['Code']):r['ClosingPrice'] for r in stocks if str(r.get('Date'))==roc and 'Code' in r and 'ClosingPrice' in r}
-    value=Decimal(0)
-    for code,lots in balances.items():
-        if not lots:continue
-        if code not in prices:raise ValueError('missing same-day close '+code)
-        try: price=n(prices[code])
-        except Exception: raise ValueError('missing valid close '+code) from None
-        if not price.is_finite() or price<=0:raise ValueError('missing valid close '+code)
-        value+=lots*price
-    return {'date':day,'ratio':float(value/amounts[0]*100),'matched_securities':sum(v>0 for v in balances.values()),'provisional':True}
+    def valid(v):
+        try:
+            x=n(v)
+            return x if x.is_finite() and x>0 else None
+        except Exception:return None
+    selected={code:valid(prices.get(code)) for code,lots in balances.items() if lots>0}
+    missing={code for code,p in selected.items() if p is None}
+    fallback={}
+    print('maintenance missing same-day',sorted(missing))
+    # Prefer another verified same-day source, then recent official closes.
+    if missing:
+        for r in stocks_backup or []:
+            code=str(r.get('Code',''))
+            if code in missing and str(r.get('Date'))==roc and valid(r.get('ClosingPrice')) is not None:
+                selected[code]=valid(r['ClosingPrice']); missing.remove(code)
+    if missing:
+        from datetime import timedelta
+        import time
+        anchor=datetime.fromisoformat(day).date()
+        for offset in range(1,8):
+            prior=(anchor-timedelta(days=offset)).isoformat()
+            if datetime.fromisoformat(prior).weekday()>=5:continue
+            try: older=dated_maintenance_prices(prior)
+            except Exception as exc:
+                print('maintenance history unavailable',prior,str(exc)); continue
+            for r in older:
+                code=r['Code']; price=valid(r['ClosingPrice'])
+                if code in missing and price is not None:
+                    selected[code]=price; missing.remove(code)
+                    fallback[code]={'date':prior,'price':str(price),'lots':str(balances[code])}
+            if not missing:break
+            time.sleep(0.5)
+    if missing:raise ValueError('missing reliable closes: '+','.join(sorted(missing)))
+    value=sum((balances[c]*p for c,p in selected.items()),Decimal(0))
+    fallback_value=sum((balances[c]*selected[c] for c in fallback),Decimal(0))
+    # Historical prices are approximate, not same-day marks. Cap their estimated value contribution.
+    share=fallback_value/value
+    if share>Decimal('0.001'):raise ValueError('historical price share exceeds 0.1%: '+str(share))
+    print('maintenance fallback',json.dumps(fallback,ensure_ascii=False),'value share',str(share))
+    return {'date':day,'ratio':float(value/amounts[0]*100),'matched_securities':len(selected),'provisional':True,'fallback_prices':fallback,'fallback_value_pct':float(share*100)}
 
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
@@ -405,8 +436,8 @@ def main():
         url='https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date='+day.replace('-','')
         raw=fetch(url)
         print('maintenance schema',str([(t.get('fields'),t.get('title')) for t in raw.get('tables',[])])[:3000],list(raw))
-        print('maintenance parser v2.4.3')
-        report=maintenance(raw,dated_maintenance_prices(day),day)
+        print('maintenance parser v2.4.4')
+        report=maintenance(raw,dated_maintenance_prices(day),day,stocks)
         (data_dir/'margin_maintenance.json').write_text(json.dumps(report),encoding='utf-8')
         summary['sources']['margin_maintenance']={'status':'ok',**report,'url':url}
     except Exception as exc:
