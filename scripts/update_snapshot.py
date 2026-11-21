@@ -19,7 +19,7 @@ ENDPOINTS = {
 }
 
 def fetch(url):
-    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.7.2','Accept':'application/json'})
+    req=urllib.request.Request(url, headers={'User-Agent':'TBRM-research-dashboard/1.7.3','Accept':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as r:
         if r.status!=200: raise ValueError('HTTP '+str(r.status))
         payload=json.load(r)
@@ -46,23 +46,42 @@ def fetch_dated_limit_down(data_dir):
         if isinstance(value, list):
             return {'type':'array','length':len(value),
                     'first_item_type':type(value[0]).__name__ if value else None,
-                    'sample':value[:2]}
+                    'sample':value[:2] if len(str(value[:2]))<3000 else [str(x)[:800] for x in value[:2]]}
         return {'type':type(value).__name__,'sample':str(value)[:250]}
     diagnostic={'report_date':greg,'source_url':url,'stat':raw.get('stat'),
                 'top_level_keys':list(raw.keys()),
                 'top_level_shapes':{k:preview(v) for k,v in raw.items()},
                 'tables':[]}
     tables=[]
+    # TWSE's modern response uses a top-level `tables` list of objects.
+    modern=raw.get('tables')
+    if isinstance(modern,list):
+        for i,t in enumerate(modern):
+            if not isinstance(t,dict):
+                diagnostic['tables'].append({'key':f'tables[{i}]','shape':preview(t)})
+                continue
+            fields=t.get('fields',[])
+            rows=t.get('data',[])
+            title=str(t.get('title',''))
+            diagnostic['tables'].append({'key':f'tables[{i}]','title':title,
+                'keys':list(t.keys()),'fields':fields,
+                'row_count':len(rows) if isinstance(rows,list) else None,
+                'sample_rows':rows[:3] if isinstance(rows,list) else str(rows)[:500]})
+            if isinstance(rows,list) and rows and all(isinstance(r,list) for r in rows):
+                tables.append({'key':f'tables[{i}]','title':title,'fields':fields,'rows':rows})
+    # Backward compatibility for older TWSE data1 / fields1 / title1 format.
     for k,v in raw.items():
         if re.fullmatch(r'data\d+',k) and isinstance(v,list) and v and isinstance(v[0],list):
             suffix=k[4:]
             title=str(raw.get('title'+suffix,''))
             fields=raw.get('fields'+suffix,[])
             tables.append({'key':k,'title':title,'fields':fields,'rows':v})
-    diagnostic['tables']=[{'key':t['key'],'title':t['title'],
-        'fields':t['fields'],'sample_rows':t['rows'][:5]} for t in tables]
+            diagnostic['tables'].append({'key':k,'title':title,'fields':fields,
+                'row_count':len(v),'sample_rows':v[:3]})
     (data_dir/'twse_dated_breadth_diagnostic.json').write_text(
         json.dumps(diagnostic,ensure_ascii=False,indent=2),encoding='utf-8')
+    if not tables:
+        raise ValueError('official report contains no nonempty tabular data; see diagnostic tables')
     def plain(v):return re.sub(r'<[^>]*>','',str(v)).strip()
     def parse_count(v):
         text=plain(v).replace(',','')
@@ -154,6 +173,7 @@ def main():
         summary['sources']['twse_dated_breadth']={'status':'ok','date':counts['date'],'url':counts['source_url']}
         print('twse_dated_breadth ok',counts['date'],counts['limit_down'])
     except Exception as exc:
+        (data_dir/'twse_dated_breadth.json').unlink(missing_ok=True)
         summary['sources']['twse_dated_breadth']={'status':'failed'}
         summary['errors']['twse_dated_breadth']=str(exc)[:240]
         print('twse_dated_breadth failed:',exc)
