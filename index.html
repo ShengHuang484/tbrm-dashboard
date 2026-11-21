@@ -426,6 +426,15 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
   label('融資維持率',date+' 上市市場估算，非整戶維持率'+(Object.keys(r.fallback_prices||{}).length?'；'+Object.keys(r.fallback_prices).length+' 檔採近期收盤價，估算市值占 '+Number(r.fallback_value_pct).toFixed(5)+'%':''));
  }catch(e){label('融資維持率','未採用：'+e.message)}
  try{
+  const r=await read('new_low');
+  if(r.date!==date)throw Error('日期不符');
+  const item=confirm.find(x=>x.name==='創新低家數減少');
+  if(r.status==='ok'&&Number.isFinite(r.decline_pct)){
+   item.raw=`未還原收盤價試算：${r.previous_avg} → ${r.recent_avg} 家；下降 ${r.decline_pct.toFixed(1)}%；試算 ${r.points}/5（暫不計分）`;
+  }else item.raw=`歷史回補 ${r.valid_days??0}/${r.required_days??262} 日；${r.status==='insufficient_coverage'?'有效樣本不足':'尚未完成'}`;
+  label('創新低家數減少','未還原收盤價代理，除權息及減資調整未驗證，暫不納入正式評分');
+ }catch(e){label('創新低家數減少','未採用：'+e.message)}
+ try{
   const schema=await read('source_schema');
   const relevant=['twse_margin','twse_stocks','taifex_futures'].map(k=>k+'：'+(schema[k]?.fields||[]).slice(0,12).join('、'));
   label('原始欄位檢查',relevant.join('｜'));
