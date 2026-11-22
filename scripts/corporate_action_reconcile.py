@@ -5,6 +5,7 @@ price. Historical close, calendar coverage, and non-TWT49U corporate actions
 need independent verification. No score-eligible result is emitted.
 """
 from datetime import date
+from bisect import bisect_left
 from decimal import Decimal, InvalidOperation
 
 
@@ -34,10 +35,16 @@ def reconcile_candidates(events, history, trading_dates, tolerance="0.011"):
     checks = []
     for event in events:
         day, code = event["ex_date"], event["code"]
-        if day not in index or index[day] == 0:
+        position = bisect_left(trading_dates, day)
+        if position == 0:
             checks.append({"code": code, "ex_date": day, "status": "no_prior_trading_day"})
             continue
-        previous = trading_dates[index[day] - 1]
+        if day not in index:
+            checks.append({"code": code, "ex_date": day,
+                           "status": "event_date_not_in_history",
+                           "preceding_available_date": trading_dates[position - 1]})
+            continue
+        previous = trading_dates[position - 1]
         observed = history.get(previous, {}).get(code)
         if observed is None:
             checks.append({"code": code, "ex_date": day, "status": "missing_prior_close"})
