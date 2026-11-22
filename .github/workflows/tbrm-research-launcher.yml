@@ -1,0 +1,55 @@
+name: TBRM research workflow launcher
+
+on:
+  workflow_dispatch:
+    inputs:
+      research_ref:
+        description: 'Research branch to test'
+        required: true
+        default: 'research/new-low-quality-gates-20261123'
+        type: string
+      run_twse_smoke:
+        description: 'Also download a TWSE research sample'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Restrict checkout to expected research branch
+        env:
+          REF: ${{ inputs.research_ref }}
+        run: |
+          test "$REF" = 'research/new-low-quality-gates-20261123'
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.research_ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Python tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Download official TWSE month (research only)
+        if: ${{ inputs.run_twse_smoke }}
+        run: python -m scripts.twse_event_download --start 2026-11 --end 2026-11 --out twse-smoke
+      - name: Inspect downloaded schema
+        if: ${{ always() && inputs.run_twse_smoke }}
+        run: |
+          if [ -f twse-smoke/manifest.json ]; then
+            python -c "import json; from scripts.twse_event_archive_audit import inspect_archive; print(json.dumps(inspect_archive('twse-smoke'), ensure_ascii=False, indent=2))"
+          fi
+      - name: Upload raw TWSE evidence
+        if: ${{ always() && inputs.run_twse_smoke }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: twse-research-evidence
+          path: twse-smoke/
+          retention-days: 7
+          if-no-files-found: warn
