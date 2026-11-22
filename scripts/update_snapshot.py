@@ -436,6 +436,21 @@ def new_low_counts(history, dates):
                  if abs(prices[i] / prices[i-1] - 1) >= .12]
         if jumps:
             flagged[code] = jumps[:5]
+    # Explicit audit of the ten scoring-window dates. A single suspicious
+    # discontinuity in the preceding 252-day lookback can create a false low.
+    # Do not infer a corporate action solely from a large move.
+    affected_window = {}
+    for code, events in flagged.items():
+        if any(d in dates[-10:] for d, _ in events):
+            affected_window[code] = events
+    audit.update({
+        'window_dates': dates[-10:],
+        'window_jump_flagged_securities': len(affected_window),
+        'window_jump_samples': dict(list(sorted(affected_window.items()))[:20]),
+        'latest_10_daily_universe_counts': [len(history[d]) for d in dates[-10:]],
+        'minimum_daily_universe_count': min(len(history[d]) for d in dates),
+        'price_adjustment_validation_required': True,
+    })
     counts = [0] * 10
     for prices in valid.values():
         for i in range(252, 262):
@@ -456,6 +471,7 @@ def new_low_counts(history, dates):
         'blocking_reasons': [
             'Unadjusted close prices: dividends, rights, splits and capital reductions unverified',
             'Fixed-cohort survivorship/coverage bias not resolved',
+            'Review flagged discontinuities against official ex-rights, ex-dividend and capital-reduction events',
         ],
     }
 
