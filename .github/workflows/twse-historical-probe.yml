@@ -207,6 +207,39 @@ jobs:
           print(json.dumps({"non_trading_event_dates": sorted(missing), "candidate_event_count": len(candidate_keys), "excluded_source_rows": excluded_source_rows, "source_row_count": len(rows),
                             "sample": rows[:2], "score_eligible": False}, ensure_ascii=False))
           PY
+      - name: Classify non-trading-day event conflicts without date shifting
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("twse-probe")
+          required = ["price_reconciliation.json", "missing_date_calendar_audit.json", "non_trading_event_source_rows.json"]
+          for name in required:
+              if not (root / name).exists():
+                  raise SystemExit("Missing required audit: " + name)
+          reconciliation = json.loads((root / required[0]).read_text())
+          calendar = json.loads((root / required[1]).read_text())
+          source = json.loads((root / required[2]).read_text())
+          official_nontrading = {d["date"] for d in calendar["dates"] if d.get("calendar_verified") and d.get("is_trading_day") is False}
+          unresolved = [c for c in reconciliation["checks"] if c["status"] == "event_date_not_in_history"]
+          source_keys = {(r["date"], str(r["official_row"]["股票代號"])) for r in source["source_rows"]}
+          conflicts = []
+          for event in unresolved:
+              key = (event["ex_date"], event["code"])
+              if key in source_keys and event["ex_date"] in official_nontrading:
+                  conflicts.append({"code": event["code"], "reported_date": event["ex_date"],
+                                    "classification": "official_event_date_conflicts_with_official_trading_calendar",
+                                    "date_reassignment_allowed": False})
+          report = {"unresolved_event_count": len(unresolved), "calendar_conflict_count": len(conflicts),
+                    "conflicts": conflicts, "date_reassignment_allowed": False,
+                    "corporate_action_completeness_verified": False, "score_eligible": False}
+          (root / "nontrading_event_conflicts.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+          print(json.dumps({"unresolved_event_count": len(unresolved), "calendar_conflict_count": len(conflicts),
+                            "score_eligible": False}, ensure_ascii=False))
+          if len(conflicts) != len(unresolved):
+              raise SystemExit("Unclassified missing-date event: inspect source and calendar")
+          PY
       - name: Print probe manifest
         if: always()
         run: |
