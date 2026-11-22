@@ -26,6 +26,37 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Probe 13 historical months
         run: python -m scripts.twse_event_download --start 2025-11 --end 2026-11 --out twse-probe
+      - name: Audit TWSE event extraction (research only)
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.twse_event_extract import extract_candidates
+          root = Path("twse-probe")
+          if not (root / "manifest.json").exists():
+              print("No manifest available")
+              raise SystemExit(0)
+          manifest = json.loads((root / "manifest.json").read_text())
+          summary = []
+          for entry in manifest["entries"]:
+              item = {"month": entry["month"], "status": entry["status"], "candidate_count": 0}
+              if entry["status"] == "downloaded_unverified":
+                  try:
+                      payload = json.loads((root / entry["file"]).read_text(encoding="utf-8-sig"))
+                      candidates = extract_candidates(payload, entry["source_url"])
+                      item["candidate_count"] = len(candidates)
+                      item["status"] = "parsed_unverified"
+                      item["sample"] = candidates[:1]
+                  except Exception as exc:
+                      item["status"] = "parse_failed"
+                      item["error"] = type(exc).__name__ + ": " + str(exc)[:300]
+                      item["fields"] = payload.get("fields")
+              summary.append(item)
+          report = {"months": summary, "score_eligible": False, "corporate_action_completeness_verified": False}
+          (root / "candidate_audit.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\\n")
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
       - name: Print probe manifest
         if: always()
         run: |
