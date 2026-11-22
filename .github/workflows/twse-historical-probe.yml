@@ -312,6 +312,46 @@ jobs:
           if len(queue) != len(conflicts["conflicts"]):
               raise SystemExit("Incomplete effective-date review queue")
           PY
+      - name: Publish explicit research scoring gate
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("twse-probe")
+          required = ["price_reconciliation.json", "effective_date_review_queue.json",
+                      "identity_audit.json", "missing_date_calendar_audit.json"]
+          if any(not (root / name).exists() for name in required):
+              raise SystemExit("Missing research gate evidence")
+          price, exceptions, identity, calendar = [
+              json.loads((root / name).read_text()) for name in required
+          ]
+          precision = price["price_precision_audit"]
+          blockers = []
+          if not identity["identity_audit_passed"]:
+              blockers.append("duplicate_or_conflicting_event_identities")
+          if precision["exact_price_matches"] != price["matched"]:
+              blockers.append("nonexact_prior_close_matches")
+          if exceptions["exception_count"]:
+              blockers.append("unresolved_official_nontrading_event_dates")
+          blockers.extend(["capital_reduction_and_other_action_coverage_unverified",
+                           "daily_stock_universe_and_adjusted_price_series_unverified"])
+          report = {
+              "candidate_events": price["candidate_count"],
+              "exact_prior_close_matches": precision["exact_price_matches"],
+              "unresolved_effective_dates": exceptions["exception_count"],
+              "blocking_reasons": blockers,
+              "corporate_action_completeness_verified": False,
+              "score_eligible": False,
+              "official_confirmation_points_enabled": 45,
+              "official_confirmation_points_total": 50
+          }
+          (root / "research_scoring_gate.json").write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+          print(json.dumps(report, ensure_ascii=False))
+          if price["candidate_count"] != price["matched"] + price["unresolved"]:
+              raise SystemExit("Inconsistent candidate reconciliation counts")
+          PY
       - name: Print probe manifest
         if: always()
         run: |
