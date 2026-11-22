@@ -50,12 +50,14 @@ def audit_history(history, required_days=262):
             continue
         first, last = positions[0], positions[-1]
         internal = last - first + 1 - len(positions)
+        missing_dates = [dates[i] for i in range(first, last + 1) if code not in history[dates[i]]]
         gap_details.append({
             "code": code,
             "first_observed": dates[first],
             "last_observed": dates[last],
             "leading_missing_days": first,
             "internal_missing_days": internal,
+            "internal_missing_dates": missing_dates,
             "trailing_missing_days": len(dates) - 1 - last,
             "observed_days": len(positions),
         })
@@ -73,7 +75,9 @@ def audit_history(history, required_days=262):
         "variable_coverage_sample": changing[:30],
         "internal_gap_code_count": len(internal_gap_codes),
         "boundary_only_code_count": len(boundary_only_codes),
-        "internal_gap_details": internal_gap_codes[:100],
+        "internal_gap_details": internal_gap_codes,
+        "internal_gap_day_total": sum(x["internal_missing_days"] for x in internal_gap_codes),
+        "highest_gap_codes": sorted(internal_gap_codes, key=lambda x: (-x["internal_missing_days"], x["code"]))[:20],
         "boundary_only_sample": boundary_only_codes[:30],
         "missing_quote_cause_verified": False,
         "invalid_close_count": len(invalid),
