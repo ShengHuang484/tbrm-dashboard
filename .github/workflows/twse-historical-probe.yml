@@ -91,6 +91,20 @@ jobs:
               payload = json.loads((root / entry["file"]).read_text(encoding="utf-8-sig"))
               events.extend(extract_candidates(payload, entry["source_url"]))
           result = reconcile_candidates(events, history, dates)
+          from decimal import Decimal
+          matched_checks = [c for c in result["checks"] if c["status"] == "matched_price_basis"]
+          exact = [c for c in matched_checks if Decimal(c["relative_difference"]) == 0]
+          tight = [c for c in matched_checks if Decimal("0") < Decimal(c["relative_difference"]) <= Decimal("0.001")]
+          loose = [c for c in matched_checks if Decimal(c["relative_difference"]) > Decimal("0.001")]
+          result["price_precision_audit"] = {
+              "matched_within_1_1_percent": len(matched_checks),
+              "exact_price_matches": len(exact),
+              "nonzero_deviation_up_to_0_1_percent": len(tight),
+              "deviation_over_0_1_up_to_1_1_percent": len(loose),
+              "largest_deviations": sorted(matched_checks, key=lambda c: Decimal(c["relative_difference"]), reverse=True)[:15],
+              "strict_price_basis_verified": False,
+              "score_eligible": False,
+          }
           result["status_counts"] = dict(Counter(c["status"] for c in result["checks"]))
           result["history_days"] = len(dates)
           result["candidate_count"] = len(events)
