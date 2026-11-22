@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-22T14:59:52.499410+00:00",
+  "fetched_at_utc": "2026-11-22T16:09:11.604397+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -54,7 +54,7 @@
     "taifex_vix": {
       "status": "ok",
       "date": "2026-11-20",
-      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/202611new.txt"
+      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data_eng/202611new.txt"
     },
     "margin_maintenance": {
       "status": "ok",
@@ -101,10 +101,26 @@
     "new_low": {
       "date": "2026-11-20",
       "method": "raw_close_proxy",
-      "valid_days": 60,
+      "valid_days": 95,
       "required_days": 262,
+      "missing_days": 167,
+      "next_missing_dates": [
+        "2026-07-02",
+        "2026-07-01",
+        "2026-06-30",
+        "2026-06-29",
+        "2026-06-26",
+        "2026-06-25",
+        "2026-06-24",
+        "2026-06-23",
+        "2026-06-22",
+        "2026-06-18"
+      ],
+      "backfill_batch_limit": 35,
       "errors": [],
-      "status": "collecting"
+      "status": "collecting",
+      "adjustment_status": "unverified",
+      "score_eligible": false
     },
     "index_history": {
       "status": "ok",
