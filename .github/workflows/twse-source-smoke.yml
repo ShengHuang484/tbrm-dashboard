@@ -1,0 +1,53 @@
+name: TWSE event source smoke test (research only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      month:
+        description: 'TWSE calendar month YYYY-MM'
+        required: true
+        default: '2026-11'
+  pull_request:
+    paths:
+      - 'scripts/twse_event_download.py'
+      - 'scripts/twse_event_extract.py'
+      - 'scripts/twse_event_archive_audit.py'
+      - '.github/workflows/twse-source-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download one official month without scoring
+        env:
+          MONTH: ${{ github.event.inputs.month || '2026-11' }}
+        run: |
+          python -m scripts.twse_event_download --start "$MONTH" --end "$MONTH" --out twse-smoke
+      - name: Inspect actual returned fields
+        if: always()
+        run: |
+          if [ -f twse-smoke/manifest.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.twse_event_archive_audit import inspect_archive
+          result = inspect_archive('twse-smoke')
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          PY
+          fi
+      - name: Upload raw evidence and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: twse-research-smoke
+          path: twse-smoke/
+          retention-days: 7
+          if-no-files-found: warn
