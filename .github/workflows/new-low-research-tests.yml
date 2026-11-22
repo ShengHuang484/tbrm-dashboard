@@ -5,9 +5,11 @@ on:
     paths:
       - 'scripts/corporate_action_*.py'
       - 'scripts/twse_corporate_action_parser.py'
+      - 'scripts/twse_event_download.py'
       - 'tests/test_*new_low*.py'
       - 'tests/test_corporate_action*.py'
       - 'tests/test_twse_corporate_action_parser.py'
+      - 'tests/test_twse_event_download.py'
       - 'data/new_low.json'
       - '.github/workflows/new-low-research-tests.yml'
   workflow_dispatch:
@@ -25,4 +27,4 @@ jobs:
         with:
           python-version: '3.11'
       - name: Run isolated research checks
-        run: python -m unittest discover -s tests -p 'test_*new_low*.py' -v && python -m unittest discover -s tests -p 'test_corporate_action*.py' -v && python -m unittest discover -s tests -p 'test_twse_corporate_action_parser.py' -v
+        run: python -m unittest discover -s tests -p 'test_*new_low*.py' -v && python -m unittest discover -s tests -p 'test_corporate_action*.py' -v && python -m unittest discover -s tests -p 'test_twse*.py' -v
