@@ -53,6 +53,8 @@ def backward_adjusted_series(dates, closes, events):
     factors = event_factors(events)
     if any(day not in dates for _, day in factors):
         raise ValueError("event outside date window")
+    if any(code not in closes for code, _ in factors):
+        raise ValueError("verified event has no matching stock price series")
     result = {}
     for code, prices in closes.items():
         if len(prices) != len(dates):
