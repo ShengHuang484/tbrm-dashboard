@@ -33,6 +33,17 @@ class EventDownloadTests(unittest.TestCase):
             self.assertEqual(result["failed_months"], ["2026-01"])
             self.assertFalse((Path(tmp) / "2026-01.json").exists())
 
+    def test_accepts_chinese_roc_date(self):
+        def fake(month):
+            payload = {"stat": "OK", "fields": ["資料日期", "股票代號"],
+                       "data": [["115年11月20日", "2330"]]}
+            return "https://www.twse.com.tw/example", json.dumps(payload).encode(), payload
+        with tempfile.TemporaryDirectory() as tmp:
+            result = archive("2026-11", "2026-11", tmp, fetcher=fake)
+            self.assertEqual(result["successful_months"], ["2026-11"])
+            self.assertEqual(result["entries"][0]["first_event_date"], "20261120")
+            self.assertFalse(result["score_eligible"])
+
     def test_partial_failure_recorded(self):
         def failing(month):
             raise ValueError("network failure")
