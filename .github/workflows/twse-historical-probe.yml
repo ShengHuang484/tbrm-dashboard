@@ -362,6 +362,8 @@ jobs:
       - name: Cross-check next 24 missing-quote dates (batch 2)
         run: |
           python -m scripts.twse_quote_gap_crosscheck data/history/new_low_closes.json twse-probe/raw_universe_audit.json twse-probe/official_quote_gap_crosscheck_batch2.json --offset 24 --max-dates 24
+      - name: Aggregate verified official quote-gap batches
+        run: python -m scripts.twse_gap_aggregate twse-probe
       - name: Consolidate all new-low readiness blockers
         run: python -m scripts.new_low_readiness twse-probe
       - name: Print probe manifest
