@@ -41,6 +41,12 @@ def audit_history(history, required_days=262):
             except (InvalidOperation, ValueError, TypeError):
                 invalid.append({"date": day, "code": code, "reason": "invalid_close"})
     common = common or set()
+    latest_codes = set(history[dates[-1]]) if dates else set()
+    # Diagnostic only: 252 observed closes are not necessarily 252 consecutive trading days.
+    latest_with_252_observations = sum(
+        code in latest_codes and sum(code in history[day] for day in dates) >= 252
+        for code in all_codes
+    )
     changing = sorted(all_codes - common)
     calendar_index = {day: i for i, day in enumerate(dates)}
     gap_details = []
@@ -70,6 +76,10 @@ def audit_history(history, required_days=262):
         "min_daily_codes": min(counts.values()) if counts else 0,
         "max_daily_codes": max(counts.values()) if counts else 0,
         "unique_codes": len(all_codes),
+        "latest_day_codes": len(latest_codes),
+        "latest_codes_with_at_least_252_observations": latest_with_252_observations,
+        "latest_codes_below_252_observations": len(latest_codes) - latest_with_252_observations,
+        "latest_codes_without_full_262_day_history": len(latest_codes - common),
         "full_window_codes": len(common),
         "variable_coverage_codes": len(changing),
         "variable_coverage_sample": changing[:30],
