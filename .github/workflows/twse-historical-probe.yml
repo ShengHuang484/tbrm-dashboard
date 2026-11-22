@@ -126,7 +126,7 @@ jobs:
                       raise ValueError("invalid TWSE calendar response")
                   dates = set()
                   for row in payload["data"]:
-                      match = re.fullmatch(r"(\\d{2,3})/(\\d{1,2})/(\\d{1,2})", str(row[0]))
+                      match = re.fullmatch(r"(\d{2,3})/(\d{1,2})/(\d{1,2})", str(row[0]))
                       if not match:
                           raise ValueError("unrecognized TWSE calendar date")
                       dates.add(f"{int(match[1])+1911:04d}-{int(match[2]):02d}-{int(match[3]):02d}")
