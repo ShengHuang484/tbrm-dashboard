@@ -1,4 +1,4 @@
-name: TWSE historical single-month probe
+name: TWSE historical 13-month backfill probe
 
 on:
   push:
@@ -24,8 +24,8 @@ jobs:
           python-version: '3.11'
       - name: Run research tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
-      - name: Probe November 2025 only
-        run: python -m scripts.twse_event_download --start 2025-11 --end 2025-11 --out twse-probe
+      - name: Probe 13 historical months
+        run: python -m scripts.twse_event_download --start 2025-11 --end 2026-11 --out twse-probe
       - name: Print probe manifest
         if: always()
         run: |
@@ -34,7 +34,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: twse-single-month-probe
+          name: twse-13-month-research
           path: twse-probe/
           retention-days: 7
           if-no-files-found: warn
