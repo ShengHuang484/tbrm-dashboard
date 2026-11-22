@@ -178,13 +178,33 @@ jobs:
                       day = f"{int(m[1])+1911:04d}-{int(m[2]):02d}-{int(m[3]):02d}"
                       if day in missing:
                           rows.append({"date": day, "month": entry["month"], "source_url": entry["source_url"], "official_row": dict(zip(fields, values))})
+          from collections import Counter
+          from scripts.twse_event_extract import extract_candidates
+          candidate_keys = set()
+          for entry in manifest["entries"]:
+              if entry["status"] != "downloaded_unverified":
+                  continue
+              payload = json.loads((root / entry["file"]).read_text(encoding="utf-8-sig"))
+              for event in extract_candidates(payload, entry["source_url"]):
+                  if event["ex_date"] in missing:
+                      candidate_keys.add((event["ex_date"], event["code"]))
+          extracted_keys = {(r["date"], str(r["official_row"].get("股票代號", ""))) for r in rows}
+          unmatched_candidates = sorted(candidate_keys - extracted_keys)
+          excluded_source_rows = [r for r in rows if (r["date"], str(r["official_row"].get("股票代號", ""))) not in candidate_keys]
           result = {"non_trading_event_dates": sorted(missing), "source_rows": rows,
+                    "candidate_event_count": len(candidate_keys),
+                    "source_row_count": len(rows),
+                    "unmatched_candidates": unmatched_candidates,
+                    "excluded_source_rows": excluded_source_rows,
+                    "source_identity_audit_passed": not unmatched_candidates,
                     "requires_official_effective_date_verification": True,
                     "score_eligible": False}
           (root / "non_trading_event_source_rows.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
           if missing and not rows:
               raise SystemExit("No official source rows extracted for non-trading-day events")
-          print(json.dumps({"non_trading_event_dates": sorted(missing), "source_row_count": len(rows),
+          if unmatched_candidates:
+              raise SystemExit("Missing original source rows for candidate events")
+          print(json.dumps({"non_trading_event_dates": sorted(missing), "candidate_event_count": len(candidate_keys), "excluded_source_rows": excluded_source_rows, "source_row_count": len(rows),
                             "sample": rows[:2], "score_eligible": False}, ensure_ascii=False))
           PY
       - name: Print probe manifest
