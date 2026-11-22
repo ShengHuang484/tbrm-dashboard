@@ -7,6 +7,7 @@ import json
 import re
 import urllib.request
 from pathlib import Path
+from collections import Counter
 
 
 def plain(value):
@@ -39,7 +40,7 @@ def stock_rows(payload):
     return result
 
 
-def crosscheck(history, audit, fetcher, max_dates=12):
+def crosscheck(history, audit, fetcher, max_dates=24):
     gaps = {}
     for item in audit["internal_gap_details"]:
         for day in item["internal_missing_dates"]:
@@ -77,8 +78,11 @@ def crosscheck(history, audit, fetcher, max_dates=12):
                                "status": "official_source_unavailable",
                                "error": str(exc)[:180],
                                "independent_cause_verified": False})
+    status_counts = dict(sorted(Counter(x["status"] for x in checks).items()))
     return {
         "checked_dates": selected,
+        "status_counts": status_counts,
+        "checked_stock_date_pairs": len(checks),
         "total_internal_gap_dates": len(gaps),
         "checks": checks,
         "archive_missing_but_official_quote_present": sum(
@@ -86,6 +90,7 @@ def crosscheck(history, audit, fetcher, max_dates=12):
         "official_source_unavailable": sum(
             x["status"] == "official_source_unavailable" for x in checks),
         "remaining_dates_unchecked": len(gaps) - len(selected),
+        "official_absence_is_not_suspension_proof": True,
         "all_gaps_verified": False,
         "score_eligible": False,
     }
