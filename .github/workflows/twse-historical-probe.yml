@@ -140,6 +140,51 @@ jobs:
           if any(not x["calendar_verified"] for x in results):
               raise SystemExit("TWSE trading calendar could not be verified")
           PY
+      - name: Preserve source rows for non-trading-day events
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("twse-probe")
+          calendar_path = root / "missing_date_calendar_audit.json"
+          manifest_path = root / "manifest.json"
+          if not calendar_path.exists() or not manifest_path.exists():
+              raise SystemExit("Missing source evidence for non-trading-day event audit")
+          calendar = json.loads(calendar_path.read_text())
+          missing = {d["date"] for d in calendar["dates"] if d.get("calendar_verified") and not d.get("is_trading_day")}
+          manifest = json.loads(manifest_path.read_text())
+          rows = []
+          for entry in manifest["entries"]:
+              if entry["status"] != "downloaded_unverified":
+                  continue
+              payload = json.loads((root / entry["file"]).read_text(encoding="utf-8-sig"))
+              tables = payload.get("tables", [payload])
+              for table in tables:
+                  fields = table.get("fields", [])
+                  if not isinstance(fields, list):
+                      continue
+                  date_name = next((x for x in ("除權息日期", "資料日期") if x in fields), None)
+                  if date_name is None:
+                      continue
+                  for values in table.get("data", []):
+                      if not isinstance(values, list) or len(values) != len(fields):
+                          continue
+                      raw_date = str(values[fields.index(date_name)])
+                      import re
+                      m = re.fullmatch(r"(\\d{2,3})年(\\d{1,2})月(\\d{1,2})日", raw_date)
+                      if not m:
+                          continue
+                      day = f"{int(m[1])+1911:04d}-{int(m[2]):02d}-{int(m[3]):02d}"
+                      if day in missing:
+                          rows.append({"date": day, "month": entry["month"], "source_url": entry["source_url"], "official_row": dict(zip(fields, values))})
+          result = {"non_trading_event_dates": sorted(missing), "source_rows": rows,
+                    "requires_official_effective_date_verification": True,
+                    "score_eligible": False}
+          (root / "non_trading_event_source_rows.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+          print(json.dumps({"non_trading_event_dates": sorted(missing), "source_row_count": len(rows),
+                            "sample": rows[:2], "score_eligible": False}, ensure_ascii=False))
+          PY
       - name: Print probe manifest
         if: always()
         run: |
