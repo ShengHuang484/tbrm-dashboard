@@ -9,6 +9,7 @@ adjustment, or scoring is performed. Unexpected responses fail closed.
 import argparse
 import hashlib
 import json
+import re
 import time
 from datetime import date
 from calendar import monthrange
@@ -79,11 +80,20 @@ def archive(start, end, out_dir, fetcher=fetch_month):
                     if not isinstance(row, list) or idx >= len(row):
                         raise ValueError("malformed event date row")
                     raw_date = str(row[idx]).strip()
-                    digits = raw_date.replace("/", "").replace("-", "")
+                    match = re.fullmatch(r"(\d{2,4})年(\d{1,2})月(\d{1,2})日", raw_date)
+                    if match:
+                        y, m, d = map(int, match.groups())
+                        if y < 1911:
+                            y += 1911
+                        date(y, m, d)
+                        digits = f"{y:04d}{m:02d}{d:02d}"
+                    else:
+                        digits = raw_date.replace("/", "").replace("-", "")
                     if not digits.isdigit() or len(digits) not in (7, 8):
                         raise ValueError("unrecognized event date: " + raw_date[:30])
                     if len(digits) == 7:
                         digits = str(int(digits[:3]) + 1911) + digits[3:]
+                    date(int(digits[:4]), int(digits[4:6]), int(digits[6:8]))
                     if digits[:6] != month.replace("-", ""):
                         raise ValueError("event outside requested month: " + raw_date[:30])
                     observed.append(digits)
