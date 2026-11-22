@@ -1,0 +1,79 @@
+name: TWSE all missing quote dates research
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/twse-all-quote-gaps.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  official-gap-batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        offset: [0, 24, 48, 72, 96, 120, 144, 168, 192, 216]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/new-low-quality-gates-20261123
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Audit stored raw stock history
+        run: python -m scripts.new_low_universe_audit data/history/new_low_closes.json raw_universe_audit.json
+      - name: Cross-check official TWSE quotes
+        run: |
+          python -m scripts.twse_quote_gap_crosscheck data/history/new_low_closes.json raw_universe_audit.json official_quote_gap_crosscheck_${{ matrix.offset }}.json --offset ${{ matrix.offset }} --max-dates 24
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official-quote-gaps-${{ matrix.offset }}
+          path: official_quote_gap_crosscheck_${{ matrix.offset }}.json
+          retention-days: 14
+          if-no-files-found: error
+  summarize:
+    needs: official-gap-batch
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/new-low-quality-gates-20261123
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: official-quote-gaps-*
+          path: quote-evidence
+          merge-multiple: true
+      - name: Aggregate all ten batches
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.twse_gap_aggregate import aggregate
+          root = Path("quote-evidence")
+          paths = sorted(root.glob("official_quote_gap_crosscheck_*.json"))
+          if len(paths) != 10:
+              raise SystemExit(f"Expected 10 batches, got {len(paths)}")
+          reports = [json.loads(p.read_text()) for p in paths]
+          total = reports[0]["total_internal_gap_dates"]
+          if any(r["total_internal_gap_dates"] != total for r in reports):
+              raise SystemExit("Inconsistent gap date universe")
+          result = aggregate(reports, total)
+          (root / "official_quote_gap_summary.json").write_text(json.dumps(result, indent=2) + "\n")
+          print(json.dumps(result, ensure_ascii=False))
+          if not result["all_dates_checked"] or result["source_unavailable"]:
+              raise SystemExit("Official quote coverage incomplete; do not certify")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: all-official-quote-gap-summary
+          path: quote-evidence/official_quote_gap_summary.json
+          retention-days: 14
+          if-no-files-found: warn
