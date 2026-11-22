@@ -240,6 +240,64 @@ jobs:
           if len(conflicts) != len(unresolved):
               raise SystemExit("Unclassified missing-date event: inspect source and calendar")
           PY
+      - name: Build research-only exception review queue
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("twse-probe")
+          names = ("nontrading_event_conflicts.json", "non_trading_event_source_rows.json",
+                   "price_reconciliation.json", "missing_date_calendar_audit.json")
+          if any(not (root / n).exists() for n in names):
+              raise SystemExit("Missing required exception evidence")
+          conflicts, sources, reconciliation, calendar = [
+              json.loads((root / n).read_text()) for n in names
+          ]
+          source_map = {}
+          for row in sources["source_rows"]:
+              key = (row["date"], str(row["official_row"].get("股票代號", "")))
+              if key in source_map:
+                  raise SystemExit("Duplicate original event identity: " + str(key))
+              source_map[key] = row
+          prior_map = {(r["ex_date"], r["code"]): r for r in reconciliation["checks"]}
+          calendar_map = {r["date"]: r for r in calendar["dates"]}
+          queue = []
+          for item in conflicts["conflicts"]:
+              key = (item["reported_date"], item["code"])
+              source = source_map.get(key)
+              check = prior_map.get(key)
+              day = calendar_map.get(key[0])
+              if source is None or check is None or day is None:
+                  raise SystemExit("Missing supporting evidence for: " + str(key))
+              if day.get("is_trading_day") is not False or not day.get("calendar_verified"):
+                  raise SystemExit("Calendar not verified as non-trading day: " + str(key))
+              raw = source["official_row"]
+              queue.append({
+                  "code": item["code"], "reported_date": item["reported_date"],
+                  "name": raw.get("股票名稱"), "event_type": raw.get("權/息"),
+                  "official_prior_close": raw.get("除權息前收盤價"),
+                  "official_reference_price": raw.get("除權息參考價"),
+                  "source_detail": raw.get("詳細資料"),
+                  "preceding_available_date": check.get("preceding_available_date"),
+                  "source_url": source["source_url"],
+                  "review_status": "requires_independent_effective_date_evidence",
+                  "approved_adjustment_date": None,
+                  "score_eligible": False
+              })
+          queue.sort(key=lambda x: (x["reported_date"], x["code"]))
+          report = {"exception_count": len(queue), "exceptions": queue,
+                    "all_exceptions_source_backed": len(queue) == len(conflicts["conflicts"]),
+                    "date_reassignment_allowed": False, "score_eligible": False}
+          (root / "effective_date_review_queue.json").write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+          print(json.dumps({"exception_count": len(queue),
+                            "codes_by_date": {day: [r["code"] for r in queue if r["reported_date"] == day]
+                                              for day in sorted({r["reported_date"] for r in queue})},
+                            "score_eligible": False}, ensure_ascii=False))
+          if len(queue) != len(conflicts["conflicts"]):
+              raise SystemExit("Incomplete effective-date review queue")
+          PY
       - name: Print probe manifest
         if: always()
         run: |
