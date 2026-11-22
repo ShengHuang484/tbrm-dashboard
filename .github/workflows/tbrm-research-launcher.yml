@@ -9,7 +9,12 @@ on:
         default: 'research/new-low-quality-gates-20261123'
         type: string
       run_twse_smoke:
-        description: 'Also download a TWSE research sample'
+        description: 'Download TWSE event research data'
+        required: true
+        default: false
+        type: boolean
+      historical_months:
+        description: 'Download Nov 2025 through Nov 2026'
         required: true
         default: false
         type: boolean
@@ -20,7 +25,7 @@ permissions:
 jobs:
   research:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Restrict checkout to expected research branch
         env:
@@ -38,7 +43,14 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Download official TWSE month (research only)
         if: ${{ inputs.run_twse_smoke }}
-        run: python -m scripts.twse_event_download --start 2026-11 --end 2026-11 --out twse-smoke
+        env:
+          HISTORICAL: ${{ inputs.historical_months }}
+        run: |
+          if [ "$HISTORICAL" = 'true' ]; then
+            python -m scripts.twse_event_download --start 2025-11 --end 2026-11 --out twse-smoke
+          else
+            python -m scripts.twse_event_download --start 2026-11 --end 2026-11 --out twse-smoke
+          fi
       - name: Inspect downloaded schema
         if: ${{ always() && inputs.run_twse_smoke }}
         run: |
