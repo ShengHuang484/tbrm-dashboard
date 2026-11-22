@@ -37,6 +37,11 @@ class CorporateActionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             event_factors([event(), event()])
 
+    def test_rejects_event_without_stock_series(self):
+        with self.assertRaisesRegex(ValueError, "no matching stock price series"):
+            backward_adjusted_series(["2026-06-01", "2026-06-02"],
+                                     {"2317": [100, 99]}, [event()])
+
     def test_rejects_missing_close(self):
         with self.assertRaises(ValueError):
             backward_adjusted_series(["2026-06-01"], {"2330": [None]}, [])
