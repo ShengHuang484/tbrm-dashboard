@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-BASE = "https://www.twse.com.tw/exchangeReport/TWT49U"
+BASE = "https://www.twse.com.tw/rwd/zh/exRight/TWT49U"
 
 
 def months_between(start, end):
@@ -38,7 +38,7 @@ def fetch_month(month, opener=urlopen):
     year, mon = map(int, month.split("-"))
     first = f"{year:04d}{mon:02d}01"
     last = f"{year:04d}{mon:02d}{monthrange(year, mon)[1]:02d}"
-    url = BASE + "?" + urlencode({"response": "json", "strDate": first, "endDate": last})
+    url = BASE + "?" + urlencode({"response": "json", "startDate": first, "endDate": last})
     request = Request(url, headers={"User-Agent": "TBRM-research/1.0", "Accept": "application/json"})
     with opener(request, timeout=25) as response:
         raw = response.read(5_000_001)
