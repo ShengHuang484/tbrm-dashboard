@@ -216,24 +216,31 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
  try{
   const a=normalized(await read('twse_stocks')),latest=latestDate(a);
   if(latest!==date)throw Error('日期 '+(latest||'未知')+' ≠ '+date);
-  let up=0,down=0,flat=0,upVol=0,totalVol=0,volCount=0;
+  let up=0,down=0,flat=0,upVol=0,totalVol=0,volCount=0,missingVol=0,missingChange=0;
   for(const {row:x} of match(a)){
    if(!/^\d{4}$/.test(String(get(x,['Code','證券代號'])??'').trim()))continue;
    const change=signChange(get(x,['Change','漲跌價差']));
-   if(change===null)continue;
+   if(change===null){missingChange++;continue;}
    const vol=num(get(x,['TradeVolume','成交股數']));
    if(vol!==null&&vol>=0){totalVol+=vol;volCount++;if(change>0)upVol+=vol;}
+   else missingVol++;
    if(change>0)up++;else if(change<0)down++;else flat++;
   }
+  const validChange=up+down+flat;
   if(up+down<100)throw Error('有效上市股票少於100家');
   document.getElementById('breadth').textContent=up.toLocaleString()+' / '+down.toLocaleString();
-  // Single-day up/down ratio is a proxy, not a historical ADR.
   const ratio=down?up/down:Infinity;
   updateItem(warning,'ADR（上市）',ratio,ratio<=.2?5:ratio<=.5?3:ratio<=.8?1:0,`${up} 漲 / ${down} 跌（單日代理指標）`);
-  if(volCount===up+down+flat&&totalVol>0){
+  // Fail closed if too many valid-change stocks lack volume. A few suspended
+  // or malformed rows should not invalidate a market-wide volume statistic.
+  const coverage=validChange>0?volCount/validChange:0;
+  const diagnostics=`有效成交量 ${volCount}/${validChange} 檔（${(coverage*100).toFixed(2)}%）；缺成交量 ${missingVol} 檔；漲跌價差無效 ${missingChange} 檔；有效總成交股數 ${Math.round(totalVol).toLocaleString()}`;
+  if(validChange>=100&&coverage>=0.98&&totalVol>0){
    const pct=100*upVol/totalVol;
-   updateItem(confirm,'上漲成交量比例',pct,pct>=70?5:pct>=60?3:pct>=50?1:0,pct.toFixed(2)+'%（四碼股票成交股數）');
-   label('上漲成交量比例',date+'，'+pct.toFixed(2)+'%');
+   updateItem(confirm,'上漲成交量比例',pct,pct>=70?5:pct>=60?3:pct>=50?1:0,`${pct.toFixed(2)}%（四碼股票成交股數；覆蓋率 ${(coverage*100).toFixed(2)}%）`);
+   label('上漲成交量比例',date+'，'+pct.toFixed(2)+'%；'+diagnostics);
+  }else{
+   label('上漲成交量比例','未評分：'+diagnostics+'；門檻為有效成交量覆蓋率至少98%、有效股票至少100檔且總成交量大於0');
   }
   label('上市漲跌家數',date+'，股票代號四碼之單日統計');info.push('上市漲跌家數已更新');
  }catch(e){label('上市漲跌家數','未採用：'+e.message)}
