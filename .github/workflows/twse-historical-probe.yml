@@ -102,6 +102,44 @@ jobs:
           (root / "price_reconciliation.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n")
           print(json.dumps({k: v for k, v in result.items() if k != "checks"}, ensure_ascii=False))
           PY
+      - name: Check missing event dates against official TWSE trading calendar
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, re, urllib.request
+          from pathlib import Path
+          root = Path("twse-probe")
+          report_path = root / "price_reconciliation.json"
+          if not report_path.exists():
+              raise SystemExit("Missing reconciliation report")
+          report = json.loads(report_path.read_text())
+          results = []
+          for day in report.get("missing_event_dates", []):
+              month = day[:7].replace("-", "")
+              url = "https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date=" + month + "01"
+              item = {"date": day, "url": url, "calendar_verified": False}
+              try:
+                  request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.load(response)
+                  if payload.get("stat") != "OK" or not isinstance(payload.get("data"), list):
+                      raise ValueError("invalid TWSE calendar response")
+                  dates = set()
+                  for row in payload["data"]:
+                      match = re.fullmatch(r"(\\d{2,3})/(\\d{1,2})/(\\d{1,2})", str(row[0]))
+                      if not match:
+                          raise ValueError("unrecognized TWSE calendar date")
+                      dates.add(f"{int(match[1])+1911:04d}-{int(match[2]):02d}-{int(match[3]):02d}")
+                  item.update({"calendar_verified": True, "is_trading_day": day in dates, "month_trading_days": len(dates)})
+              except Exception as exc:
+                  item["error"] = type(exc).__name__ + ": " + str(exc)[:200]
+              results.append(item)
+          output = {"dates": results, "score_eligible": False}
+          (root / "missing_date_calendar_audit.json").write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\\n")
+          print(json.dumps(output, ensure_ascii=False))
+          if any(not x["calendar_verified"] for x in results):
+              raise SystemExit("TWSE trading calendar could not be verified")
+          PY
       - name: Print probe manifest
         if: always()
         run: |
