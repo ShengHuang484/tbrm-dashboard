@@ -59,6 +59,7 @@ def reconcile_candidates(events, history, trading_dates, tolerance="0.011"):
         })
     return {
         "checks": checks,
+        "event_date_not_in_history": sum(c["status"] == "event_date_not_in_history" for c in checks),
         "matched": sum(c["status"] == "matched_price_basis" for c in checks),
         "unresolved": sum(c["status"] != "matched_price_basis" for c in checks),
         "corporate_action_completeness_verified": False,
