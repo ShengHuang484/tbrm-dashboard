@@ -51,6 +51,12 @@ jobs:
           else
             python -m scripts.twse_event_download --start 2026-11 --end 2026-11 --out twse-smoke
           fi
+      - name: Print download failures for diagnosis
+        if: ${{ always() && inputs.run_twse_smoke }}
+        run: |
+          if [ -f twse-smoke/manifest.json ]; then
+            python -c "import json; d=json.load(open('twse-smoke/manifest.json')); print(json.dumps([{'month':x['month'],'status':x['status'],'error':x.get('error')} for x in d['entries']], ensure_ascii=False, indent=2))"
+          fi
       - name: Inspect downloaded schema
         if: ${{ always() && inputs.run_twse_smoke }}
         run: |
