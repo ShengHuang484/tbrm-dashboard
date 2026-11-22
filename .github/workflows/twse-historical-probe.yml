@@ -54,7 +54,7 @@ jobs:
                       item["fields"] = payload.get("fields")
               summary.append(item)
           report = {"months": summary, "score_eligible": False, "corporate_action_completeness_verified": False}
-          (root / "candidate_audit.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\\n")
+          (root / "candidate_audit.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
           print(json.dumps(report, ensure_ascii=False, indent=2))
           failed = [m["month"] for m in summary if m["status"] != "parsed_unverified"]
           if failed:
@@ -99,7 +99,7 @@ jobs:
           result["unresolved_by_date"] = dict(Counter(c["ex_date"] for c in result["checks"] if c["status"] != "matched_price_basis"))
           result["corporate_action_completeness_verified"] = False
           result["score_eligible"] = False
-          (root / "price_reconciliation.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n")
+          (root / "price_reconciliation.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
           print(json.dumps({k: v for k, v in result.items() if k != "checks"}, ensure_ascii=False))
           PY
       - name: Check missing event dates against official TWSE trading calendar
@@ -135,7 +135,7 @@ jobs:
                   item["error"] = type(exc).__name__ + ": " + str(exc)[:200]
               results.append(item)
           output = {"dates": results, "score_eligible": False}
-          (root / "missing_date_calendar_audit.json").write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\\n")
+          (root / "missing_date_calendar_audit.json").write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n")
           print(json.dumps(output, ensure_ascii=False))
           if any(not x["calendar_verified"] for x in results):
               raise SystemExit("TWSE trading calendar could not be verified")
