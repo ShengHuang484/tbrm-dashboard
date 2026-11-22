@@ -451,6 +451,46 @@ def new_low_counts(history, dates):
         'minimum_daily_universe_count': min(len(history[d]) for d in dates),
         'price_adjustment_validation_required': True,
     })
+    # Parallel dynamic-universe research series. Each date uses only stocks with
+    # 252 strictly prior valid closes; never substitute a missing quote with zero.
+    # This removes the fixed-262-day cohort requirement for *research* while
+    # retaining an explicit comparability/coverage audit.
+    dynamic_counts = []
+    dynamic_denominators = []
+    dynamic_missing = []
+    for i in range(252, 262):
+        lookback = dates[i-252:i]
+        eligible_today = 0
+        lows_today = 0
+        missing_today = 0
+        for code, today_close in history[dates[i]].items():
+            if not isinstance(today_close, (int, float)) or not math.isfinite(today_close) or today_close <= 0:
+                continue
+            prior = [history[d].get(code) for d in lookback]
+            if any(not isinstance(x, (int, float)) or not math.isfinite(x) or x <= 0 for x in prior):
+                missing_today += 1
+                continue
+            eligible_today += 1
+            if today_close < min(prior):
+                lows_today += 1
+        dynamic_counts.append(lows_today)
+        dynamic_denominators.append(eligible_today)
+        dynamic_missing.append(missing_today)
+    dynamic_coverage = [round(n / max(1, len(history[d])), 5)
+                        for n, d in zip(dynamic_denominators, dates[-10:])]
+    audit.update({
+        'dynamic_universe_research_only': {
+            'method': 'daily_252_prior_closes; strict new low; unadjusted',
+            'counts': dynamic_counts,
+            'eligible_stock_counts': dynamic_denominators,
+            'missing_lookback_counts': dynamic_missing,
+            'coverage_by_day': dynamic_coverage,
+            'minimum_coverage': min(dynamic_coverage),
+            'eligible_count_range': max(dynamic_denominators) - min(dynamic_denominators),
+            'score_eligible': False,
+            'warning': 'Raw prices are not corporate-action-adjusted; universe changes can bias counts',
+        }
+    })
     counts = [0] * 10
     for prices in valid.values():
         for i in range(252, 262):
