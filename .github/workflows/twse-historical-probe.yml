@@ -95,6 +95,8 @@ jobs:
           result["history_days"] = len(dates)
           result["candidate_count"] = len(events)
           result["sample_unresolved"] = [c for c in result["checks"] if c["status"] != "matched_price_basis"][:15]
+          result["missing_event_dates"] = sorted({c["ex_date"] for c in result["checks"] if c["status"] == "event_date_not_in_history"})
+          result["unresolved_by_date"] = dict(Counter(c["ex_date"] for c in result["checks"] if c["status"] != "matched_price_basis"))
           result["corporate_action_completeness_verified"] = False
           result["score_eligible"] = False
           (root / "price_reconciliation.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n")
