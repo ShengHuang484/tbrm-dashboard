@@ -371,7 +371,7 @@ def new_low_history(data_dir, day):
     if len(dates)!=262 or dates[-1]!=day:raise ValueError('calendar incomplete')
     history={d:v for d,v in history.items() if d in dates}
     errors=[]
-    for d in [d for d in reversed(dates) if d not in history][:20]:
+    for d in [d for d in reversed(dates) if d not in history][:35]:
         try:
             rows=dated_maintenance_prices(d)
             prices={}
@@ -387,9 +387,17 @@ def new_low_history(data_dir, day):
             errors.append(d+': '+str(exc)[:100]);break
         finally:time.sleep(2)
     tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(history,separators=(',',':')));tmp.replace(path)
-    result={'date':day,'method':'raw_close_proxy','valid_days':len(history),'required_days':262,'errors':errors,'status':'collecting'}
+    missing_dates=[d for d in dates if d not in history]
+    result={'date':day,'method':'raw_close_proxy','valid_days':len(history),'required_days':262,
+            'missing_days':len(missing_dates),'next_missing_dates':list(reversed(missing_dates))[:10],
+            'backfill_batch_limit':35,'errors':errors,'status':'collecting',
+            'adjustment_status':'unverified','score_eligible':False}
     if len(history)==262:
         result.update(new_low_counts(history,dates))
+        # Raw closing prices are not total-return or corporate-action-adjusted.
+        # Do not mark this as score eligible even when the full history exists.
+        result['adjustment_status']='unverified'
+        result['score_eligible']=False
     return result
 
 
