@@ -20,6 +20,11 @@ class ReconcileTests(unittest.TestCase):
         r = reconcile_candidates([EVENT], {}, DATES)
         self.assertEqual(r["checks"][0]["status"], "missing_prior_close")
 
+    def test_missing_event_date_is_distinguished_from_missing_prior(self):
+        r = reconcile_candidates([dict(EVENT, ex_date="2026-06-04")], {}, DATES)
+        self.assertEqual(r["checks"][0]["status"], "event_date_not_in_history")
+        self.assertEqual(r["checks"][0]["preceding_available_date"], "2026-06-03")
+
     def test_missing_calendar_date_is_flagged(self):
         r = reconcile_candidates([dict(EVENT, ex_date="2026-07-01")], {}, DATES)
         self.assertEqual(r["checks"][0]["status"], "no_prior_trading_day")
