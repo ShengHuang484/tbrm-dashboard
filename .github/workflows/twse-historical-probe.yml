@@ -1,0 +1,40 @@
+name: TWSE historical single-month probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/twse-historical-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  historical-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/new-low-quality-gates-20261123
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run research tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Probe November 2025 only
+        run: python -m scripts.twse_event_download --start 2025-11 --end 2025-11 --out twse-probe
+      - name: Print probe manifest
+        if: always()
+        run: |
+          if [ -f twse-probe/manifest.json ]; then cat twse-probe/manifest.json; fi
+      - name: Save research-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: twse-single-month-probe
+          path: twse-probe/
+          retention-days: 7
+          if-no-files-found: warn
