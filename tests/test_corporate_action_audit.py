@@ -29,6 +29,20 @@ class CorporateActionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             event_factors([event(verified=False)])
 
+    def test_matched_price_basis_does_not_verify_event(self):
+        candidate = event(verified=False, event_type="息")
+        with self.assertRaisesRegex(ValueError, "unverified event"):
+            backward_adjusted_series(
+                ["2026-06-01", "2026-06-02", "2026-06-03"],
+                {"2330": [100, 95, 96]}, [candidate])
+
+    def test_rejects_nontrading_event_date_even_if_marked_verified(self):
+        with self.assertRaisesRegex(ValueError, "event outside date window"):
+            backward_adjusted_series(
+                ["2026-07-09", "2026-07-13"],
+                {"2330": [100, 95]},
+                [event(ex_date="2026-07-10")])
+
     def test_rejects_missing_source(self):
         with self.assertRaises(ValueError):
             event_factors([event(source_url="")])
