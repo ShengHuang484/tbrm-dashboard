@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-22T16:38:57.545266+00:00",
+  "fetched_at_utc": "2026-11-22T16:55:32.831400+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -54,7 +54,7 @@
     "taifex_vix": {
       "status": "ok",
       "date": "2026-11-20",
-      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/202611new.txt"
+      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data_eng/202611new.txt"
     },
     "margin_maintenance": {
       "status": "ok",
@@ -101,26 +101,254 @@
     "new_low": {
       "date": "2026-11-20",
       "method": "raw_close_proxy",
-      "valid_days": 235,
+      "valid_days": 262,
       "required_days": 262,
-      "missing_days": 27,
-      "next_missing_dates": [
-        "2025-11-28",
-        "2025-11-27",
-        "2025-11-26",
-        "2025-11-25",
-        "2025-11-24",
-        "2025-11-21",
-        "2025-11-20",
-        "2025-11-19",
-        "2025-11-18",
-        "2025-11-17"
-      ],
+      "missing_days": 0,
+      "next_missing_dates": [],
       "backfill_batch_limit": 35,
       "errors": [],
-      "status": "collecting",
+      "status": "research_only",
       "adjustment_status": "unverified",
-      "score_eligible": false
+      "score_eligible": false,
+      "eligible": 940,
+      "latest_stock_count": 1090,
+      "coverage": 0.86239,
+      "cohort_method": "fixed_262_day_complete_history",
+      "cohort_bias_warning": "Excludes IPOs, delisted and securities without all 262 closes",
+      "corporate_action_verified": false,
+      "corporate_action_method": "none; daily price jumps are only screening flags",
+      "window_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "window_jump_flagged_securities": 0,
+      "window_jump_samples": {},
+      "latest_10_daily_universe_counts": [
+        1091,
+        1089,
+        1088,
+        1088,
+        1089,
+        1088,
+        1089,
+        1090,
+        1090,
+        1090
+      ],
+      "minimum_daily_universe_count": 1051,
+      "price_adjustment_validation_required": true,
+      "dynamic_universe_research_only": {
+        "method": "daily_252_prior_closes; strict new low; unadjusted",
+        "counts": [
+          65,
+          93,
+          81,
+          85,
+          26,
+          159,
+          182,
+          104,
+          308,
+          483
+        ],
+        "eligible_stock_counts": [
+          941,
+          940,
+          940,
+          941,
+          942,
+          942,
+          942,
+          943,
+          944,
+          946
+        ],
+        "missing_lookback_counts": [
+          150,
+          149,
+          148,
+          147,
+          147,
+          146,
+          147,
+          147,
+          146,
+          144
+        ],
+        "coverage_by_day": [
+          0.86251,
+          0.86318,
+          0.86397,
+          0.86489,
+          0.86501,
+          0.86581,
+          0.86501,
+          0.86514,
+          0.86606,
+          0.86789
+        ],
+        "minimum_coverage": 0.86251,
+        "eligible_count_range": 6,
+        "score_eligible": false,
+        "warning": "Raw prices are not corporate-action-adjusted; universe changes can bias counts"
+      },
+      "suspicious_jump_threshold_pct": 12,
+      "suspicious_jump_securities": 29,
+      "suspicious_jump_samples": {
+        "1319": [
+          [
+            "2026-06-22",
+            -14.52
+          ]
+        ],
+        "1436": [
+          [
+            "2026-07-23",
+            -14.24
+          ]
+        ],
+        "1446": [
+          [
+            "2026-07-09",
+            -12.79
+          ]
+        ],
+        "2105": [
+          [
+            "2026-06-17",
+            -12.52
+          ]
+        ],
+        "2385": [
+          [
+            "2026-06-15",
+            -13.83
+          ]
+        ],
+        "2442": [
+          [
+            "2026-09-08",
+            -17.99
+          ]
+        ],
+        "2449": [
+          [
+            "2026-07-28",
+            -14.49
+          ]
+        ],
+        "2528": [
+          [
+            "2026-07-28",
+            -12.5
+          ]
+        ],
+        "2539": [
+          [
+            "2026-08-20",
+            -13.94
+          ]
+        ],
+        "2540": [
+          [
+            "2026-08-10",
+            -17.67
+          ]
+        ],
+        "2542": [
+          [
+            "2026-09-23",
+            -12.98
+          ]
+        ],
+        "2548": [
+          [
+            "2026-06-02",
+            -14.69
+          ]
+        ],
+        "2603": [
+          [
+            "2026-06-17",
+            -12.02
+          ]
+        ],
+        "2614": [
+          [
+            "2026-10-06",
+            -16.49
+          ]
+        ],
+        "3034": [
+          [
+            "2026-07-13",
+            -13.75
+          ]
+        ],
+        "3149": [
+          [
+            "2026-07-17",
+            -14.87
+          ]
+        ],
+        "5283": [
+          [
+            "2025-10-31",
+            -13.8
+          ],
+          [
+            "2026-08-28",
+            -15.06
+          ]
+        ],
+        "5292": [
+          [
+            "2026-07-09",
+            -13.87
+          ]
+        ],
+        "5519": [
+          [
+            "2026-07-13",
+            -16.11
+          ]
+        ],
+        "6165": [
+          [
+            "2026-11-02",
+            -15.45
+          ]
+        ]
+      },
+      "counts": [
+        64,
+        93,
+        81,
+        85,
+        25,
+        158,
+        182,
+        104,
+        308,
+        482
+      ],
+      "previous_avg": 69.6,
+      "recent_avg": 246.8,
+      "decline_pct": -254.59770114942532,
+      "proxy_points_not_scored": 0,
+      "blocking_reasons": [
+        "Unadjusted close prices: dividends, rights, splits and capital reductions unverified",
+        "Fixed-cohort survivorship/coverage bias not resolved",
+        "Review flagged discontinuities against official ex-rights, ex-dividend and capital-reduction events"
+      ]
     },
     "index_history": {
       "status": "ok",
