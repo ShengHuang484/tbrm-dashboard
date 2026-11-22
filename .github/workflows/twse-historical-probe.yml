@@ -356,6 +356,9 @@ jobs:
         if: always()
         run: |
           python -m scripts.new_low_universe_audit data/history/new_low_closes.json twse-probe/raw_universe_audit.json
+      - name: Cross-check concentrated missing quotes with official TWSE daily detail
+        run: |
+          python -m scripts.twse_quote_gap_crosscheck data/history/new_low_closes.json twse-probe/raw_universe_audit.json twse-probe/official_quote_gap_crosscheck.json
       - name: Consolidate all new-low readiness blockers
         run: python -m scripts.new_low_readiness twse-probe
       - name: Print probe manifest
