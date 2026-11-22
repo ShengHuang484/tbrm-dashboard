@@ -40,13 +40,14 @@ def stock_rows(payload):
     return result
 
 
-def crosscheck(history, audit, fetcher, max_dates=24):
+def crosscheck(history, audit, fetcher, max_dates=24, offset=0):
     gaps = {}
     for item in audit["internal_gap_details"]:
         for day in item["internal_missing_dates"]:
             gaps.setdefault(day, []).append(item["code"])
     # Highest missing-stock concentration first, bounded to avoid heavy API traffic.
-    selected = sorted(gaps, key=lambda day: (-len(gaps[day]), day))[:max_dates]
+    ranked = sorted(gaps, key=lambda day: (-len(gaps[day]), day))
+    selected = ranked[offset:offset + max_dates]
     checks = []
     for day in selected:
         url = ("https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date="
@@ -81,6 +82,8 @@ def crosscheck(history, audit, fetcher, max_dates=24):
     status_counts = dict(sorted(Counter(x["status"] for x in checks).items()))
     return {
         "checked_dates": selected,
+        "offset": offset,
+        "max_dates": max_dates,
         "status_counts": status_counts,
         "checked_stock_date_pairs": len(checks),
         "total_internal_gap_dates": len(gaps),
@@ -90,6 +93,7 @@ def crosscheck(history, audit, fetcher, max_dates=24):
         "official_source_unavailable": sum(
             x["status"] == "official_source_unavailable" for x in checks),
         "remaining_dates_unchecked": len(gaps) - len(selected),
+        "next_offset": offset + len(selected) if offset + len(selected) < len(ranked) else None,
         "official_absence_is_not_suspension_proof": True,
         "all_gaps_verified": False,
         "score_eligible": False,
@@ -108,8 +112,11 @@ if __name__ == "__main__":
     parser.add_argument("history", type=Path)
     parser.add_argument("universe_audit", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--offset", type=int, default=0)
+    parser.add_argument("--max-dates", type=int, default=24)
     args = parser.parse_args()
     report = crosscheck(json.loads(args.history.read_text()),
-                        json.loads(args.universe_audit.read_text()), fetch)
+                        json.loads(args.universe_audit.read_text()), fetch,
+                        max_dates=args.max_dates, offset=args.offset)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps({k: v for k, v in report.items() if k != "checks"}, ensure_ascii=False))
