@@ -22,6 +22,19 @@ class QuoteGapTests(unittest.TestCase):
         self.assertEqual(report["checks"][1]["status"], "official_quote_present_missing_in_archive")
         self.assertFalse(report["score_eligible"])
 
+    def test_pagination_does_not_repeat_dates(self):
+        audit = {"internal_gap_details": [
+            {"code": "2330", "internal_missing_dates": ["2026-01-05", "2026-01-06", "2026-01-07"]}
+        ]}
+        def fetcher(url):
+            return {"stat": "OK", "tables": [{"fields": ["證券代號", "收盤價"],
+                    "data": [["2330", "--"]]}]}
+        first = crosscheck({}, audit, fetcher, max_dates=2, offset=0)
+        second = crosscheck({}, audit, fetcher, max_dates=2, offset=2)
+        self.assertEqual(first["next_offset"], 2)
+        self.assertIsNone(second["next_offset"])
+        self.assertFalse(set(first["checked_dates"]) & set(second["checked_dates"]))
+
     def test_unavailable_source_is_not_misclassified_as_no_trade(self):
         audit = {"internal_gap_details": [{"code": "2330", "internal_missing_dates": ["2026-01-05"]}]}
         def fetcher(url):
