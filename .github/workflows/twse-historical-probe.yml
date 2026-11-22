@@ -60,6 +60,12 @@ jobs:
           if failed:
               raise SystemExit("TWSE candidate extraction failed for: " + ", ".join(failed))
           PY
+      - name: Audit duplicate and conflicting TWSE events
+        if: always()
+        run: |
+          if [ -f twse-probe/manifest.json ]; then
+            python -m scripts.twse_event_identity_audit twse-probe
+          fi
       - name: Print probe manifest
         if: always()
         run: |
