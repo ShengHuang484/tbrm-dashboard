@@ -1,0 +1,46 @@
+{
+  "research_only": true,
+  "score_eligible": false,
+  "finding": "Both exceptional TWSE event dates coincide with typhoon-related full-market closures; the original ex-date records can be stale after closure.",
+  "cases": [
+    {
+      "original_date": "2026-07-10",
+      "affected_common_stock_codes": [
+        "2008",
+        "2610",
+        "2891",
+        "3034",
+        "3055",
+        "4968",
+        "5519",
+        "6477"
+      ],
+      "closure_reason": "typhoon",
+      "first_reopened_trading_day": "2026-07-13",
+      "independent_closure_source": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E8%82%A17-10%E5%9B%A0%E9%A2%B1%E9%A2%A8%E4%BC%91%E5%B8%82-%E5%A4%A9-%E8%81%AF%E8%A9%A0-%E4%B8%AD%E4%BF%A1%E9%87%91%E7%AD%8923%E6%AA%94%E5%80%8B%E8%82%A1%E9%99%A4%E6%AC%8A%E6%81%AF%E9%A0%86%E5%BB%B6-130246948.html",
+      "candidate_adjustment_date": "2026-07-13",
+      "approved_adjustment_date": null,
+      "verification_status": "market_closure_and_general_deferral_corroborrated; per_security_effective_date_and_price_factor_unverified"
+    },
+    {
+      "original_date": "2026-10-23",
+      "affected_common_stock_codes": [
+        "2028",
+        "6931"
+      ],
+      "closure_reason": "typhoon",
+      "first_reopened_trading_day": "2026-10-27",
+      "independent_closure_source": "https://www.pocket.tw/main/announcement/20261022",
+      "deferral_source": "https://stock-viewer.haoenjoylife.com/calendar/2026-10",
+      "candidate_adjustment_date": "2026-10-27",
+      "approved_adjustment_date": null,
+      "verification_status": "market_closure_and_candidate_ex_dividend_date_corroborrated; per_security_effective_date_and_price_factor_unverified"
+    }
+  ],
+  "notes": [
+    "These are research candidate dates, not approved adjustments.",
+    "Do not silently rewrite original TWSE event dates.",
+    "A verified calendar closure is not sufficient to validate corporate-action adjustment factors.",
+    "The last five score points remain disabled."
+  ]
+}
