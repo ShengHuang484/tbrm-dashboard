@@ -352,7 +352,7 @@ jobs:
           if price["candidate_count"] != price["matched"] + price["unresolved"]:
               raise SystemExit("Inconsistent candidate reconciliation counts")
           PY
-      - name: Audit 262-day raw stock universe (classify internal gaps)
+      - name: Audit 262-day raw stock universe (export exact missing dates)
         if: always()
         run: |
           python -m scripts.new_low_universe_audit data/history/new_low_closes.json twse-probe/raw_universe_audit.json
