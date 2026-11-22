@@ -56,6 +56,9 @@ jobs:
           report = {"months": summary, "score_eligible": False, "corporate_action_completeness_verified": False}
           (root / "candidate_audit.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\\n")
           print(json.dumps(report, ensure_ascii=False, indent=2))
+          failed = [m["month"] for m in summary if m["status"] != "parsed_unverified"]
+          if failed:
+              raise SystemExit("TWSE candidate extraction failed for: " + ", ".join(failed))
           PY
       - name: Print probe manifest
         if: always()
