@@ -49,7 +49,7 @@ jobs:
           if [ "$HISTORICAL" = 'true' ]; then
             python -m scripts.twse_event_download --start 2025-11 --end 2026-11 --out twse-smoke
           else
-            python -m scripts.twse_event_download --start 2026-11 --end 2026-11 --out twse-smoke
+            python -m scripts.twse_event_download --start 2025-11 --end 2025-11 --out twse-smoke
           fi
       - name: Print download failures for diagnosis
         if: ${{ always() && inputs.run_twse_smoke }}
