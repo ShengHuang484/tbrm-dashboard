@@ -111,11 +111,16 @@ def archive(start, end, out_dir, fetcher=fetch_month):
             entries.append({"month": month, "status": "failed",
                             "error": type(exc).__name__ + ": " + str(exc)[:180]})
         time.sleep(0.5)
+    hashes = [e["sha256"] for e in entries if e["status"] == "downloaded_unverified"]
+    duplicate_payloads = len(hashes) != len(set(hashes))
     report = {"start_month": start, "end_month": end, "entries": entries,
+              "duplicate_month_payloads": duplicate_payloads,
               "successful_months": [e["month"] for e in entries if e["status"] == "downloaded_unverified"],
               "failed_months": [e["month"] for e in entries if e["status"] == "failed"],
               "corporate_action_completeness_verified": False,
               "score_eligible": False}
+    if duplicate_payloads:
+        report["failed_months"].append("duplicate_month_payloads")
     (out / "manifest.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
 
