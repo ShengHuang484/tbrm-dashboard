@@ -11,6 +11,7 @@ import hashlib
 import json
 import time
 from datetime import date
+from calendar import monthrange
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -33,7 +34,10 @@ def months_between(start, end):
 
 
 def fetch_month(month, opener=urlopen):
-    url = BASE + "?" + urlencode({"response": "json", "date": month.replace("-", "") + "01"})
+    year, mon = map(int, month.split("-"))
+    first = f"{year:04d}{mon:02d}01"
+    last = f"{year:04d}{mon:02d}{monthrange(year, mon)[1]:02d}"
+    url = BASE + "?" + urlencode({"response": "json", "strDate": first, "endDate": last})
     request = Request(url, headers={"User-Agent": "TBRM-research/1.0", "Accept": "application/json"})
     with opener(request, timeout=25) as response:
         raw = response.read(5_000_001)
@@ -58,13 +62,41 @@ def archive(start, end, out_dir, fetcher=fetch_month):
     for month in months_between(start, end):
         try:
             url, raw, obj = fetcher(month)
+            # Reject a successful response if its event dates belong to other months.
+            tables = obj.get("tables") if isinstance(obj.get("tables"), list) else [obj]
+            observed = []
+            for table in tables:
+                if not isinstance(table, dict):
+                    continue
+                fields = table.get("fields", [])
+                rows = table.get("data", [])
+                if not isinstance(fields, list) or not isinstance(rows, list):
+                    continue
+                if "資料日期" not in fields:
+                    continue
+                idx = fields.index("資料日期")
+                for row in rows:
+                    if not isinstance(row, list) or idx >= len(row):
+                        raise ValueError("malformed event date row")
+                    raw_date = str(row[idx]).strip()
+                    digits = raw_date.replace("/", "").replace("-", "")
+                    if not digits.isdigit() or len(digits) not in (7, 8):
+                        raise ValueError("unrecognized event date: " + raw_date[:30])
+                    if len(digits) == 7:
+                        digits = str(int(digits[:3]) + 1911) + digits[3:]
+                    if digits[:6] != month.replace("-", ""):
+                        raise ValueError("event outside requested month: " + raw_date[:30])
+                    observed.append(digits)
+            if not observed:
+                raise ValueError("no dated events to establish month coverage")
             filename = month + ".json"
             (out / filename).write_bytes(raw)
             entries.append({"month": month, "status": "downloaded_unverified",
                             "file": filename, "source_url": url,
                             "sha256": hashlib.sha256(raw).hexdigest(),
                             "twse_status": obj.get("stat"),
-                            "bytes": len(raw)})
+                            "bytes": len(raw), "dated_rows": len(observed),
+                            "first_event_date": min(observed), "last_event_date": max(observed)})
         except Exception as exc:
             entries.append({"month": month, "status": "failed",
                             "error": type(exc).__name__ + ": " + str(exc)[:180]})
