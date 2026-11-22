@@ -66,6 +66,40 @@ jobs:
           if [ -f twse-probe/manifest.json ]; then
             python -m scripts.twse_event_identity_audit twse-probe
           fi
+      - name: Reconcile candidate events against saved raw closes
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from collections import Counter
+          from scripts.twse_event_extract import extract_candidates
+          from scripts.corporate_action_reconcile import reconcile_candidates
+          root = Path("twse-probe")
+          manifest_path = root / "manifest.json"
+          history_path = Path("data/history/new_low_closes.json")
+          if not manifest_path.exists() or not history_path.exists():
+              print("Missing TWSE manifest or stock close history")
+              raise SystemExit(1)
+          manifest = json.loads(manifest_path.read_text())
+          history = json.loads(history_path.read_text())
+          dates = sorted(history)
+          events = []
+          for entry in manifest["entries"]:
+              if entry["status"] != "downloaded_unverified":
+                  raise SystemExit("Cannot reconcile failed month: " + entry["month"])
+              payload = json.loads((root / entry["file"]).read_text(encoding="utf-8-sig"))
+              events.extend(extract_candidates(payload, entry["source_url"]))
+          result = reconcile_candidates(events, history, dates)
+          result["status_counts"] = dict(Counter(c["status"] for c in result["checks"]))
+          result["history_days"] = len(dates)
+          result["candidate_count"] = len(events)
+          result["sample_unresolved"] = [c for c in result["checks"] if c["status"] != "matched_price_basis"][:15]
+          result["corporate_action_completeness_verified"] = False
+          result["score_eligible"] = False
+          (root / "price_reconciliation.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n")
+          print(json.dumps({k: v for k, v in result.items() if k != "checks"}, ensure_ascii=False))
+          PY
       - name: Print probe manifest
         if: always()
         run: |
