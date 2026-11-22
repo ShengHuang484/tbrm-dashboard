@@ -1,6 +1,9 @@
 name: New-low research checks
 
 on:
+  push:
+    branches:
+      - research/new-low-quality-gates-20261123
   pull_request:
     paths:
       - 'scripts/corporate_action_*.py'
