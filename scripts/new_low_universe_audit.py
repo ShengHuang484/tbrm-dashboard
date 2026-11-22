@@ -48,6 +48,19 @@ def audit_history(history, required_days=262):
         for code in all_codes
     )
     changing = sorted(all_codes - common)
+    # A 52-week low on the last day needs the last 252 *prior trading dates*,
+    # not merely 252 observed prices scattered anywhere in the 262-day file.
+    prior_dates = dates[-253:-1] if len(dates) >= 253 else []
+    strict_prior_codes = (
+        set.intersection(*(set(history[d]) for d in prior_dates))
+        if len(prior_dates) == 252 else set()
+    )
+    latest_strict_eligible = latest_codes & strict_prior_codes
+    observed_252_codes = {
+        code for code in latest_codes
+        if sum(code in history[day] for day in dates) >= 252
+    }
+    observed_but_not_strict = sorted(observed_252_codes - latest_strict_eligible)
     calendar_index = {day: i for i, day in enumerate(dates)}
     gap_details = []
     for code in changing:
@@ -80,6 +93,11 @@ def audit_history(history, required_days=262):
         "latest_codes_with_at_least_252_observations": latest_with_252_observations,
         "latest_codes_below_252_observations": len(latest_codes) - latest_with_252_observations,
         "latest_codes_without_full_262_day_history": len(latest_codes - common),
+        "latest_codes_with_252_consecutive_prior_trading_closes": len(latest_strict_eligible),
+        "latest_codes_with_252_observations_but_missing_prior_window": len(observed_but_not_strict),
+        "observed_but_not_strict_sample": observed_but_not_strict[:40],
+        "latest_strict_lookback_start": prior_dates[0] if prior_dates else None,
+        "latest_strict_lookback_end": prior_dates[-1] if prior_dates else None,
         "full_window_codes": len(common),
         "variable_coverage_codes": len(changing),
         "variable_coverage_sample": changing[:30],
