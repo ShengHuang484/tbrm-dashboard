@@ -7,7 +7,7 @@ must be checked independently before an event can be approved.
 from datetime import date
 from decimal import Decimal, InvalidOperation
 
-FIELDS = ("資料日期", "股票代號", "除權息前收盤價", "除權息參考價", "權/息")
+FIELDS = ("除權息前收盤價", "除權息參考價", "權/息")
 
 
 def roc_date(value):
@@ -30,7 +30,7 @@ def parse_result_rows(rows, source_url):
     for row in rows:
         if not isinstance(row, dict) or any(k not in row for k in FIELDS):
             raise ValueError("unexpected TWT49U schema")
-        code = str(row["股票代號"]).strip()
+        code = str(row.get("股票代號", row.get("代號", ""))).strip()
         if len(code) != 4 or not code.isdigit() or code[0] == "0":
             continue  # Exclude ETF and non-four-digit common-stock codes.
         try:
@@ -43,9 +43,12 @@ def parse_result_rows(rows, source_url):
         event_type = str(row["權/息"]).strip()
         if event_type not in ("權", "息", "權息", "權/息"):
             raise ValueError("unrecognized corporate action type")
+        day = row.get("除權息日期", row.get("資料日期"))
+        if day is None:
+            raise ValueError("missing ex-date")
         result.append({
             "code": code,
-            "ex_date": roc_date(row["資料日期"]),
+            "ex_date": roc_date(day),
             "prior_close": str(prior),
             "reference_price": str(reference),
             "event_type": event_type,
