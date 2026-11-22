@@ -44,8 +44,10 @@ def fetch_month(month, opener=urlopen):
         raise ValueError("unexpected TWSE response")
     # A successful HTTP request does not guarantee valid historical data.
     # Preserve the raw response for manual schema and coverage review.
-    if not any(k in obj for k in ("data", "tables", "stat", "fields")):
-        raise ValueError("unexpected TWSE schema")
+    if obj.get("stat") != "OK":
+        raise ValueError("TWSE did not confirm success: " + str(obj.get("stat"))[:100])
+    if not isinstance(obj.get("data"), list) and not isinstance(obj.get("tables"), list):
+        raise ValueError("missing TWSE tabular payload")
     return url, raw, obj
 
 
