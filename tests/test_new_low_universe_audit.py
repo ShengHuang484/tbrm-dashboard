@@ -18,6 +18,8 @@ class UniverseAuditTests(unittest.TestCase):
         self.assertEqual(report["boundary_only_code_count"], 1)
         self.assertEqual(report["internal_gap_details"][0]["code"], "2317")
         self.assertEqual(report["internal_gap_details"][0]["internal_missing_days"], 1)
+        self.assertEqual(report["internal_gap_details"][0]["internal_missing_dates"], ["2026-01-05"])
+        self.assertEqual(report["internal_gap_day_total"], 1)
         self.assertFalse(report["score_eligible"])
 
     def test_invalid_price_blocks(self):
