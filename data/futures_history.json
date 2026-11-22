@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-19",
+    "net": -99219,
+    "source_url": "https://www.taifex.com.tw/cht/3/futContractsDate?doQuery=1&queryType=1&queryDate=2026%2F11%2F19"
+  },
+  {
     "date": "2026-11-20",
     "net": -97863
   }

@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T19:52:42.756318+00:00",
+  "fetched_at_utc": "2026-11-22T14:59:52.499410+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -101,7 +101,7 @@
     "new_low": {
       "date": "2026-11-20",
       "method": "raw_close_proxy",
-      "valid_days": 40,
+      "valid_days": 60,
       "required_days": 262,
       "errors": [],
       "status": "collecting"
@@ -110,6 +110,21 @@
       "status": "ok",
       "date": "2026-11-20",
       "records": 255
+    },
+    "breadth_history": {
+      "status": "ok",
+      "missing": [],
+      "errors": {}
+    },
+    "futures_history": {
+      "status": "ok",
+      "missing": [],
+      "errors": {}
+    },
+    "margin_calendar_check": {
+      "status": "ok",
+      "missing": [],
+      "required": 21
     }
   },
   "errors": {}

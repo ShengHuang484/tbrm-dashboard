@@ -1,0 +1,170 @@
+{
+  "report_date": "20261119",
+  "source_url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261119&type=MS",
+  "stat": "OK",
+  "top_level_keys": [
+    "tables",
+    "type",
+    "stat",
+    "date"
+  ],
+  "top_level_shapes": {
+    "tables": {
+      "type": "array",
+      "length": 10,
+      "first_item_type": "dict",
+      "sample": [
+        {},
+        {}
+      ]
+    },
+    "type": {
+      "type": "str",
+      "sample": "MS"
+    },
+    "stat": {
+      "type": "str",
+      "sample": "OK"
+    },
+    "date": {
+      "type": "str",
+      "sample": "20261119"
+    }
+  },
+  "tables": [
+    {
+      "key": "tables[0]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[1]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[2]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[3]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[4]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[5]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[6]",
+      "title": "115年11月19日 大盤統計資訊",
+      "keys": [
+        "title",
+        "fields",
+        "data",
+        "hints"
+      ],
+      "fields": [
+        "成交統計",
+        "成交金額(元)",
+        "成交股數(股)",
+        "成交筆數"
+      ],
+      "row_count": 17,
+      "sample_rows": [
+        [
+          "1.一般股票",
+          "789,338,669,063",
+          "4,835,369,750",
+          "3,752,753"
+        ],
+        [
+          "2.台灣存託憑證",
+          "150,288,385",
+          "24,923,161",
+          "5,220"
+        ],
+        [
+          "3.受益憑證",
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    {
+      "key": "tables[7]",
+      "title": "漲跌證券數合計",
+      "keys": [
+        "title",
+        "fields",
+        "data",
+        "notes"
+      ],
+      "fields": [
+        "類型",
+        "整體市場",
+        "股票"
+      ],
+      "row_count": 5,
+      "sample_rows": [
+        [
+          "上漲(漲停)",
+          "2,177(16)",
+          "67(1)"
+        ],
+        [
+          "下跌(跌停)",
+          "9,993(431)",
+          "993(128)"
+        ],
+        [
+          "持平",
+          "426",
+          "25"
+        ]
+      ]
+    },
+    {
+      "key": "tables[8]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    },
+    {
+      "key": "tables[9]",
+      "title": "",
+      "keys": [],
+      "fields": [],
+      "row_count": 0,
+      "sample_rows": []
+    }
+  ]
+}
