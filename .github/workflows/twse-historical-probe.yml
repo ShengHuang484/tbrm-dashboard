@@ -172,7 +172,7 @@ jobs:
                           continue
                       raw_date = str(values[fields.index(date_name)])
                       import re
-                      m = re.fullmatch(r"(\\d{2,3})年(\\d{1,2})月(\\d{1,2})日", raw_date)
+                      m = re.fullmatch(r"(\d{2,3})年(\d{1,2})月(\d{1,2})日", raw_date)
                       if not m:
                           continue
                       day = f"{int(m[1])+1911:04d}-{int(m[2]):02d}-{int(m[3]):02d}"
@@ -182,6 +182,8 @@ jobs:
                     "requires_official_effective_date_verification": True,
                     "score_eligible": False}
           (root / "non_trading_event_source_rows.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+          if missing and not rows:
+              raise SystemExit("No official source rows extracted for non-trading-day events")
           print(json.dumps({"non_trading_event_dates": sorted(missing), "source_row_count": len(rows),
                             "sample": rows[:2], "score_eligible": False}, ensure_ascii=False))
           PY
