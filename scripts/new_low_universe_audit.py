@@ -42,6 +42,25 @@ def audit_history(history, required_days=262):
                 invalid.append({"date": day, "code": code, "reason": "invalid_close"})
     common = common or set()
     changing = sorted(all_codes - common)
+    calendar_index = {day: i for i, day in enumerate(dates)}
+    gap_details = []
+    for code in changing:
+        positions = [calendar_index[day] for day in dates if code in history[day]]
+        if not positions:
+            continue
+        first, last = positions[0], positions[-1]
+        internal = last - first + 1 - len(positions)
+        gap_details.append({
+            "code": code,
+            "first_observed": dates[first],
+            "last_observed": dates[last],
+            "leading_missing_days": first,
+            "internal_missing_days": internal,
+            "trailing_missing_days": len(dates) - 1 - last,
+            "observed_days": len(positions),
+        })
+    internal_gap_codes = [x for x in gap_details if x["internal_missing_days"]]
+    boundary_only_codes = [x for x in gap_details if not x["internal_missing_days"]]
     return {
         "trading_days": len(dates),
         "required_days": required_days,
@@ -52,6 +71,11 @@ def audit_history(history, required_days=262):
         "full_window_codes": len(common),
         "variable_coverage_codes": len(changing),
         "variable_coverage_sample": changing[:30],
+        "internal_gap_code_count": len(internal_gap_codes),
+        "boundary_only_code_count": len(boundary_only_codes),
+        "internal_gap_details": internal_gap_codes[:100],
+        "boundary_only_sample": boundary_only_codes[:30],
+        "missing_quote_cause_verified": False,
         "invalid_close_count": len(invalid),
         "invalid_close_sample": invalid[:30],
         "raw_history_structurally_valid": len(dates) == required_days and not invalid and bool(common),
