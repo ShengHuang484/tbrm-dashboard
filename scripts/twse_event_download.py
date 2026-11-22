@@ -128,7 +128,9 @@ def main():
     args = p.parse_args()
     report = archive(args.start, args.end, args.out)
     print(json.dumps({"successful_months": len(report["successful_months"]),
-                      "failed_months": report["failed_months"], "score_eligible": False}, ensure_ascii=False))
+                      "failed_months": report["failed_months"],
+                      "errors": {e["month"]: e["error"] for e in report["entries"] if e["status"] == "failed"},
+                      "score_eligible": False}, ensure_ascii=False))
     if report["failed_months"]:
         raise SystemExit(1)
 
