@@ -28,15 +28,17 @@ def fetch(url):
     return payload
 
 
-def fetch_dated_limit_down(data_dir):
+def fetch_dated_limit_down(data_dir, target=None):
     """Use the TWSE dated close report, not the potentially stale OpenAPI breadth feed."""
     stocks=json.loads((data_dir/'twse_stocks.json').read_text(encoding='utf-8'))
     dates=sorted({str(x.get('Date','')) for x in stocks if isinstance(x,dict) and re.fullmatch(r'\d{7}',str(x.get('Date','')))})
     if not dates: raise ValueError('stock snapshot has no ROC trading date')
     roc=dates[-1]; greg=str(int(roc[:3])+1911)+roc[3:]
+    if target: greg=target.replace('-','')
     url=f'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date={greg}&type=MS'
     raw=fetch(url)
     if raw.get('stat')!='OK': raise ValueError('TWSE report not OK: '+str(raw.get('stat')))
+    if str(raw.get('date',''))!=greg: raise ValueError('breadth date mismatch')
     # Record the actual response shape BEFORE filtering tables. A status of OK
     # does not imply that the requested statistics are present.
     def preview(value):
@@ -78,7 +80,7 @@ def fetch_dated_limit_down(data_dir):
             tables.append({'key':k,'title':title,'fields':fields,'rows':v})
             diagnostic['tables'].append({'key':k,'title':title,'fields':fields,
                 'row_count':len(v),'sample_rows':v[:3]})
-    (data_dir/'twse_dated_breadth_diagnostic.json').write_text(
+    (data_dir/('breadth_backfill_diagnostic.json' if target else 'twse_dated_breadth_diagnostic.json')).write_text(
         json.dumps(diagnostic,ensure_ascii=False,indent=2),encoding='utf-8')
     if not tables:
         raise ValueError('official report contains no nonempty tabular data; see diagnostic tables')
@@ -143,6 +145,8 @@ def fetch_dated_margin(data_dir):
             raw=fetch(url)
             if raw.get('stat')!='OK':
                 diagnostics.append({'date':iso,'status':'not_available','stat':str(raw.get('stat'))[:90]});continue
+            if str(raw.get('date',''))!=day.strftime('%Y%m%d'):
+                diagnostics.append({'date':iso,'status':'date_mismatch'});continue
             tables=[]
             if isinstance(raw.get('tables'),list):
                 for t in raw['tables']:
@@ -435,6 +439,68 @@ def index_history(data_dir, day):
     return {'status':'ok','date':day,'records':len(rows)}
 
 
+def dated_futures(day):
+    from html.parser import HTMLParser
+    class Rows(HTMLParser):
+        def __init__(self):
+            super().__init__(); self.rows=[]; self.row=None; self.cell=None; self.parts=[]
+        def handle_starttag(self, tag, attrs):
+            if tag=='tr': self.row=[]
+            if tag in ('td','th') and self.row is not None: self.cell=[]
+        def handle_data(self, text):
+            self.parts.append(text)
+            if self.cell is not None: self.cell.append(text)
+        def handle_endtag(self, tag):
+            if tag in ('td','th') and self.cell is not None and self.row is not None:
+                self.row.append(''.join(self.cell).strip()); self.cell=None
+            if tag=='tr' and self.row is not None:
+                self.rows.append(self.row); self.row=None; self.cell=None
+    from urllib.parse import urlencode
+    url='https://www.taifex.com.tw/cht/3/futContractsDate?'+urlencode({'doQuery':'1','queryType':'1','queryDate':day.replace('-','/')})
+    with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=30) as r:
+        raw=r.read().decode('utf-8')
+    parser=Rows(); parser.feed(raw)
+    text=' '.join(parser.parts)
+    dates=set(re.findall(r'日期\s*[:：]?\s*(\d{4}/\d{2}/\d{2})',text))
+    if dates!={day.replace('-','/')}: raise ValueError('futures report date not verified: '+str(dates))
+    product=None; values=[]
+    for row in parser.rows:
+        if len(row)>=15 and row[0].strip().isdigit(): product=row[1].strip()
+        if product not in ('臺股期貨','台股期貨'): continue
+        if len(row)<13: continue
+        cells=row[-13:]
+        if cells[0] not in ('外資','外資及陸資'): continue
+        nums=[int(x.replace(',','')) for x in cells[1:]]
+        if nums[6]-nums[8]!=nums[10]: raise ValueError('futures net reconciliation failed')
+        values.append(nums[10])
+    if len(values)!=1: raise ValueError('futures TX foreign row not unique')
+    return {'date':day,'net':values[0],'source_url':url}
+
+
+def backfill_confirmation(data_dir, day, summary):
+    history=json.loads((data_dir/'index_history.json').read_text())
+    days=[r['date'] for r in history['rows']][-21:]
+    if len(days)!=21 or days[-1]!=day: raise ValueError('calendar incomplete')
+    for name, loader in [('breadth_history',lambda d:fetch_dated_limit_down(data_dir,d)),('futures_history',dated_futures)]:
+        path=data_dir/(name+'.json'); old=json.loads(path.read_text()) if path.exists() else []
+        present={r['date'] for r in old}; errors={}
+        for d in days[-2:]:
+            if d in present: continue
+            try:
+                row=loader(d)
+                if row['date']!=d: raise ValueError('wrong date')
+                archive_daily(data_dir,name,[row]); present.add(d)
+            except Exception as exc: errors[d]=str(exc)[:200]
+        missing=[d for d in days[-2:] if d not in present]
+        summary['sources'][name]={'status':'ok' if not missing else 'partial','missing':missing,'errors':errors}
+        print(name,summary['sources'][name])
+    path=data_dir/'twse_dated_margin.json'; rows=json.loads(path.read_text()) if path.exists() else []
+    present={r['date'] for r in rows if r.get('balance_1000_twd',0)>0}
+    missing=[d for d in days if d not in present]
+    summary['sources']['margin_calendar_check']={'status':'ok' if not missing else 'partial','missing':missing,'required':21}
+    print('margin_calendar_check',summary['sources']['margin_calendar_check'])
+
+
 def main():
     data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
@@ -566,6 +632,9 @@ def main():
         summary['sources']['index_history']={'status':'failed'}
         summary['errors']['index_history']=str(exc)[:240]
         print('index_history failed:',exc)
+    try:
+        if summary['sources'].get('index_history',{}).get('status')=='ok': backfill_confirmation(data_dir,day,summary)
+    except Exception as exc: summary['errors']['confirmation_backfill']=str(exc)[:240]
     (data_dir/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
     if successful==0: raise SystemExit('All official endpoints failed; keeping old source files')
 
