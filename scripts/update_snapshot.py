@@ -401,20 +401,64 @@ def new_low_history(data_dir, day):
     return result
 
 
-def new_low_counts(history,dates):
-    # Fixed cohort with valid closes throughout; strict new low versus prior 252 sessions.
-    universe=set.intersection(*(set(history[d]) for d in dates))
-    coverage=len(universe)/max(1,len(history[dates[-1]]))
-    if len(universe)<500 or coverage<.85:
-        return {'status':'insufficient_coverage','eligible':len(universe),'coverage':coverage}
-    counts=[0]*10
-    for code in universe:
-        p=[history[d][code] for d in dates]
-        for i in range(252,262):
-            counts[i-252]+=p[i]<min(p[i-252:i])
-    old=sum(counts[:5])/5; recent=sum(counts[5:])/5
-    decline=(old-recent)/old*100 if old else 0
-    return {'status':'ok','eligible':len(universe),'coverage':coverage,'counts':counts,'previous_avg':old,'recent_avg':recent,'decline_pct':decline,'points':5 if decline>=50 else 3 if decline>=30 else 1 if decline>=15 else 0}
+def new_low_counts(history, dates):
+    """Research-only raw-close audit; NEVER use as a scored signal.
+
+    This deliberately distinguishes data sufficiency from price-basis validity.
+    Large jumps are *flags*, not proof of corporate actions. A fixed complete-
+    history cohort also has survivorship/selection bias; report it explicitly.
+    """
+    import math
+    latest = history[dates[-1]]
+    valid = {}
+    for code in set.intersection(*(set(history[d]) for d in dates)):
+        series = [history[d][code] for d in dates]
+        if all(isinstance(x, (int, float)) and math.isfinite(x) and x > 0 for x in series):
+            valid[code] = series
+    coverage = len(valid) / max(1, len(latest))
+    audit = {
+        'eligible': len(valid), 'latest_stock_count': len(latest),
+        'coverage': round(coverage, 5),
+        'cohort_method': 'fixed_262_day_complete_history',
+        'cohort_bias_warning': 'Excludes IPOs, delisted and securities without all 262 closes',
+        'corporate_action_verified': False,
+        'corporate_action_method': 'none; daily price jumps are only screening flags',
+        'score_eligible': False,
+    }
+    if len(valid) < 500 or coverage < .85:
+        return {'status': 'insufficient_coverage', **audit}
+    # Suspicious discontinuities may be genuine market moves. Never infer
+    # adjusted prices or corporate-action events from them.
+    flagged = {}
+    for code, prices in valid.items():
+        jumps = [(dates[i], round((prices[i] / prices[i-1] - 1) * 100, 2))
+                 for i in range(1, len(prices))
+                 if abs(prices[i] / prices[i-1] - 1) >= .12]
+        if jumps:
+            flagged[code] = jumps[:5]
+    counts = [0] * 10
+    for prices in valid.values():
+        for i in range(252, 262):
+            if prices[i] < min(prices[i-252:i]):
+                counts[i-252] += 1
+    old = sum(counts[:5]) / 5
+    recent = sum(counts[5:]) / 5
+    decline = (old - recent) / old * 100 if old else None
+    proxy_points = (5 if decline >= 50 else 3 if decline >= 30 else
+                    1 if decline >= 15 else 0) if decline is not None else None
+    return {
+        'status': 'research_only', **audit,
+        'suspicious_jump_threshold_pct': 12,
+        'suspicious_jump_securities': len(flagged),
+        'suspicious_jump_samples': dict(list(sorted(flagged.items()))[:20]),
+        'counts': counts, 'previous_avg': old, 'recent_avg': recent,
+        'decline_pct': decline, 'proxy_points_not_scored': proxy_points,
+        'blocking_reasons': [
+            'Unadjusted close prices: dividends, rights, splits and capital reductions unverified',
+            'Fixed-cohort survivorship/coverage bias not resolved',
+        ],
+    }
+
 
 def index_history(data_dir, day):
     from datetime import date
