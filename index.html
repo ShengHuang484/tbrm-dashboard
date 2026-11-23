@@ -415,23 +415,14 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
   label('外資現貨',`${sourceDate}，${billions.toFixed(2)} 億元${sourceDate===date?'（同日，僅市場概況）':'（非同日，僅市場概況）'}`);
   info.push('外資現貨已顯示');
  }catch(e){label('外資現貨','未顯示：'+e.message)}
- // 外資期貨：只讀「臺股期貨」契約的外資淨未平倉，不混入其他契約。
+ // The same dated TX foreign position used by the scoring history drives the tile.
  try{
-  const rows=await read('taifex_futures');
-  if(!Array.isArray(rows)||!rows.length)throw Error('來源為空');
-  const keys=Object.keys(rows[0]);
-  const contractKey=keys.find(k=>/^(ContractCode|Contract|商品|契約)$/.test(k));
-  const itemKey=keys.find(k=>/^(Item|Investor|InvestorType|身份別|身分別|法人別)$/.test(k));
-  const netKey=keys.find(k=>/^OpenInterest\(Net\)$|^OpenInterestNet$|^未平倉餘額\(淨額\)$|^未平倉淨額$/.test(k));
-  if(!contractKey||!itemKey||!netKey)throw Error('欄位待確認：'+keys.join('、'));
-  const candidates=rows.map(row=>({row,date:dateOf(row)})).filter(x=>x.date<=date&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&/^(TX|臺股期貨|台股期貨)$/.test(String(x.row[contractKey]).trim())&&/外資及陸資|外資/.test(String(x.row[itemKey])));
-  const latest=latestDate(candidates);
-  const same=candidates.filter(x=>x.date===latest);
-  if(same.length!==1)throw Error('臺股期貨外資資料列不唯一或不存在（'+same.length+' 筆）');
-  const value=num(same[0].row[netKey]);
-  if(value===null||!Number.isInteger(value))throw Error('淨未平倉口數無效');
+  const rows=await read('futures_history');
+  const same=rows.filter(r=>r.date===date);
+  if(same.length!==1||!Number.isInteger(same[0].net))throw Error('缺當日臺股期貨外資淨未平倉');
+  const value=same[0].net;
   document.getElementById('foreignFutures').textContent=(value>0?'+':'')+value.toLocaleString('en-US');
-  label('外資期貨',`${latest}，臺股期貨外資淨未平倉 ${value.toLocaleString('en-US')} 口（僅市場概況）`);
+  label('外資期貨',`${date}，臺股期貨外資淨未平倉 ${value.toLocaleString('en-US')} 口`);
   info.push('外資期貨已顯示');
  }catch(e){label('外資期貨','未顯示：'+e.message)}
  // 漲跌停必須使用官方收盤價及漲跌停價欄位，不能用 -10% 粗估。

@@ -25,7 +25,6 @@ FILE_DATES = {
     "margin_maintenance": (None, "date"),
     "twse_dated_margin": ("latest", "date"),
     "taifex_putcall": ("latest", "Date"),
-    "taifex_futures": ("latest", "Date"),
     "tpex_index": ("latest", "Date"),
     "breadth_history": ("latest", "date"),
     "futures_history": ("latest", "date"),

@@ -547,22 +547,77 @@ def index_history(data_dir, day):
     return {'status':'ok','date':day,'records':len(rows)}
 
 
+from html.parser import HTMLParser
+class Rows(HTMLParser):
+    def __init__(self):
+        super().__init__(); self.rows=[]; self.row=None; self.cell=None; self.parts=[]
+    def handle_starttag(self, tag, attrs):
+        if tag=='tr': self.row=[]
+        if tag in ('td','th') and self.row is not None: self.cell=[]
+    def handle_data(self, text):
+        self.parts.append(text)
+        if self.cell is not None: self.cell.append(text)
+    def handle_endtag(self, tag):
+        if tag in ('td','th') and self.cell is not None and self.row is not None:
+            self.row.append(''.join(self.cell).strip()); self.cell=None
+        if tag=='tr' and self.row is not None:
+            self.rows.append(self.row); self.row=None; self.cell=None
+
+
+def parse_putcall(html, day):
+    from decimal import Decimal, ROUND_HALF_UP
+    parser = Rows()
+    parser.feed(html)
+    header = ["日期", "賣權成交量", "買權成交量", "買賣權成交量比率%",
+              "賣權未平倉量", "買權未平倉量", "買賣權未平倉量比率%"]
+    candidates = [parser.rows[i + 1] for i, row in enumerate(parser.rows[:-1]) if row == header]
+    if len(candidates) != 1 or len(candidates[0]) != len(header):
+        raise ValueError("TAIFEX Put/Call table missing or ambiguous")
+    actual, put, call, ratio, put_oi, call_oi, oi_ratio = candidates[0]
+    if actual != day.replace("-", "/"):
+        raise ValueError(f"Put/Call report date {actual} does not match {day}")
+    def validated(numerator, denominator, value):
+        a, b = (int(x.replace(",", "")) for x in (numerator, denominator))
+        if a < 0 or b <= 0:
+            raise ValueError("invalid Put/Call count")
+        expected = (Decimal(a) * 100 / b).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        if Decimal(value) != expected:
+            raise ValueError("Put/Call ratio does not reconcile")
+        return str(a), str(b), str(expected)
+    put, call, ratio = validated(put, call, ratio)
+    put_oi, call_oi, oi_ratio = validated(put_oi, call_oi, oi_ratio)
+    return dict(Date=day.replace("-", ""), PutVolume=put, CallVolume=call,
+                PutOI=put_oi, CallOI=call_oi,
+                **{"PutCallVolumeRatio%": ratio, "PutCallOIRatio%": oi_ratio})
+
+
+def dated_putcall(day):
+    from urllib.parse import urlencode
+    target = day.replace("-", "/")
+    url = "https://www.taifex.com.tw/cht/3/pcRatio?" + urlencode({
+        "queryStartDate": target, "queryEndDate": target})
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}),
+                                timeout=30) as response:
+        row = parse_putcall(response.read().decode("utf-8"), day)
+    return row, url
+
+
+def refresh_putcall(path, day):
+    target = day.replace("-", "")
+    rows = json.loads(path.read_text()) if path.exists() else []
+    matches = [row for row in rows if row.get("Date") == target]
+    if len(matches) == 1 and matches[0].get("source_url"):
+        return matches[0]["source_url"]
+    row, url = dated_putcall(day)
+    row["source_url"] = url
+    by_date = {r["Date"]: r for r in rows if re.fullmatch(r"[0-9]{8}", str(r.get("Date")))}
+    by_date[target] = row
+    path.write_text(json.dumps([by_date[d] for d in sorted(by_date)[-120:]],
+                               ensure_ascii=False, indent=2), encoding="utf-8")
+    return url
+
+
 def dated_futures(day):
-    from html.parser import HTMLParser
-    class Rows(HTMLParser):
-        def __init__(self):
-            super().__init__(); self.rows=[]; self.row=None; self.cell=None; self.parts=[]
-        def handle_starttag(self, tag, attrs):
-            if tag=='tr': self.row=[]
-            if tag in ('td','th') and self.row is not None: self.cell=[]
-        def handle_data(self, text):
-            self.parts.append(text)
-            if self.cell is not None: self.cell.append(text)
-        def handle_endtag(self, tag):
-            if tag in ('td','th') and self.cell is not None and self.row is not None:
-                self.row.append(''.join(self.cell).strip()); self.cell=None
-            if tag=='tr' and self.row is not None:
-                self.rows.append(self.row); self.row=None; self.cell=None
     from urllib.parse import urlencode
     url='https://www.taifex.com.tw/cht/3/futContractsDate?'+urlencode({'doQuery':'1','queryType':'1','queryDate':day.replace('-','/')})
     with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=30) as r:
@@ -618,6 +673,11 @@ def main(data_dir=None, stock_snapshot=None):
         try:
             payload = stock_snapshot if key == "twse_stocks" and stock_snapshot is not None else fetch(url)
             dest=data_dir/(key+'.json')
+            if key == "taifex_putcall" and dest.exists() and isinstance(payload, list):
+                cached = json.loads(dest.read_text())
+                # Retain previously validated dated rows unless OpenAPI now provides them.
+                seen_dates = {r.get("Date") for r in payload}
+                payload += [r for r in cached if r.get("source_url") and r.get("Date") not in seen_dates]
             temp=dest.with_suffix('.json.tmp')
             temp.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
             temp.replace(dest)
@@ -664,6 +724,17 @@ def main(data_dir=None, stock_snapshot=None):
             summary['sources'][key]={'status':'failed','url':url}
             summary['errors'][key]=str(exc)[:240]
             print(key,'failed:',exc)
+    try:
+        target = json.loads((data_dir / "twse_stocks.json").read_text())[0]["Date"]
+        day = datetime.strptime(str(int(target[:3])+1911)+target[3:], "%Y%m%d").date().isoformat()
+        putcall = data_dir / "taifex_putcall.json"
+        matches = [row for row in json.loads(putcall.read_text()) if row.get("Date") == day.replace("-", "")] if putcall.exists() else []
+        if len(matches) != 1 or matches[0].get("source_url"):
+            url = refresh_putcall(putcall, day)
+            summary["sources"]["taifex_putcall"] = dict(status="ok", date=day, url=url)
+            summary["errors"].pop("taifex_putcall", None)
+    except Exception as exc:
+        summary["errors"]["taifex_putcall"] = str(exc)[:240]
     try:
         counts=fetch_dated_limit_down(data_dir)
         (data_dir/'twse_dated_breadth.json').write_text(json.dumps(counts,ensure_ascii=False,indent=2),encoding='utf-8')

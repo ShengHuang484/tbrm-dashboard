@@ -123,3 +123,18 @@ class RefreshTests(unittest.TestCase):
         self.assertEqual(dated_stock_snapshot(dated, NEW)[0]["Change"], "-0.2")
         with self.assertRaisesRegex(ValueError, "expected session"):
             dated_stock_snapshot(dated, OLD)
+
+
+class PutCallTests(unittest.TestCase):
+    def test_dated_putcall_preserves_trade_volume_basis(self):
+        from scripts.update_snapshot import parse_putcall
+        header = ["日期", "賣權成交量", "買權成交量", "買賣權成交量比率%",
+                  "賣權未平倉量", "買權未平倉量", "買賣權未平倉量比率%"]
+        row = ["2026/11/23", "87,845", "162,043", "54.21", "43,378", "140,388", "30.90"]
+        html = "<tr>" + "".join(f"<th>{x}</th>" for x in header) + "</tr><tr>" + "".join(
+            f"<td>{x}</td>" for x in row) + "</tr>"
+        self.assertEqual(parse_putcall(html, NEW)["PutCallVolumeRatio%"], "54.21")
+        with self.assertRaisesRegex(ValueError, "report date"):
+            parse_putcall(html, OLD)
+        with self.assertRaisesRegex(ValueError, "reconcile"):
+            parse_putcall(html.replace("54.21", "30.90"), NEW)
