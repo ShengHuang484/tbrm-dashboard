@@ -1,0 +1,33 @@
+name: TWSE reduction evidence (research only)
+
+on:
+  push:
+    branches:
+      - research/new-low-quality-gates-20261123
+    paths:
+      - 'scripts/twse_reduction_audit.py'
+      - '.github/workflows/twse-reduction-audit.yml'
+      - 'data/history/new_low_closes.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reduction-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Query TWSE for the full raw-close window
+        run: python -m scripts.twse_reduction_audit data/history/new_low_closes.json twse-reduction
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: twse-reduction-evidence
+          path: twse-reduction/
+          retention-days: 30
+          if-no-files-found: warn
