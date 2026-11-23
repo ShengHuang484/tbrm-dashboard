@@ -51,3 +51,16 @@ python -m scripts.external_delivery_check research/examples/external_delivery/{r
 [合成範例](examples/external_delivery)僅展示欄位。驗收會比對雙邊完整交易日曆、報價精度、1312 情境、上市身分與逐檔資格／低點差異，另列未提供的上市歷史。105 項本地測試通過。使用者需提供合法供應商匯出與可使用範圍，或提供已授權來源的存取方式。
 
 取得供應商資料後，可加入 `--alternative-report alternate-ordinary.json --raw-history data/history/new_low_closes.json --event-cases research/external_event_cases.json`。替代報表以另一種 1312 口徑重播。跨事件未提供報價及未取樣類別會列出，兩種診斷輸出均維持研究旗標關閉。111 項本地測試通過。
+
+
+## 最新研究分支驗收補充
+
+| 項目 | 狀態 | 可追溯證據 | 驗收方法 | 尚缺資料 | 使用者介入 |
+| --- | --- | --- | --- | --- | --- |
+| 缺價歸因與優先查核 | PARTIAL | `scripts/missing_close_audit.py`、`research/PROGRESS.md`；既有 411／964 已分類、553 未知 | 重播缺價審計，核對總數守門、未知佇列、研究日影響，並執行 CI | 553 筆缺價的完整官方歸因；本次變更 CI 尚未驗收 | 否，除非官方證據無法取得 |
+| 歷史普通股點時母體 | PARTIAL | `research/historical_listing_evidence.json` 與既有官方個案 | 逐日比對獨立上市／下市／承繼清冊 | 全期間獨立清冊 | 取得授權資料時需要 |
+| 外部完整市場還原行情 | BLOCKED | `research/SUPPLIER_DATA_REQUEST.md`、`scripts/external_delivery_check.py` | 全市場 253 日逐檔、雙 1312 口徑及事件樣本驗收 | 合法授權外部匯出與調整規則 | 是 |
+| 最後五分正式啟用 | REVIEW | 內部重播 425／944 與 1312 替代情境 424／944 | 完成外部獨立驗證並經人工核准 | 獨立市場基準與口徑決策 | 是 |
+|
+
+內部重播、外部個案核對與全市場獨立驗證為不同層級；不得以內部 111 項歷史測試通過代替本次提交 CI，亦不得將外部個案驗證視為全市場驗證。正式維持 45/50，`score_eligible=false`。
