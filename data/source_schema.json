@@ -1,6 +1,6 @@
 {
   "twse_index": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "日期",
       "指數",
@@ -13,7 +13,7 @@
     "records": 267
   },
   "twse_stocks": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "Code",
       "Name",
@@ -30,7 +30,7 @@
     "records": 1394
   },
   "twse_margin": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "股票代號",
       "股票名稱",
@@ -52,7 +52,7 @@
     "records": 1311
   },
   "twse_breadth": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "出表日期",
       "類型",
@@ -67,7 +67,7 @@
     "records": 2
   },
   "tpex_index": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "Date",
       "Open",
@@ -79,7 +79,7 @@
     "records": 16
   },
   "taifex_putcall": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "Date",
       "PutVolume",
@@ -89,10 +89,10 @@
       "CallOI",
       "PutCallOIRatio%"
     ],
-    "records": 21
+    "records": 22
   },
   "taifex_futures": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "Date",
       "ContractCode",
@@ -113,7 +113,7 @@
     "records": 66
   },
   "twse_foreign": {
-    "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+    "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
     "fields": [
       "單位名稱",
       "買進金額",

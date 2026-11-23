@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
+  "fetched_at_utc": "2026-11-23T13:41:59.818091+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -310,18 +310,23 @@
       "records": 256
     },
     "twse_dated_margin": {
-      "status": "partial",
-      "missing": [
-        "2026-11-23"
-      ],
+      "status": "ok",
+      "missing": [],
       "required": 21,
-      "date": "2026-11-20",
-      "errors": {
-        "2026-11-23": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)"
-      }
+      "date": "2026-11-23",
+      "errors": {}
     },
     "margin_maintenance": {
-      "status": "failed"
+      "status": "ok",
+      "url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261123",
+      "date": "2026-11-23",
+      "ratio": 148.46129564239945,
+      "matched_securities": 1243,
+      "provisional": true,
+      "fallback_prices": {},
+      "fallback_value_pct": 0.0,
+      "extended_gap_codes": [],
+      "price_basis_verified": true
     },
     "breadth_history": {
       "status": "ok",
@@ -334,14 +339,10 @@
       "errors": {}
     },
     "margin_calendar_check": {
-      "status": "partial",
-      "missing": [
-        "2026-11-23"
-      ],
+      "status": "ok",
+      "missing": [],
       "required": 21
     }
   },
-  "errors": {
-    "margin_maintenance": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)"
-  }
+  "errors": {}
 }
