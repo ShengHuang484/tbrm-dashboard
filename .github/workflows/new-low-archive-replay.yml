@@ -82,7 +82,8 @@ jobs:
           python -m scripts.historical_listing_replay data/history/new_low_closes.json adjusted.json \
             research/issuer_master_20261122.csv research/historical_listing_evidence.json \
             --strict-report > strict-gap-source.json
-          python -m scripts.historical_roster_check strict-gap-source.json > daily-roster.json
+          python -m scripts.historical_roster_check strict-gap-source.json \
+            --lifecycle-report historical-listing.json > daily-roster.json
           python -m scripts.corporate_action_identity_review data/history/new_low_closes.json \
             research/share_identity_evidence.json --listing-report strict-gap-source.json \
             > identity-boundary-review.json

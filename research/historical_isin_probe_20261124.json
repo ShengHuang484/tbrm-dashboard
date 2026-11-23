@@ -1,0 +1,32 @@
+{
+  "retrieved_on": "2026-11-24",
+  "historical_targets": [
+    "2025-10-22",
+    "2026-11-20"
+  ],
+  "published_latest_update": "2026-11-24",
+  "sources": {
+    "isin_past": {
+      "url": "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2&date=20251022",
+      "http": 200,
+      "sha256": "6fad3f8249fb7b1f11eb1986d1ebec3af4214c92aaef9eb9dc214138d795b380",
+      "bytes": 400000,
+      "representation": "prefix"
+    },
+    "isin_past_end": {
+      "url": "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2&date=20261120",
+      "http": 200,
+      "sha256": "6fad3f8249fb7b1f11eb1986d1ebec3af4214c92aaef9eb9dc214138d795b380",
+      "bytes": 400000,
+      "representation": "prefix"
+    },
+    "tib_past": {
+      "url": "https://isin.twse.com.tw/isin/class_main.jsp?market=C&issuetype=C&Page=1&chklike=Y&date=20251022",
+      "http": 200,
+      "sha256": "550dc2c054b280b5efe21d8e4c1cbac7d712e02975b181bd56d7469477fa7750",
+      "bytes": 16082,
+      "representation": "response"
+    }
+  },
+  "finding": "The dated general-list requests returned the same first 400000 bytes and displayed 2026/11/24 as the last update. The innovation classification response provides no authenticated snapshot date. Neither confirms a roster for the requested historical dates."
+}

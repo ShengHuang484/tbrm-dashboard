@@ -41,6 +41,31 @@ class RosterCheckTest(unittest.TestCase):
         self.assertEqual(result["status"], "BLOCKED")
         self.assertEqual(result["observed_sessions"], 0)
         self.assertEqual(result["unconfirmed_ranges"][0]["sessions"], 3)
+        self.assertEqual(result["coverage"]["internally_reconstructed_sessions"], 3)
+        self.assertEqual(result["coverage"]["external_independently_verified_sessions"], 0)
+
+    def test_same_source_and_external_delivery_have_separate_coverage(self):
+        manifest = dict(self.manifest(self.roster), origin="twse", source_url="https://isin.twse.com.tw/")
+        stats = check(self.report, manifest, self.roster)["coverage"]
+        self.assertEqual(stats["official_same_source_checked_sessions"], 2)
+        self.assertEqual(stats["official_unverified_ranges"][0]["sessions"], 1)
+        self.assertEqual(stats["independent_unverified_ranges"][0]["sessions"], 3)
+        manifest.update(origin="external", upstream_source="TWSE", usage_basis="fixture")
+        stats = check(self.report, manifest, self.roster)["coverage"]
+        self.assertEqual(stats["external_candidate_sessions"], 2)
+        self.assertEqual(stats["external_independently_verified_sessions"], 0)
+
+    def test_lifecycle_counts_do_not_change_daily_observations(self):
+        evidence = dict(market_sessions=3, outside_listing_quotes={}, coverage={
+            "archive_new_listing_matches": 2,
+            "archived_delisting_check": dict(date_window=[self.dates[0], self.dates[-1]], matched=1,
+                                            source_sha256="a" * 64)})
+        stats = check(self.report, lifecycle=evidence)["coverage"]
+        self.assertEqual(stats["verified_same_source_lifecycle_events"]["delistings"], 1)
+        self.assertEqual(stats["official_same_source_checked_sessions"], 0)
+        evidence["market_sessions"] = 2
+        with self.assertRaisesRegex(ValueError, "window"):
+            check(self.report, lifecycle=evidence)
 
     def test_contiguous_observations_show_returned_code_and_identifier_disagreement(self):
         content = (b"date,code,security_id\n2025-12-31,1101,S1\n"

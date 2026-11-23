@@ -13,7 +13,33 @@ COLUMNS = ["date", "code", "security_id"]
 ORIGINS = {"twse", "external", "synthetic"}
 
 
-def check(report, manifest=None, roster=None):
+def missing_ranges(dates, covered):
+    ranges = []
+    for index, day in enumerate(dates):
+        if day in covered:
+            continue
+        if index and dates[index - 1] not in covered:
+            ranges[-1]["last"] = day
+            ranges[-1]["sessions"] += 1
+        else:
+            ranges.append(dict(first=day, last=day, sessions=1))
+    return ranges
+
+
+def verified_events(lifecycle, dates):
+    if lifecycle is None:
+        return None
+    coverage = lifecycle["coverage"]
+    exits = coverage["archived_delisting_check"]
+    if (lifecycle["market_sessions"] != len(dates)
+            or exits["date_window"] != [dates[0], dates[-1]]
+            or any(lifecycle["outside_listing_quotes"].values())):
+        raise ValueError("lifecycle evidence does not match the reconstruction window")
+    return dict(listings=coverage["archive_new_listing_matches"], delistings=exits["matched"],
+                delisting_source_sha256=exits["source_sha256"])
+
+
+def check(report, manifest=None, roster=None, *, lifecycle=None):
     dates = report["market_dates"]
     if (not dates or dates != sorted(set(dates))
             or any(date.fromisoformat(day).isoformat() != day for day in dates)):
@@ -96,21 +122,30 @@ def check(report, manifest=None, roster=None):
             previously_seen.clear()
         days.append(row)
         previous = observed
-    unknown_ranges = []
-    for index, day in enumerate(dates):
-        if day not in observations:
-            if index and dates[index - 1] not in observations:
-                unknown_ranges[-1]["last"] = day
-                unknown_ranges[-1]["sessions"] += 1
-            else:
-                unknown_ranges.append(dict(first=day, last=day, sessions=1))
+    observed_origin = manifest["origin"] if manifest else None
+    official_days = set(observations) if observed_origin == "twse" else set()
+    external_days = set(observations) if observed_origin == "external" else set()
+    # A delivery's origin and fields describe provenance. They do not establish
+    # independence without review of its upstream sources and licensing.
+    coverage = dict(
+        denominator_sessions=len(dates),
+        internally_reconstructed_sessions=sum(bool(row["reconstructed_codes"]) for row in days),
+        official_same_source_checked_sessions=len(official_days),
+        external_candidate_sessions=len(external_days),
+        external_independently_verified_sessions=0,
+        synthetic_sessions=len(observations) if observed_origin == "synthetic" else 0,
+        verified_same_source_lifecycle_events=verified_events(lifecycle, dates),
+        official_unverified_ranges=missing_ranges(dates, official_days),
+        independent_unverified_ranges=missing_ranges(dates, set()),
+    )
     differences = sum(bool(row["observed_only"] or row["reconstructed_only"] or row["identity_mismatches"])
                       for row in days)
     complete = len(observations) == len(dates)
     return dict(status="BLOCKED" if not observations else "REVIEW" if differences or complete else "PARTIAL",
                 delivery_coverage_status="PASS" if complete else "PARTIAL" if observations else "BLOCKED",
                 provenance=manifest, observed_sessions=len(observations), expected_sessions=len(dates),
-                sessions_with_membership_differences=differences, unconfirmed_ranges=unknown_ranges,
+                sessions_with_membership_differences=differences,
+                unconfirmed_ranges=missing_ranges(dates, observations), coverage=coverage,
                 sessions=days, independent_universe_verified=False, score_eligible=False)
 
 
@@ -119,8 +154,10 @@ if __name__ == "__main__":
     parser.add_argument("report", type=Path)
     parser.add_argument("--roster", type=Path)
     parser.add_argument("--manifest", type=Path)
+    parser.add_argument("--lifecycle-report", type=Path)
     args = parser.parse_args()
     result = check(json.loads(args.report.read_bytes()),
                    json.loads(args.manifest.read_bytes()) if args.manifest else None,
-                   args.roster.read_bytes() if args.roster else None)
+                   args.roster.read_bytes() if args.roster else None,
+                   lifecycle=json.loads(args.lifecycle_report.read_bytes()) if args.lifecycle_report else None)
     print(json.dumps(result, ensure_ascii=False, indent=2))
