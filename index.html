@@ -41,7 +41,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted)}
 <div class="wrap">
 <header>
  <div><h1>台股底部反轉監控儀表板</h1><div class="sub">Taiwan Bottom Reversal Monitor · TBRM v1.7 · 簡潔 Refresh 版</div></div>
- <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">目前為 2026/11/20 示範資料｜按 Refresh 後會顯示進度或錯誤</div></div>
+ <div><button class="btn primary" id="refreshBtn" onclick="refreshMarket()">↻ Refresh 最新資料</button><div class="small" id="refreshState" style="margin-top:7px">正在檢查正式市場資料</div><div class="small" id="marketFreshness" role="status"></div></div>
 </header>
 
 <div class="notice"><b>資料狀態：</b><span id="dataNotice">以下預載 2026/11/20 收盤示範資料。</span>部分指標尚未取得，分數採「已評分權重標準化」呈現，並同時顯示資料覆蓋率；不可視為完整模型訊號或投資建議。</div>
@@ -202,9 +202,52 @@ function updateItem(arr,name,value,points,raw){const x=arr.find(x=>x.name===name
 // GitHub Actions official snapshots: freshness and date are checked before scoring.
 function rocDate(x){let s=String(x??'').trim();if(/^\d{7}$/.test(s))return String(+s.slice(0,3)+1911)+'-'+s.slice(3,5)+'-'+s.slice(5);if(/^\d{8}$/.test(s))return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6);return s.replaceAll('/','-');}
 function signChange(x){let s=String(x??'').replaceAll(',','').replaceAll('＋','+').replaceAll('－','-').trim();if(!s||s==='X'||s==='—'||s==='--')return null;let n=Number(s);return Number.isFinite(n)?n:null;}
+// Workflow-token data commits do not trigger a branch-based Pages rebuild.
+const marketDataRoot = location.hostname === 'shenghuang484.github.io'
+ ? 'https://raw.githubusercontent.com/ShengHuang484/tbrm-dashboard/main/data/'
+ : './data/';
+async function readMarketData(key, optional=false){
+ const r=await fetch(marketDataRoot+key+'.json?t='+Date.now(),{cache:'no-store'});
+ if(optional&&r.status===404)return null;
+ if(!r.ok)throw Error(key+' HTTP '+r.status);
+ return r.json();
+}
+function expectedDashboardDate(calendar, now=new Date()){
+ const formatter=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',
+  month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+ const parts=Object.fromEntries(formatter.formatToParts(now).map(({type,value})=>[type,value]));
+ const day=new Date(Date.UTC(+parts.year,+parts.month-1,+parts.day));
+ if(+parts.hour*60+ +parts.minute<810)day.setUTCDate(day.getUTCDate()-1);
+ for(let i=0;i<31;i++,day.setUTCDate(day.getUTCDate()-1)){
+  const closed=calendar?.years?.[day.getUTCFullYear()]?.closed;
+  if(!closed)return null;
+  const iso=day.toISOString().slice(0,10);
+  if(day.getUTCDay()%6!==0&&!closed.includes(iso))return iso;
+ }
+ return null;
+}
+function marketFreshnessMessage(snapshotDate, checked, expected){
+ const when=checked?.checked_at ? new Date(checked.checked_at).toLocaleString('zh-TW',{
+  timeZone:'Asia/Taipei',hour12:false})+'（台灣時間）' : '尚無驗證紀錄';
+ const effective=expected||checked?.expected_session;
+ const known=/^\d{4}-\d{2}-\d{2}$/.test(snapshotDate);
+ const stale=checked?.status==='STALE'||(known&&effective&&snapshotDate<effective);
+ const dataState=stale?'資料過期 STALE，保留最後有效快照':
+  checked?.date_valid&&checked.last_valid_session===snapshotDate ?
+   (checked.status==='PARTIAL'?'當日核心資料有效，部分來源未到齊':'有效') :
+   '尚未取得相符的日期驗證紀錄';
+ return '最後有效交易日 '+snapshotDate+'｜最後檢查 '+when+'｜'+dataState+
+  (effective?'｜預期 '+effective:'');
+}
+function scoreCompletion(){
+ const pending=[...warning,...confirm].filter(x=>x.s===null).map(x=>
+  x.name+(x.name==='創新低家數減少'?'（研究驗證未完成）':'（當日資料不足或未通過品質核對）'));
+ return pending.length?'可用分數已計算，未計分：'+pending.join('、'):'計分完成';
+}
+
 async function loadOfficialSnapshots(date,taiexPct,tradingDates){
  const info=[],quality=[];
- const read=async key=>{const r=await fetch('./data/'+key+'.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);return r.json()};
+ const read=readMarketData;
  const num=x=>{if(x===undefined||x===null||String(x).trim()==='')return null;const n=Number(String(x).replaceAll(',','').replaceAll('%','').replace(/[＋]/g,'+').replace(/[－]/g,'-').trim());return Number.isFinite(n)?n:null};
  const get=(x,keys)=>{for(const k of keys)if(Object.prototype.hasOwnProperty.call(x,k))return x[k];return undefined};
  const dateOf=x=>rocDate(get(x,['Date','date','TradeDate','trade_date','日期','交易日期','資料日期'])??'');
@@ -456,8 +499,15 @@ async function refreshMarket(){
  const btn=document.getElementById('refreshBtn'),state=document.getElementById('refreshState');
  btn.disabled=true;btn.textContent='更新中…';state.textContent='按鈕已觸發｜正在讀取伺服器官方指數快照…';
  try{
-  const read=async key=>{const r=await fetch('./data/'+key+'.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error(key+' HTTP '+r.status);return r.json()};
-  const manifest=await read('manifest');
+  const read=readMarketData;
+  const [manifest, checked, calendar]=await Promise.all([
+   read('manifest'), read('market_update_status',true).catch(()=>null),
+   read('market_calendar',true).catch(()=>null)
+  ]);
+  const expected=expectedDashboardDate(calendar);
+  const freshness=document.getElementById('marketFreshness');
+  freshness.textContent=marketFreshnessMessage(
+   manifest.sources?.index_history?.date||'未知',checked,expected);
   const source=manifest.sources?.index_history;
   if(source?.status!=='ok')throw Error('指數快照未完成：'+(manifest.errors?.index_history||'請先執行新版 Workflow'));
   const snapshot=await read('index_history');
@@ -487,13 +537,31 @@ async function refreshMarket(){
   document.getElementById('dataNotice').textContent=`已讀取 TWSE 官方指數至 ${date}（${a.length} 筆交易日）；先計算指數指標，再依同日快照補入可驗證指標。其餘來源依快照驗證；缺值不納入計分。`;
   state.textContent='指數更新完成，正在核對官方快照…';
   const snapshotMessage=await loadOfficialSnapshots(date,change,fail.length===0?a.map(x=>x.date):[]);
-  state.textContent=`更新完成：${date}；${snapshotMessage}；未評分：${confirm.filter(x=>x.s===null).map(x=>x.name+"（"+x.w+"）").join("、")||"無"}`;
+  const warningText=Object.entries(checked?.warnings||{}).map(([source,reason])=>source+' '+reason);
+  if(warningText.length)document.getElementById('marketQuality').textContent+='；最近檢查：'+warningText.join('；');
+  state.textContent=`已載入 ${date} 分數｜${snapshotMessage}｜${scoreCompletion()}`;
   render();
  }catch(e){state.textContent='更新失敗：'+e.message+'。可能是 CORS／網路限制；請勿將畫面上的示範數值視為最新行情。';}
  finally{btn.disabled=false;btn.textContent='↻ Refresh 最新資料'}
 }
 
 render();
+refreshMarket();
+let lastMarketCheck;
+setInterval(async()=>{
+ if(document.hidden||document.getElementById('refreshBtn').disabled)return;
+ try{
+  const [checked, calendar]=await Promise.all([
+   readMarketData('market_update_status',true),
+   readMarketData('market_calendar',true)
+  ]);
+  const key=JSON.stringify([checked?.checked_at,expectedDashboardDate(calendar)]);
+  if(key!==lastMarketCheck){
+   await refreshMarket();
+   lastMarketCheck=key;
+  }
+ }catch(e){document.getElementById('refreshState').textContent='自動檢查失敗：'+e.message;}
+},300000);
 </script>
 </body>
 </html>

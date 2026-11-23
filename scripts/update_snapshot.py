@@ -609,13 +609,14 @@ def backfill_confirmation(data_dir, day, summary):
     print('margin_calendar_check',summary['sources']['margin_calendar_check'])
 
 
-def main():
-    data_dir=ROOT/'data'; data_dir.mkdir(exist_ok=True)
+def main(data_dir=None, stock_snapshot=None):
+    data_dir = data_dir if data_dir is not None else ROOT / 'data'
+    data_dir.mkdir(exist_ok=True)
     summary={'fetched_at_utc':datetime.now(timezone.utc).isoformat(),'sources':{},'errors':{}}
     successful=0
     for key,url in ENDPOINTS.items():
         try:
-            payload=fetch(url)
+            payload = stock_snapshot if key == "twse_stocks" and stock_snapshot is not None else fetch(url)
             dest=data_dir/(key+'.json')
             temp=dest.with_suffix('.json.tmp')
             temp.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
