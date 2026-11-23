@@ -84,6 +84,33 @@
         "https://stockchannelnew.sinotrade.com.tw/z/zf/zfz/zfz_543AD7FC-D66E-4CCF-BA3F-C26381C36057.djhtm",
         "https://www.twse.com.tw/exchangeReport/TWTAUU?response=html&startDate=20261123&endDate=20261123"
       ]
+    },
+    {
+      "code": "8422",
+      "start": "2025-11-06",
+      "end": "2025-11-17",
+      "disposition": "resume",
+      "sources": [
+        "https://wealth.firstbank.com.tw/investment-tips/trend-insight/news/news-detail?id=%7B581CBFDB-7AEC-4A09-9BA3-7DFA4F6D3959%7D"
+      ]
+    },
+    {
+      "code": "7780",
+      "start": "2026-01-09",
+      "end": "2026-01-19",
+      "disposition": "resume",
+      "sources": [
+        "https://ebroker-dj.fbs.com.tw/z/zf/zfz/zfz_379F208E-C5EC-4839-B599-45A56365BBD9.djhtm"
+      ]
+    },
+    {
+      "code": "6949",
+      "start": "2026-08-27",
+      "end": "2026-09-07",
+      "disposition": "resume",
+      "sources": [
+        "https://news.cnyes.com/news/print/6563059"
+      ]
     }
   ]
 }
