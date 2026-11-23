@@ -144,3 +144,8 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 
 - 新增研究分支專用 Actions。從發布版兩個固定的 TWSE 封存 artifact 下載原始 ZIP，驗證報表雜湊，重算 990 筆價格事件及兩種缺價政策，逐日核對保存結果及股票清單。即使新低總數相同，只要更換股票也會判為差異。
 - 本地用完整封存執行通過，涵蓋 10 個交易日。單元及回歸共 76 項通過。Actions 使用唯讀權限，若舊 artifact 到期會明確失敗。仍可在本地用已封存 ZIP 重播。內部重播結果與外部全市場獨立驗證分別記錄，維持正式 45/50。
+
+## 2026-11-23 跨市場面額事件歸屬
+
+- 執行 `python -m scripts.par_value_scope data/history/new_low_closes.json`，封存的 FinMind 八筆事件有三筆對上已套用的上市普通股面額變更，另五筆依事件日的櫃買中心公告或其公開轉載歸屬上櫃。逐案網址見 tpex_par_value_notices.json。未因缺少 TWSE 報價直接排除，也未衍生新係數。
+- 遇日期不符、櫃買事件日有 TWSE 報價或缺交易日，保留待審。78 項測試通過。此查核僅涵蓋該外部清單，完整市場事件及還原基準仍未核證。
