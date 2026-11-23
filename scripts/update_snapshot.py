@@ -4,6 +4,7 @@ import os
 import urllib.request
 import re
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -561,7 +562,6 @@ def index_history(data_dir, day):
     return {'status':'ok','date':day,'records':len(rows)}
 
 
-from html.parser import HTMLParser
 class Rows(HTMLParser):
     def __init__(self):
         super().__init__(); self.rows=[]; self.row=None; self.cell=None; self.parts=[]
@@ -579,7 +579,6 @@ class Rows(HTMLParser):
 
 
 def parse_putcall(html, day):
-    from decimal import Decimal, ROUND_HALF_UP
     parser = Rows()
     parser.feed(html)
     header = ["日期", "賣權成交量", "買權成交量", "買賣權成交量比率%",
@@ -590,19 +589,25 @@ def parse_putcall(html, day):
     actual, put, call, ratio, put_oi, call_oi, oi_ratio = candidates[0]
     if actual != day.replace("-", "/"):
         raise ValueError(f"Put/Call report date {actual} does not match {day}")
-    def validated(numerator, denominator, value):
-        a, b = (int(x.replace(",", "")) for x in (numerator, denominator))
+    return validate_putcall(dict(Date=day.replace("-", ""), PutVolume=put, CallVolume=call,
+                                  PutOI=put_oi, CallOI=call_oi,
+                                  **{"PutCallVolumeRatio%": ratio, "PutCallOIRatio%": oi_ratio}), day)
+
+
+def validate_putcall(row, day):
+    from decimal import Decimal, ROUND_HALF_UP
+    if row["Date"] != day.replace("-", ""):
+        raise ValueError("Put/Call date does not match the market session")
+    for put, call, ratio in (("PutVolume", "CallVolume", "PutCallVolumeRatio%"),
+                             ("PutOI", "CallOI", "PutCallOIRatio%")):
+        a, b = (int(str(row[k]).replace(",", "")) for k in (put, call))
         if a < 0 or b <= 0:
             raise ValueError("invalid Put/Call count")
         expected = (Decimal(a) * 100 / b).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        if Decimal(value) != expected:
+        if Decimal(str(row[ratio])) != expected:
             raise ValueError("Put/Call ratio does not reconcile")
-        return str(a), str(b), str(expected)
-    put, call, ratio = validated(put, call, ratio)
-    put_oi, call_oi, oi_ratio = validated(put_oi, call_oi, oi_ratio)
-    return dict(Date=day.replace("-", ""), PutVolume=put, CallVolume=call,
-                PutOI=put_oi, CallOI=call_oi,
-                **{"PutCallVolumeRatio%": ratio, "PutCallOIRatio%": oi_ratio})
+        row = dict(row, **{put: str(a), call: str(b), ratio: str(expected)})
+    return row
 
 
 def dated_putcall(day):
@@ -620,8 +625,12 @@ def refresh_putcall(path, day):
     target = day.replace("-", "")
     rows = json.loads(path.read_text()) if path.exists() else []
     matches = [row for row in rows if row.get("Date") == target]
-    if len(matches) == 1 and matches[0].get("source_url"):
-        return matches[0]["source_url"]
+    if len(matches) == 1:
+        try:
+            validate_putcall(matches[0], day)
+            return matches[0].get("source_url", ENDPOINTS["taifex_putcall"])
+        except (ValueError, KeyError, TypeError, ArithmeticError):
+            pass
     row, url = dated_putcall(day)
     row["source_url"] = url
     by_date = {r["Date"]: r for r in rows if re.fullmatch(r"[0-9]{8}", str(r.get("Date")))}
@@ -742,12 +751,11 @@ def main(data_dir=None, stock_snapshot=None):
         target = json.loads((data_dir / "twse_stocks.json").read_text())[0]["Date"]
         day = datetime.strptime(str(int(target[:3])+1911)+target[3:], "%Y%m%d").date().isoformat()
         putcall = data_dir / "taifex_putcall.json"
-        matches = [row for row in json.loads(putcall.read_text()) if row.get("Date") == day.replace("-", "")] if putcall.exists() else []
-        if len(matches) != 1 or matches[0].get("source_url"):
-            url = refresh_putcall(putcall, day)
-            summary["sources"]["taifex_putcall"] = dict(status="ok", date=day, url=url)
-            summary["errors"].pop("taifex_putcall", None)
+        url = refresh_putcall(putcall, day)
+        summary["sources"]["taifex_putcall"] = dict(status="ok", date=day, url=url)
+        summary["errors"].pop("taifex_putcall", None)
     except Exception as exc:
+        summary["sources"]["taifex_putcall"] = {"status": "failed"}
         summary["errors"]["taifex_putcall"] = str(exc)[:240]
     try:
         counts=fetch_dated_limit_down(data_dir)

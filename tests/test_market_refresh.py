@@ -124,6 +124,18 @@ class RefreshTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "expected session"):
             dated_stock_snapshot(dated, OLD)
 
+    def test_verified_same_session_survives_transport_error(self):
+        self.updater(self.data, [{"Date": "1151123"}])
+        write(self.data, "market_update_status", {"date_valid": True, "last_valid_session": NEW})
+
+        def unavailable(url):
+            raise OSError("temporary upstream failure")
+
+        result = refresh(self.data, NOW, fetch=unavailable, retry_delays=())
+        self.assertTrue(result["date_valid"])
+        self.assertEqual(result["download_status"], "retained_verified")
+        self.assertEqual(result["last_valid_session"], NEW)
+
 
 class PutCallTests(unittest.TestCase):
     def test_dated_putcall_preserves_trade_volume_basis(self):
