@@ -73,6 +73,7 @@ jobs:
           python -m scripts.historical_listing_replay data/history/new_low_closes.json adjusted.json \
             research/issuer_master_20261122.csv research/historical_listing_evidence.json \
             --strict-report > strict-gap-source.json
+          python -m scripts.historical_roster_check strict-gap-source.json > daily-roster.json
           python -m scripts.missing_close_audit data/history/new_low_closes.json strict-gap-source.json \
             historical-listing.json research/endpoint_gap_results.json \
             research/endpoint_gap_evidence.json --official-evidence research/twse_stock_day_gap_evidence.json \
@@ -85,5 +86,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: new-low-missing-close-review
-          path: missing-close-full.json
+          path: |
+            missing-close-full.json
+            daily-roster.json
           retention-days: 30
