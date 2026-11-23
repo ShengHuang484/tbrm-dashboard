@@ -28,3 +28,8 @@ This document tracks evidence, not a guarantee of completion or an authorization
 - [ ] Explicit review and approval before production merge
 
 Until then **score_eligible=false; live score=45/50**. Do not merge research into main as production scoring.
+
+## 2026-11-23 個股日期與非配息來源查核
+
+- 已為 10 筆異常建立[逐檔查核表](effective_date_crosscheck.md)。7 筆有券商復市日期、前收對照值與參考價佐證。4968 的外部金額衝突、5519 的現金加股票股利價格基準、6931 的正式參考價仍待查。正式事件資料保留原始日期。
+- 已定位證交所 [TWTAUU 減資恢復買賣參考價格](https://www.twse.com.tw/zh/announcement/reduction/twtauu.html)。報表有復市日、停牌前收盤價、復市參考價與除權參考價。含現增的減資需核對兩個參考價所屬的交易階段。合併須用[終止上市及新股上市紀錄](https://twse-regulation.twse.com.tw/tw/law/DOC01.aspx?FLCODE=FL007304&FLNO=53-1)核對證券前後身。全期間減資、分割、反分割與合併仍缺逐筆清單與獨立覆蓋核對。
