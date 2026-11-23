@@ -28,3 +28,7 @@
 - `python -m scripts.new_low_incremental replay checkpoint.json plan.json input/ > updated-research.json`。每次只追加一個已證實交易日，保留前 252 日所需資料。重複、漏日或待發布都中止，休市僅輸出休市診斷。
 - `plan.json` 包含 `mode`（`append` 或 `correction`）、`origin`（`twse` 或 `synthetic`）、`as_of`、`session`、`checkpoint_sha256`、`sources`（每份 `source_url` 與 `sha256`）。歷史修正另需 `--allow-correction` 和 `revision_note`；歷史日曆修訂或多日補資料應逐日重播或重建封存。
 - `calendar.json` 每曆日列 `date,state,reason`。正常交易另需四檔：原始 `quotes.json`、`listings.json`（`date,intervals,excluded_codes`）、`actions.json`（`date,coverage_reviewed,events`）和 `gaps.json`（`date,reasons`）。名冊需說明官方四位數代號的所有非普通股排除，事件需核來源與日別，缺價需逐檔證據。新 checkpoint 位於輸出 JSON 的 `checkpoint` 欄位。
+
+## 封存持續性
+
+研究 workflow 以 PR head 為準，固定封存以原始 ZIP 雜湊驗收。若 GitHub artifact 到期，研究重播會停止，需從獲准保留的副本恢復相同雜湊。

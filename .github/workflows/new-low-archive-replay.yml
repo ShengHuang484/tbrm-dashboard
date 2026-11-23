@@ -39,9 +39,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/14785003044/zip" > first-month.zip
-          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/14769425450/zip" > subsequent-months.zip
-          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/14785278974/zip" > lifecycle.zip
+          fetch_archive() {
+            local route="repos/$GITHUB_REPOSITORY/actions/artifacts/$1"
+            if ! gh api "$route" --jq '.expired == false' | grep -qx true; then
+              printf '::error::Pinned research artifact %s is unavailable or expired. Restore the original hash-verified archive before replay.\n' "$1"
+              return 1
+            fi
+            gh api "$route/zip" > "$2"
+            printf '%s  %s\n' "$3" "$2" | sha256sum --check
+          }
+          fetch_archive 14785003044 first-month.zip b4b695692d7ce360af93bc44b09adf13bb8a4b76bfcb543efade362a44c07333
+          fetch_archive 14769425450 subsequent-months.zip 0a926fe54d82b135552f89cf649d275d90379c3fe39c6c8cd01c539e4becf3aa
+          fetch_archive 14785278974 lifecycle.zip 81cb28af4791ae6f9e299906bebfca0d715bb94d901d0a668df78551b4e1c293
           unzip -p lifecycle.zip delistings.html > delistings.html
       - name: Recompute 990-factor counts and both quote policies
         run: |
