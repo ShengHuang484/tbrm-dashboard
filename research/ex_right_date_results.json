@@ -1,0 +1,214 @@
+{
+  "actions_run": "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45102137373",
+  "sources": {
+    "2026-07-13-quotes.json": {
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20260713&type=ALLBUT0999",
+      "sha256": "baca2e6c5ac66e5c3771992430ffcbc1767e5cab9e7fd811dee14212d1bb3ee0"
+    },
+    "2026-07-13-ex_rights.json": {
+      "url": "https://www.twse.com.tw/exchangeReport/TWT49U?response=json&startDate=20260713&endDate=20260713",
+      "sha256": "56c64dff297c988d98e329f2a0772f598debeae0d6c92032aeb03da4c00a79f9"
+    },
+    "2026-10-27-quotes.json": {
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261027&type=ALLBUT0999",
+      "sha256": "f97392357ecb84dfaab20e1f5d4d6695099c28395a04e2b519c47ba9b86f9ed8"
+    },
+    "2026-10-27-ex_rights.json": {
+      "url": "https://www.twse.com.tw/exchangeReport/TWT49U?response=json&startDate=20261027&endDate=20261027",
+      "sha256": "16332689b03b897560575a3590c8ffa98de694750dc6a08b61e333a82d7e528f"
+    }
+  },
+  "cases": [
+    {
+      "code": "2008",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "29.85",
+      "reference": "28.85",
+      "auction_base": "28.85",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "29.30",
+        "漲跌(+/-)": "+",
+        "漲跌價差": "0.45"
+      },
+      "dated_event": null,
+      "implied_auction_base": "28.85",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "2610",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "21.40",
+      "reference": "20.58",
+      "auction_base": "20.60",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "21.05",
+        "漲跌(+/-)": "+",
+        "漲跌價差": "0.45"
+      },
+      "dated_event": null,
+      "implied_auction_base": "20.60",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "2891",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "69.90",
+      "reference": "67.39",
+      "auction_base": "67.40",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "66.50",
+        "漲跌(+/-)": "-",
+        "漲跌價差": "0.90"
+      },
+      "dated_event": null,
+      "implied_auction_base": "67.40",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "3034",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "542.00",
+      "reference": "519.00",
+      "auction_base": "519.00",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "467.50",
+        "漲跌(+/-)": "-",
+        "漲跌價差": "51.50"
+      },
+      "dated_event": null,
+      "implied_auction_base": "519.00",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "3055",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "158.00",
+      "reference": "157.50",
+      "auction_base": "157.50",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "163.00",
+        "漲跌(+/-)": "+",
+        "漲跌價差": "5.50"
+      },
+      "dated_event": null,
+      "implied_auction_base": "157.50",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "4968",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "111.50",
+      "reference": "109.90",
+      "auction_base": "110.00",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "108.50",
+        "漲跌(+/-)": "-",
+        "漲跌價差": "1.50"
+      },
+      "dated_event": null,
+      "implied_auction_base": "110.00",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "5519",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "34.45",
+      "reference": "29.66",
+      "auction_base": "29.65",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "28.90",
+        "漲跌(+/-)": "-",
+        "漲跌價差": "0.75"
+      },
+      "dated_event": null,
+      "implied_auction_base": "29.65",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "6477",
+      "reported_date": "2026-07-10",
+      "candidate_date": "2026-07-13",
+      "prior_date": "2026-07-09",
+      "prior_close": "39.85",
+      "reference": "39.50",
+      "auction_base": "39.50",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731",
+      "quote": {
+        "收盤價": "40.55",
+        "漲跌(+/-)": "+",
+        "漲跌價差": "1.05"
+      },
+      "dated_event": null,
+      "implied_auction_base": "39.50",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "2028",
+      "reported_date": "2026-10-23",
+      "candidate_date": "2026-10-27",
+      "prior_date": "2026-10-22",
+      "prior_close": "16.55",
+      "reference": "16.35",
+      "auction_base": "16.35",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20261001&endDate=20261031",
+      "quote": {
+        "收盤價": "16.35",
+        "漲跌(+/-)": "",
+        "漲跌價差": "0.00"
+      },
+      "dated_event": null,
+      "implied_auction_base": "16.35",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    },
+    {
+      "code": "6931",
+      "reported_date": "2026-10-23",
+      "candidate_date": "2026-10-27",
+      "prior_date": "2026-10-22",
+      "prior_close": "37.50",
+      "reference": "37.38",
+      "auction_base": "37.40",
+      "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20261001&endDate=20261031",
+      "quote": {
+        "收盤價": "37.25",
+        "漲跌(+/-)": "-",
+        "漲跌價差": "0.15"
+      },
+      "dated_event": null,
+      "implied_auction_base": "37.40",
+      "official_trading_basis_matches": true,
+      "score_eligible": false
+    }
+  ],
+  "score_eligible": false
+}

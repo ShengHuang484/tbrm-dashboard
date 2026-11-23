@@ -70,3 +70,8 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 
 - 以既有封存檔建立 10 筆逐檔輸入，保留原日期、復市候選日、前收、官方參考價及開盤競價基準。新增研究 Actions 查兩個復市日的 TWSE MI_INDEX 與單日 TWT49U，保留原始 JSON 與 SHA-256。交易日及報表範圍有獨立檢查。依[證交所每日收盤行情說明](https://www.twse.com.tw/zh/trading/historical/mi-index.html)，無比價有多種原因，程式保留觀察值供核對。
 - 本地測試 57 項通過。復市日的正式資料擷取結果待 Actions。研究輸出維持 `score_eligible=false`。
+
+## 2026-11-23 逐檔復市日與基準價格查核結果
+
+- [官方復市日 Actions](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45102137373) 回傳 10/10 筆行情。用收盤價減帶符號漲跌價差重建價格基準，10/10 精確吻合原 TWT49U 的開盤競價基準，且 10/10 都與一般前收不同。確認 7/13 八檔及 10/27 兩檔的實際交易已使用對應的除權息基準。[逐檔 JSON](ex_right_date_results.json) 保存原報表、官方復市行情、參考價、競價基準及原始資料 SHA-256。
+- 2610、2891 的原官方除息參考價仍為 20.58、67.39，實際交易競價基準為 20.60、67.40。6931 的 37.38 與 37.40 也屬不同欄位。回調係數取參考價，不用競價基準或復市收盤價。單日 TWT49U 查詢仍無這 10 筆修訂列，因此保存原報告日期與由復市交易反推的生效日期，未直接修改評分來源。60 項本地測試通過。

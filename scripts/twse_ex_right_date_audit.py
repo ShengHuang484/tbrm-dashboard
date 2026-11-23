@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -36,6 +37,27 @@ def select_rows(payload, code_field, codes, required):
     return matches
 
 
+def implied_auction_base(quote):
+    """Compute a diagnostic price basis from a signed, decimal change."""
+    if not quote:
+        return None
+    sign = quote["漲跌(+/-)"]
+    try:
+        close, change = (Decimal(quote[field].replace(",", ""))
+                         for field in ("收盤價", "漲跌價差"))
+    except InvalidOperation:
+        return None
+    if not close.is_finite() or not change.is_finite() or close <= 0 or change < 0:
+        return None
+    if sign == "+" or (sign == "" and change == 0):
+        base = close - change
+    elif sign == "-":
+        base = close + change
+    else:
+        return None
+    return base if base > 0 else None
+
+
 def evaluate(day, cases, quotes, ex_rights):
     if str(quotes.get("date", "")).replace("/", "") != day.replace("-", ""):
         raise ValueError("daily quotes date mismatch")
@@ -54,11 +76,19 @@ def evaluate(day, cases, quotes, ex_rights):
         raise ValueError("duplicate daily event")
     quotes_by_code = {row["證券代號"]: row for row in quote_rows}
     results_by_code = {row["股票代號"]: row for row in result_rows}
-    return [
-        dict(case, quote=quotes_by_code.get(case["code"]),
-             dated_event=results_by_code.get(case["code"]), score_eligible=False)
-        for case in cases
-    ]
+    report = []
+    for case in cases:
+        code = case["code"]
+        quote = quotes_by_code.get(code)
+        base = implied_auction_base(quote)
+        match = base is not None and base == Decimal(case["auction_base"])
+        report.append(dict(
+            case, quote=quote, dated_event=results_by_code.get(code),
+            implied_auction_base=str(base) if base is not None else None,
+            official_trading_basis_matches=bool(match and base != Decimal(case["prior_close"])),
+            score_eligible=False,
+        ))
+    return report
 
 
 def capture(url, path):
