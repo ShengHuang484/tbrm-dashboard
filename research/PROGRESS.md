@@ -207,3 +207,8 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 取得完整外部資料後，先用 `python -m scripts.issuer_universe compare data/history/new_low_closes.json adjusted.json research/issuer_master_20261122.csv 2026-11-22 --strict-report > strict-ordinary.json` 產生帶有完整合格與新低代號的輸入，再執行 `python -m scripts.new_low_baseline strict-ordinary.json baseline.json`。
 - 本地用既有原始封存驗證 10 個日期逐檔名單。11/20 為 944 檔合格、425 檔新低、988 筆調整事件。95 項測試通過。仍需涵蓋研究期的外部普通股身分、完整 253 日價格窗口及價格調整規格，才能核證市場結果。正式維持 45/50、score_eligible=false。
 - 續作估計 4–10 小時主動工時，不含等待資料或授權。優先取得獨立全市場匯出及按日上市／停牌／承繼證據，再逐檔比較。
+
+## 2026-11-23 1312 現增除權價格口徑敏感度
+
+- 11/20 唯一由調整改判為新低的 1312 國喬，6/11 辦理每股 14.00 元現增，前收 13.20 元。封存 6 月 TWT49U 的除權參考價是 13.40 元，減除股利參考價與開盤競價基準均為 13.20 元。Goodinfo 外部還原日表取得 240/253 筆，5/27 顯示 9.98，11/20 顯示 10；兩值接近，未核證外部未取位價格。
+- 僅對這筆以 13.20 取代 13.40，十個研究日只有 11/20 變動，1312 移出，425 降為 424。此為現金認購權價值取零的研究情境，並未採為主口徑。命令與逐日差異見 scripts.new_low_rights_scenario 及 1312_rights_scenario.json。96 項測試通過。

@@ -1,0 +1,17 @@
+{
+  "code": "1312",
+  "effective_date": "2026-06-11",
+  "sessions": 10,
+  "changed_sessions": [
+    {
+      "date": "2026-11-20",
+      "original": 425,
+      "scenario": 424,
+      "removed": [
+        "1312"
+      ],
+      "added": []
+    }
+  ],
+  "score_eligible": false
+}
