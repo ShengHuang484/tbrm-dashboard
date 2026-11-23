@@ -26,7 +26,7 @@ def audit(history, report, lifecycle, activity, activity_source):
         if stop["conflicting_sessions"]:
             raise ValueError("cannot classify conflicting stop evidence")
         code = stop["code"]
-        reason = "company_action_stop" if code in COMPANY_ACTION_STOPS else "announced_stop"
+        reason = "company_action_stop" if code in COMPANY_ACTION_STOPS or stop.get("event_type") == "capital_reduction" else "announced_stop"
         for day in stop["affected_sessions"]:
             key = code, day
             if key not in missing or key in classified:

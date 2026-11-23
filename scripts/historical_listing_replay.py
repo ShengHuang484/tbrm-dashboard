@@ -1,6 +1,7 @@
 """Replay research using a bounded listing reconstruction with dated exit evidence."""
 import argparse
 import csv
+import hashlib
 import json
 from datetime import date
 from pathlib import Path
@@ -11,7 +12,7 @@ from scripts.new_low_replay_check import membership_digest
 from scripts.new_low_rights_scenario import TWSE_REFERENCE, ZERO_RIGHTS, select_events
 
 
-def audit_stops(history, windows, stops):
+def audit_stops(history, windows, stops, events=()):
     results = []
     for stop in stops:
         code, start, end = (stop[k] for k in ("code", "start", "end"))
@@ -19,6 +20,17 @@ def audit_stops(history, windows, stops):
                 or start >= end or not stop["sources"]
                 or any(not url.startswith("https://") for url in stop["sources"])):
             raise ValueError("invalid trading stop evidence")
+        if "published_evidence" in stop:
+            published = stop["published_evidence"]
+            normalized = json.dumps(published, sort_keys=True, separators=(",", ":")).encode()
+            if (hashlib.sha256(normalized).hexdigest() != stop["normalized_evidence_sha256"]
+                    or tuple(published[k] for k in ("code", "start", "end")) != (code, start, end)
+                    or published["source_url"] not in stop["sources"]):
+                raise ValueError("stop evidence does not match normalized source facts")
+        if "event_type" in stop and not any(
+                (e["code"], e["ex_date"], e["event_type"]) == (code, end, stop["event_type"])
+                for e in events):
+            raise ValueError("no archived corporate action at the documented restoration date")
         active = listings_on(windows, start).get(code)
         disposition = stop["disposition"]
         if active is None or disposition not in ("resume", "delist"):
@@ -31,8 +43,11 @@ def audit_stops(history, windows, stops):
         conflicts = [d for d in sessions if code in history[d]]
         if disposition == "resume" and end in history and code not in history[end]:
             conflicts.append(end)
-        results.append(dict(code=code, disposition=disposition, affected_sessions=sessions,
-                            conflicting_sessions=conflicts))
+        result = dict(code=code, disposition=disposition, affected_sessions=sessions,
+                      conflicting_sessions=conflicts)
+        if "event_type" in stop:
+            result["event_type"] = stop["event_type"]
+        results.append(result)
     return results
 
 
@@ -61,7 +76,7 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False, listings
         outside = sorted(quotes.keys() - listings_on(windows, day).keys())
         if outside:
             conflicts[day] = outside
-    stops = audit_stops(ordinary, windows, evidence.get("trading_stops", []))
+    stops = audit_stops(ordinary, windows, evidence.get("trading_stops", []), events)
     stop_conflicts = any(row["conflicting_sessions"] for row in stops)
     if conflicts or stop_conflicts:
         if strict_report:

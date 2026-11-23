@@ -48,3 +48,13 @@ class HistoricalListingReplayTest(unittest.TestCase):
         self.assertEqual(result["coverage"]["unclassified_absence_dates"], {"6806": [b, c]})
         self.assertEqual(result["coverage"]["reconstructed_starts_without_archive"], [("6806", a)])
         self.assertEqual(result["coverage"]["documented_stop_pairs"], 0)
+
+    def test_stop_with_event_type_requires_matching_archived_resumption(self):
+        a, b, c = "2026-01-02", "2026-01-05", "2026-01-06"
+        history = {a: {"6806": 5}, b: {}, c: {"6806": 4}}
+        roster = [dict(code="6806", listed_from=a, industry="01")]
+        stop = dict(code="6806", start=b, end=c, disposition="resume", event_type="capital_reduction",
+                    sources=["https://example.com/halt"])
+        with self.assertRaisesRegex(ValueError, "no archived corporate action"):
+            replay(history, dict(applied_events=[], lookback=1), roster,
+                   dict(snapshot_date=c, historical_exits=[], trading_stops=[stop]))
