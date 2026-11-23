@@ -28,3 +28,9 @@
 來源 JSON 另附 `origin=external`、`upstream_source`、`usage_basis`、`usage_limits`、`adjustment_anchor_date` 與六檔原始 `bundle_sha256`。方法需明列 `face_value_change` 和 `share_conversion`，並覆蓋既有七類調整。若只能交付部分日期或部分證券，請標明限制。資料使用與來源獨立性須以授權及取樣文件人工確認。
 
 以 `python -m scripts.external_delivery_bundle strict.json alternative.json raw-history.json event-cases.json local-gaps-full.json metadata.json supplier-directory/` 執行全套驗收。調整價倍數可能隨基準日整體縮放，逐日使用收盤比值和原始精度比較，保留個股跨上市區間及缺價原因供人工覆核。
+
+### 取得前的確認項目
+
+實測 FinMind 還原日線的已下市控制樣本 2867 回會員權限限制，TEJ APRCD1 回 API key 必填。若有既有授權，請依上述六檔規格提供 262 個交易日，先交付一包含 2867 最後交易日前後與 1312 現增日期的小樣，併附證券身分、公司行動、還原公式與原始報價上游。請說明是否可作市場級對照，並以書面列出可留存、內部使用及可公布統計的範圍。已授權樣本確認後，再進行全市場批次驗收。
+
+驗收報告以 `intake_blockers` 列出缺資料情況，以 `comparison_review_counts` 列出需覆核的口徑或名單差異。檔案結構或合成測試通過後，來源獨立性及授權仍各自保留人工審查。

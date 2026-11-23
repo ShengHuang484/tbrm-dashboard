@@ -106,7 +106,9 @@ def review(report, metadata, files, *, history, alternative, event_cases, local_
             if actual != local.get(pair):
                 differences[code] = dict(local=local.get(pair), vendor=actual)
         gaps.append(dict(date=day, differences_by_code=differences,
-                         quotes_outside_listings=coverage["quotes_outside_listings"]))
+                         quotes_outside_listings=coverage["quotes_outside_listings"],
+                         unresolved_vendor_codes=sorted(code for code in missing if
+                             status.get((day, code), {}).get("reason") in {None, "unconfirmed", "source_missing"})))
     local_actions = {(r["ex_date"], r["code"]): r["event_type"] for r in report["applied_events"]}
     action_review = []
     for day, code in sorted(local_actions.keys() | actions_by_session.keys()):
@@ -115,9 +117,32 @@ def review(report, metadata, files, *, history, alternative, event_cases, local_
         kind = local_actions.get(pair)
         if [kind] != [event["event_type"] for event in vendor]:
             action_review.append(dict(date=day, code=code, local_event_type=kind, vendor_events=vendor))
+    blockers = {
+        "unresolved_vendor_gap_pairs": sum(len(row["unresolved_vendor_codes"]) for row in gaps),
+        "quote_pairs_outside_listings": sum(len(row["quotes_outside_listings"]) for row in gaps),
+        "missing_local_research_dates": comparison["comparison"]["unevaluated_research_dates"],
+        "event_types_without_comparable_sample": comparison["event_types_without_sample"],
+        "missing_alternative_basis": alternative is None,
+    }
+    comparisons_pending = {
+        "sessions_with_listing_disagreement": len(comparison["listing_disagreement"]),
+        "sessions_with_low_or_eligibility_disagreement": sum(
+            bool(row["disagreement_by_code"]) for row in comparison["comparison"]["sessions"]),
+        "sessions_with_missing_external_eligible_closes": sum(
+            bool(row["missing_external_codes"]) for row in comparison["comparison"]["sessions"]),
+        "unreconciled_event_inventory_rows": len(action_review),
+        "sessions_with_price_movement_differences": sum(
+            bool(row["differences_by_code"]) for row in comparison["price_movement_checks"]),
+        "price_basis_sample_differences": sum(
+            row["status"] == "price_basis_difference" for row in comparison["event_price_checks"]),
+    }
     return dict(origin=metadata["origin"], file_sha256=hashes, adjustment_anchor_date=anchor,
                 roster=roster, quote_and_low_comparison=comparison, gap_differences=gaps,
                 action_inventory_review=action_review, licensing_review="REVIEW",
+                intake_status="BLOCKED" if any(blockers.values()) else
+                              "REVIEW" if any(comparisons_pending.values()) else "PASS",
+                intake_blockers=blockers, comparison_review_counts=comparisons_pending,
+                independence_review="synthetic_only" if metadata["origin"] == "synthetic" else "REVIEW",
                 market_baseline_verified=False, score_eligible=False)
 
 

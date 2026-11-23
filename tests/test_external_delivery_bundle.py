@@ -62,6 +62,15 @@ class DeliveryBundleTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "quoted stock"):
             self.run_bundle()
 
+    def test_unclassified_vendor_gap_has_explicit_blocker(self):
+        self.files["quotes"] = self.files["quotes"].replace(b"2026-11-19,1102,21.00\n", b"")
+        result = self.run_bundle()
+        self.assertEqual(result["intake_status"], "BLOCKED")
+        self.assertEqual(result["intake_blockers"]["unresolved_vendor_gap_pairs"], 1)
+        self.assertEqual(result["gap_differences"][0]["unresolved_vendor_codes"], ["1102"])
+        self.assertEqual(result["independence_review"], "synthetic_only")
+        self.assertFalse(result["market_baseline_verified"])
+
     def test_synthetic_bundle_replays_alternative_rights_basis_with_other_events(self):
         self.report["listing_intervals"].append(dict(code="1312", listed_from="2000-01-01", delisted_on=None))
         self.report["sessions"][0]["eligible_codes"].append("1312")
