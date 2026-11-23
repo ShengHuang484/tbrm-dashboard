@@ -244,6 +244,253 @@
         "evidence_kind": "published_stop_dates"
       },
       "normalized_evidence_sha256": "de739442e8dce2fb48bc54b9f5660b7b10bf9c56e3da52c41c5fdb2e8a9c6483"
+    },
+    {
+      "code": "4155",
+      "start": "2026-10-07",
+      "end": "2026-10-19",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://wealth.firstbank.com.tw/investment-tips/trend-insight/news/news-detail?id=%7BCF8AC4E8-BF95-40E6-88D7-30B13A3B3E0C%7D",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "4155",
+        "start": "2026-10-07",
+        "end": "2026-10-19",
+        "source_url": "https://wealth.firstbank.com.tw/investment-tips/trend-insight/news/news-detail?id=%7BCF8AC4E8-BF95-40E6-88D7-30B13A3B3E0C%7D",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "f146c3618a916d014c065ed3a1fbc7d8fd0ac2d09b678a4e1af2b7be4e544e3c"
+    },
+    {
+      "code": "6176",
+      "start": "2026-08-13",
+      "end": "2026-08-24",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://www.yuanta.com.tw/eYuanta/Securities/News/GetAPItem?Type=StockTodayNews&id=202608130082507",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "6176",
+        "start": "2026-08-13",
+        "end": "2026-08-24",
+        "source_url": "https://www.yuanta.com.tw/eYuanta/Securities/News/GetAPItem?Type=StockTodayNews&id=202608130082507",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "b92be2e6fb3e43206378f2f9403129161040e8e1744d87a3b4c68b6ef83895a8"
+    },
+    {
+      "code": "8103",
+      "start": "2025-11-27",
+      "end": "2025-12-08",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://news.cnyes.com/news/print/6230764",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "8103",
+        "start": "2025-11-27",
+        "end": "2025-12-08",
+        "source_url": "https://news.cnyes.com/news/print/6230764",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "d2942d6aab03d360d12202f571d94aac6c750ca7572cf1f276f85ac30e74b98e"
+    },
+    {
+      "code": "9927",
+      "start": "2025-11-13",
+      "end": "2025-11-24",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=235469cd-4beb-4eeb-84d6-a24fc132d81b",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "9927",
+        "start": "2025-11-13",
+        "end": "2025-11-24",
+        "source_url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=235469cd-4beb-4eeb-84d6-a24fc132d81b",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "f3a21d2490263b7d7842e5ba21937e6802a3e7fa1a40ef43ab2410818ba2758a"
+    },
+    {
+      "code": "2323",
+      "start": "2026-10-01",
+      "end": "2026-10-12",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=37c7e98d-e2e2-48fa-8165-e6171d6d1630&c=MB06",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "2323",
+        "start": "2026-10-01",
+        "end": "2026-10-12",
+        "source_url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=37c7e98d-e2e2-48fa-8165-e6171d6d1630&c=MB06",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "09e35b0bb5ffea9bd0a6fa0a271f1dfb3f946611360edc2569acae3da1363449"
+    },
+    {
+      "code": "2601",
+      "start": "2026-09-23",
+      "end": "2026-10-05",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://www.moneydj.com/KMDJ/news/newsviewer.aspx?a=72c8caf9-e535-49dc-97e0-e6e02ddf847d",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "2601",
+        "start": "2026-09-23",
+        "end": "2026-10-05",
+        "source_url": "https://www.moneydj.com/KMDJ/news/newsviewer.aspx?a=72c8caf9-e535-49dc-97e0-e6e02ddf847d",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "113d71cfa5fbe3fa1955cfc6060f10ddfb56eff6f52a5a239df66d9a40a85e17"
+    },
+    {
+      "code": "6142",
+      "start": "2026-10-15",
+      "end": "2026-10-27",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=b06f70a3-b275-43d2-8aad-69341f87fb62",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "6142",
+        "start": "2026-10-15",
+        "end": "2026-10-27",
+        "source_url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=b06f70a3-b275-43d2-8aad-69341f87fb62",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "fbcaf7788f29ed992d3b2f97936aab8ce7962c9a5ef731c94b89ed290eda9b21"
+    },
+    {
+      "code": "6550",
+      "start": "2026-09-17",
+      "end": "2026-09-29",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://tw.stock.yahoo.com/quote/6550.TW/calendar",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "6550",
+        "start": "2026-09-17",
+        "end": "2026-09-29",
+        "source_url": "https://tw.stock.yahoo.com/quote/6550.TW/calendar",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "40df838c47d307ae128ed554ef61087d30f7c6f2a5dccadd959e3757b8ec565b"
+    },
+    {
+      "code": "1808",
+      "start": "2025-11-13",
+      "end": "2025-11-24",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://news.cnyes.com/news/print/6198826",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "1808",
+        "start": "2025-11-13",
+        "end": "2025-11-24",
+        "source_url": "https://news.cnyes.com/news/print/6198826",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "204f57fd0a887645cc8aa683bc49768abd75e27413ad0a75b93913096ab74005"
+    },
+    {
+      "code": "2321",
+      "start": "2026-09-10",
+      "end": "2026-09-21",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://www.nstock.tw/news/article_m?id=543968",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "2321",
+        "start": "2026-09-10",
+        "end": "2026-09-21",
+        "source_url": "https://www.nstock.tw/news/article_m?id=543968",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "d95431d3d5427fef61a2e0d3235f29c76788ae0b57291f71901a1b7a60e9c28d"
+    },
+    {
+      "code": "3593",
+      "start": "2025-12-11",
+      "end": "2025-12-22",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=1b6660db-7589-406a-8990-912fe4012d9d",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "3593",
+        "start": "2025-12-11",
+        "end": "2025-12-22",
+        "source_url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=1b6660db-7589-406a-8990-912fe4012d9d",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "e4008e47776d3db5cae10ff17350bc5a4bd0611e63b0fe8b22d7c9c57efabece"
+    },
+    {
+      "code": "1441",
+      "start": "2026-09-17",
+      "end": "2026-09-29",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://goodinfo.tw/tw/StockAnnounceDetail.asp?CLAIM_TIME=2026%2F09%2F03+14%3A34%3A57&STOCK_ID=1441&SUBJECT=%E5%85%AC%E5%91%8A%E6%9C%AC%E5%85%AC%E5%8F%B8%E8%A8%82%E5%AE%9A%E6%B8%9B%E8%B3%87%E6%8F%9B%E8%82%A1%E4%BD%9C%E6%A5%AD%E8%A8%88%E5%8A%83%E5%8F%8A%E6%B8%9B%E8%B3%87%E6%8F%9B%E7%99%BC%E8%82%A1%E7%A5%A8%E5%9F%BA%E6%BA%96%E6%97%A5",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "1441",
+        "start": "2026-09-17",
+        "end": "2026-09-29",
+        "source_url": "https://goodinfo.tw/tw/StockAnnounceDetail.asp?CLAIM_TIME=2026%2F09%2F03+14%3A34%3A57&STOCK_ID=1441&SUBJECT=%E5%85%AC%E5%91%8A%E6%9C%AC%E5%85%AC%E5%8F%B8%E8%A8%82%E5%AE%9A%E6%B8%9B%E8%B3%87%E6%8F%9B%E8%82%A1%E4%BD%9C%E6%A5%AD%E8%A8%88%E5%8A%83%E5%8F%8A%E6%B8%9B%E8%B3%87%E6%8F%9B%E7%99%BC%E8%82%A1%E7%A5%A8%E5%9F%BA%E6%BA%96%E6%97%A5",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "5e1f1a61f6ae236dd40b70608ae7810142b0ef65150b38d9bcacc22308c16d44"
+    },
+    {
+      "code": "1516",
+      "start": "2026-10-15",
+      "end": "2026-10-27",
+      "disposition": "resume",
+      "event_type": "capital_reduction",
+      "sources": [
+        "https://tw.stock.yahoo.com/quote/1516.TW/calendar",
+        "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+      ],
+      "published_evidence": {
+        "code": "1516",
+        "start": "2026-10-15",
+        "end": "2026-10-27",
+        "source_url": "https://tw.stock.yahoo.com/quote/1516.TW/calendar",
+        "evidence_kind": "published_stop_dates"
+      },
+      "normalized_evidence_sha256": "5e77520e17e939a5913fa0e7aebcb97cde03cc6759efb0267ebe7ff573ca6c71"
     }
   ]
 }

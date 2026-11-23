@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | 1312 跨事件外部個案 | PASS | [外部兩日收盤與顯示精度](1312_rights_basis.json)配對封存前後收盤，支持 13.20 元口徑。 | 此個案已驗收，無需介入。 |
 | 988 筆和 10 日逐檔重播 | PARTIAL（內部） | [歷史重播](historical_listing_result.json)比對完整名單 SHA-256。11/20 嚴格 425／944，放寬 463／1,038。 | 完整外部市場資料仍待交付。 |
-| 逐日歷史普通股、停復牌及公司行動 | PARTIAL（已知個案） | [歷史區間](historical_listing_evidence.json)及[缺收盤摘要](missing_close_summary.json)。39 個期內掛牌對上官方封存，5 個下市區間及 15 段停買已核對。244＋82 個缺收盤有公告或交易活動證據，638 個未知。 | 全期點時上市與承繼清冊、反分割與停止交易全量資料仍缺。若有授權清冊，可交付。 |
+| 逐日歷史普通股、停復牌及公司行動 | PARTIAL（已知個案） | [歷史區間](historical_listing_evidence.json)及[缺收盤摘要](missing_close_summary.json)。39 個期內掛牌對上官方封存，5 個下市區間及 28 段停買已核對。329＋82 個缺收盤有公告或交易活動證據，553 個未知。 | 全期點時上市與承繼清冊、反分割與停止交易全量資料仍缺。若有授權清冊，可交付。 |
 | 全市場獨立還原價 | BLOCKED | [供應商需求](SUPPLIER_DATA_REQUEST.md)與 [5 類抽樣事件](external_event_cases.json)。驗收會列出兩種 1312 口徑、樣本差異與 10 日逐檔市場差異。 | 需要合法匯出或授權，及調整方式原始文件。 |
 | 正式口徑與啟用 | REVIEW | [1312 重播](1312_rights_scenario.json)顯示 425／424。覈對未決上市、價格與新低差異後確認。 | 需要使用者核准正式指標定義及是否啟用。 |
 
@@ -50,4 +50,4 @@ python -m scripts.external_delivery_check research/examples/external_delivery/{r
 
 [合成範例](examples/external_delivery)僅展示欄位。驗收會比對雙邊完整交易日曆、報價精度、1312 情境、上市身分與逐檔資格／低點差異，另列未提供的上市歷史。105 項本地測試通過。使用者需提供合法供應商匯出與可使用範圍，或提供已授權來源的存取方式。
 
-取得供應商資料後，可加入 `--alternative-report alternate-ordinary.json --raw-history data/history/new_low_closes.json --event-cases research/external_event_cases.json`。替代報表以另一種 1312 口徑重播。跨事件未提供報價及未取樣類別會列出，兩種診斷輸出均維持研究旗標關閉。110 項本地測試通過。
+取得供應商資料後，可加入 `--alternative-report alternate-ordinary.json --raw-history data/history/new_low_closes.json --event-cases research/external_event_cases.json`。替代報表以另一種 1312 口徑重播。跨事件未提供報價及未取樣類別會列出，兩種診斷輸出均維持研究旗標關閉。111 項本地測試通過。

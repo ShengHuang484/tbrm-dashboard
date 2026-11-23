@@ -88,7 +88,21 @@ def audit(history, report, lifecycle, activity, activity_source):
         ]
     groups.sort(key=lambda g: (g["reason"] != "unknown", -len(g["sole_gap_study_dates"]),
                                -len(g["study_dates"]), -g["pairs"], g["code"], g["first"]))
+    event_leads = {(r["code"], r["ex_date"]): r for r in report.get("applied_events", [])
+                   if r["event_type"] in ("capital_reduction", "split", "reverse_split")}
+    possible_action_stops = []
+    for group in groups:
+        next_position = positions[group["last"]] + 1
+        if group["reason"] != "unknown" or next_position == len(dates):
+            continue
+        next_session = dates[next_position]
+        event = event_leads.get((group["code"], next_session))
+        if event is not None:
+            possible_action_stops.append(dict(group, observed_resumption=next_session,
+                event_type=event["event_type"], event_source=event["source_url"],
+                verification_needed="dated stop or share-replacement notice"))
     return dict(
+        possible_action_stops=possible_action_stops,
         classification={reason: dict(stocks=len(stats["codes"]), pairs=stats["pairs"])
                         for reason, stats in sorted(summary.items())},
         study_day_impact=[dict(date=row["date"], excluded_with_missing_close=sum(

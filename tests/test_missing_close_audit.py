@@ -31,3 +31,12 @@ class MissingCloseAuditTests(unittest.TestCase):
         self.activity["absent_close_reason"][self.c] = "zero_reported_activity"
         with self.assertRaisesRegex(ValueError, "overlapping"):
             audit(self.history, self.report, self.lifecycle, self.activity, "https://example.com")
+
+    def test_a_price_action_can_rank_a_lead_but_cannot_prove_the_stop(self):
+        self.report["applied_events"] = [
+            dict(code="1101", ex_date=self.c, event_type="capital_reduction",
+                 source_url="https://example.com/resumption")]
+        result = audit(self.history, self.report, self.lifecycle, self.activity, "https://example.com")
+        [lead] = result["possible_action_stops"]
+        self.assertEqual(lead["observed_resumption"], self.c)
+        self.assertEqual(result["classification"]["unknown"]["pairs"], 2)
