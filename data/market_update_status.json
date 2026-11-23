@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-23T08:42:15.649049+00:00",
+  "checked_at": "2026-11-23T10:40:04.164034+00:00",
   "expected_session": "2026-11-23",
   "last_valid_session": "2026-11-23",
   "status": "PARTIAL",
@@ -7,10 +7,8 @@
   "date_valid": true,
   "warnings": {
     "stock_openapi": "STOCK_DAY_ALL 2026-11-20; expected 2026-11-23",
-    "twse_dated_margin": "dated margin balance missing for index trading date; inspect diagnostic",
-    "margin_maintenance": "margin date not verified",
-    "taifex_putcall": "來源日期 2026-11-20，預期 2026-11-23",
-    "taifex_futures": "來源日期 2026-11-20，預期 2026-11-23",
+    "margin_maintenance": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)",
+    "twse_dated_margin": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)",
     "margin_calendar_check": "歷史資料缺漏 2026-11-23"
   },
   "source_stock_session": "2026-11-20",

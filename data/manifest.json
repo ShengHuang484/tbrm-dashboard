@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-23T08:42:19.913284+00:00",
+  "fetched_at_utc": "2026-11-23T10:40:08.437631+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -29,8 +29,8 @@
     },
     "taifex_putcall": {
       "status": "ok",
-      "records": 21,
-      "url": "https://openapi.taifex.com.tw/v1/PutCallRatio"
+      "date": "2026-11-23",
+      "url": "https://www.taifex.com.tw/cht/3/pcRatio?queryStartDate=2026%2F11%2F23&queryEndDate=2026%2F11%2F23"
     },
     "taifex_futures": {
       "status": "ok",
@@ -47,16 +47,10 @@
       "date": "2026-11-23",
       "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261123&type=MS"
     },
-    "twse_dated_margin": {
-      "status": "failed"
-    },
     "taifex_vix": {
       "status": "ok",
       "date": "2026-11-23",
       "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/202611new.txt"
-    },
-    "margin_maintenance": {
-      "status": "failed"
     },
     "new_low": {
       "date": "2026-11-23",
@@ -315,6 +309,20 @@
       "date": "2026-11-23",
       "records": 256
     },
+    "twse_dated_margin": {
+      "status": "partial",
+      "missing": [
+        "2026-11-23"
+      ],
+      "required": 21,
+      "date": "2026-11-20",
+      "errors": {
+        "2026-11-23": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)"
+      }
+    },
+    "margin_maintenance": {
+      "status": "failed"
+    },
     "breadth_history": {
       "status": "ok",
       "missing": [],
@@ -334,7 +342,6 @@
     }
   },
   "errors": {
-    "twse_dated_margin": "dated margin balance missing for index trading date; inspect diagnostic",
-    "margin_maintenance": "margin date not verified"
+    "margin_maintenance": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)"
   }
 }

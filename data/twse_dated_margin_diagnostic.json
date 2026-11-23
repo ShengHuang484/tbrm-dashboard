@@ -3,19 +3,31 @@
   "attempts": [
     {
       "date": "2026-11-23",
-      "status": "not_available",
-      "stat": "很抱歉，沒有符合條件的資料"
-    },
-    {
-      "date": "2026-10-26",
-      "status": "not_available",
-      "stat": "很抱歉，沒有符合條件的資料"
-    },
-    {
-      "date": "2026-10-23",
-      "status": "not_available",
-      "stat": "很抱歉，沒有符合條件的資料"
+      "status": "failed",
+      "message": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)",
+      "routes": [
+        {
+          "route": "exchangeReport",
+          "url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261123",
+          "response_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261123",
+          "status": "no_report",
+          "official_status": "很抱歉，沒有符合條件的資料",
+          "message": "很抱歉，沒有符合條件的資料"
+        },
+        {
+          "route": "rwd/zh/marginTrading",
+          "url": "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?response=json&selectType=ALL&date=20261123",
+          "response_url": "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?response=json&selectType=ALL&date=20261123",
+          "status": "no_report",
+          "official_status": "很抱歉，沒有符合條件的資料",
+          "message": "很抱歉，沒有符合條件的資料"
+        }
+      ]
     }
   ],
-  "valid_days": 30
+  "valid_days": 20,
+  "required_days": 21,
+  "missing": [
+    "2026-11-23"
+  ]
 }
