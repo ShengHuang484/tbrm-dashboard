@@ -75,3 +75,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 
 - [官方復市日 Actions](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45102137373) 回傳 10/10 筆行情。用收盤價減帶符號漲跌價差重建價格基準，10/10 精確吻合原 TWT49U 的開盤競價基準，且 10/10 都與一般前收不同。確認 7/13 八檔及 10/27 兩檔的實際交易已使用對應的除權息基準。[逐檔 JSON](ex_right_date_results.json) 保存原報表、官方復市行情、參考價、競價基準及原始資料 SHA-256。
 - 2610、2891 的原官方除息參考價仍為 20.58、67.39，實際交易競價基準為 20.60、67.40。6931 的 37.38 與 37.40 也屬不同欄位。回調係數取參考價，不用競價基準或復市收盤價。單日 TWT49U 查詢仍無這 10 筆修訂列，因此保存原報告日期與由復市交易反推的生效日期，未直接修改評分來源。60 項本地測試通過。
+
+## 2026-11-23 上市區間與外部基準比對
+
+- 調整後新低審計接受逐證券上市區間，以上市日含、下市日不含計算。重掛牌需重新累積回看期，事件不可跨上市區間套用。當日上市但無報價、上市期過短、回看缺價及範圍外報價分欄。母體尚未驗證時，仍可用原診斷入口重現舊結果。
+- 新增 `python -m scripts.new_low_baseline <local-report.json> <external-baseline.json>`。外部檔需提供 `provider`、`source_url`、`adjustment_method`、`market_dates` 與 `adjusted_closes`（日期→代號→還原收盤）。沿用同一市場日曆，在本地合格母體中逐檔對照完整窗口，列出外部缺價及雙向新低差異。即使兩邊一致也維持 `market_baseline_verified=false`，待確認外部資料獨立性及完整性。
+- 新增官方上市、下市、面額及 2832 停牌前月份擷取 Actions。現有 TWTB7U 是公告快照，無法單靠空白或單筆結果證明全期間完整。市場級還原行情尚未取得，FinMind 付費資料或其他有完整期間及可驗證價格基準的同口徑匯出需另外取得。60 項本地測試通過。

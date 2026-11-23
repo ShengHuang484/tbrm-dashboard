@@ -6,9 +6,10 @@ from fractions import Fraction
 from pathlib import Path
 
 from scripts.corporate_action_audit import event_factors, positive
+from scripts.new_low_listing import listing_windows, listings_on
 
 
-def audit_adjusted_lows(history, events, lookback=252):
+def audit_adjusted_lows(history, events, lookback=252, *, listings=None):
     """Use only the current and immediately prior market sessions in history.
 
     The calendar and listing universe must be corroborated separately. Codes
@@ -19,6 +20,7 @@ def audit_adjusted_lows(history, events, lookback=252):
     dates = sorted(history)
     if not 1 <= lookback < len(dates):
         raise ValueError("insufficient market sessions")
+    listing_index = None if listings is None else listing_windows(listings)
     events = list(events)
     factors = event_factors(events, number=Fraction)
     prices = {
@@ -39,6 +41,10 @@ def audit_adjusted_lows(history, events, lookback=252):
                 break
         else:
             raise ValueError("verified event has no raw prior close")
+        if listing_index is not None:
+            active = listings_on(listing_index, day).get(code)
+            if active is None or prior_day < active[0]:
+                raise ValueError("event crosses a listing interval")
         if factor != 1:
             action_codes[code].add(day)
 
@@ -49,6 +55,19 @@ def audit_adjusted_lows(history, events, lookback=252):
         eligible = prices[day].keys() & set.intersection(
             *(set(prices[prior]) for prior in window)
         )
+        listing_diagnostics = {}
+        if listing_index is not None:
+            listed = listings_on(listing_index, day)
+            continuous = {code for code, (start, _) in listed.items() if start <= window[0]}
+            quoted = prices[day].keys() & continuous
+            eligible &= continuous
+            listing_diagnostics = {
+                "active_listings": len(listed),
+                "outside_active_listing": len(prices[day].keys() - listed.keys()),
+                "insufficient_listing_age": len(listed) - len(continuous),
+                "unquoted_current_listings": len(listed.keys() - prices[day].keys()),
+                "missing_prior_quote": len(quoted) - len(eligible),
+            }
         raw_lows, adjusted_lows = set(), set()
         for code in eligible:
             current = prices[day][code]
@@ -81,10 +100,15 @@ def audit_adjusted_lows(history, events, lookback=252):
             "adjusted_low_count": len(adjusted_lows),
             "added_low_codes": sorted(adjusted_lows - raw_lows),
             "removed_low_codes": sorted(raw_lows - adjusted_lows),
+            "eligible_codes": sorted(eligible),
+            "adjusted_low_codes": sorted(adjusted_lows),
+            **listing_diagnostics,
         })
     return {
         "lookback": lookback,
+        "market_dates": dates,
         "factor_count": len(factors),
+        "listing_intervals_supplied": listing_index is not None,
         "corporate_action_completeness_verified": False,
         "listing_universe_verified": False,
         "research_only": True,
@@ -97,9 +121,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("history", type=Path)
     parser.add_argument("verified_events", type=Path)
+    parser.add_argument("--listings", type=Path)
     args = parser.parse_args()
     report = audit_adjusted_lows(
         json.loads(args.history.read_text(encoding="utf-8")),
         json.loads(args.verified_events.read_text(encoding="utf-8")),
+        listings=json.loads(args.listings.read_text()) if args.listings else None,
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))

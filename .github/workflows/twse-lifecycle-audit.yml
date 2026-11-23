@@ -1,0 +1,45 @@
+name: TWSE listing and share changes (research only)
+
+on:
+  push:
+    branches:
+      - research/new-low-quality-gates-20261123
+    paths:
+      - '.github/workflows/twse-lifecycle-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Archive official sources for coverage and boundary review
+        run: |
+          mkdir evidence
+          cd evidence
+          failed=0
+          fetch() {
+            local filename="$1"
+            local url="$2"
+            if curl -fsSL --max-time 20 --retry 1 --retry-max-time 45 -o "$filename" "$url"; then
+              printf '%s\t%s\n' "$filename" "$url" >> sources.tsv
+              sha256sum "$filename" >> sha256.txt
+            else
+              failed=1
+            fi
+          }
+          fetch face-value-notices.json 'https://www.twse.com.tw/exchangeReport/TWTB7U?response=json'
+          fetch face-value-detail.html 'https://www.twse.com.tw/zh/announcement/change/twtb8u-detail.html?6949,20260827,20260907'
+          fetch new-listings.json 'https://www.twse.com.tw/en/company/newlisting?response=json'
+          fetch delistings.html 'https://www.twse.com.tw/company/suspendListingCsvAndHtml?lang=zh&type=html'
+          fetch 2832-pre-window.json 'https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=20251001&stockNo=2832'
+          exit "$failed"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: twse-lifecycle-sources
+          path: evidence/
+          retention-days: 30
