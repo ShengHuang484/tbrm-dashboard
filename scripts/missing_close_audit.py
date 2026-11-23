@@ -101,7 +101,22 @@ def audit(history, report, lifecycle, activity, activity_source):
             possible_action_stops.append(dict(group, observed_resumption=next_session,
                 event_type=event["event_type"], event_source=event["source_url"],
                 verification_needed="dated stop or share-replacement notice"))
+    unknown_groups = [g for g in groups if g["reason"] == "unknown"]
+    priority_queue = [
+        dict(code=g["code"], first=g["first"], last=g["last"], pairs=g["pairs"],
+             impacted_study_dates=g["study_dates"],
+             sole_gap_study_dates=g["sole_gap_study_dates"],
+             priority="critical" if g["sole_gap_study_dates"] else
+                      "high" if g["study_dates"] else "historical",
+             verification_needed="dated primary-source listing, trade-status or quote evidence")
+        for g in unknown_groups
+    ]
+    if sum(v["pairs"] for v in summary.values()) != len(missing):
+        raise ValueError("missing-close classification partition is incomplete")
     return dict(
+        unknown_priority_queue=priority_queue,
+        unknown_group_count=len(unknown_groups),
+        unknown_pairs=sum(g["pairs"] for g in unknown_groups),
         possible_action_stops=possible_action_stops,
         classification={reason: dict(stocks=len(stats["codes"]), pairs=stats["pairs"])
                         for reason, stats in sorted(summary.items())},
@@ -130,4 +145,6 @@ if __name__ == "__main__":
         groups = result.pop("groups")
         result.update(group_count=len(groups), highest_priority_unknowns=[
             g for g in groups if g["reason"] == "unknown"][:10])
+        result["unknown_priority_queue"] = result["unknown_priority_queue"][:20]
+        result["priority_queue_truncated"] = result["unknown_group_count"] > 20
     print(json.dumps(result, ensure_ascii=False, indent=2))
