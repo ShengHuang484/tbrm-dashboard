@@ -105,7 +105,10 @@ def inspect(report, metadata, quotes, calendar, listings, *,
     if any(not isinstance(rules.get(key), str) or not rules[key].strip() for key in RULES):
         raise ValueError("delivery must document all corporate action rules")
 
-    baseline = normalize(metadata, quotes, calendar, listings, expected_dates=report["market_dates"])
+    baseline = normalize(metadata, quotes, calendar, listings, expected_dates=report["market_dates"],
+                         require_security_id_for_reused=True)
+    if "file_sha256" in metadata and metadata["file_sha256"] != baseline["sha256"]:
+        raise ValueError("declared delivery SHA-256 differs from the received CSV files")
     for day, prices in baseline["adjusted_closes"].items():
         for code, raw in prices.items():
             digits_in_value = -Decimal(raw).as_tuple().exponent

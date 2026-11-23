@@ -6,7 +6,8 @@
 | --- | --- | --- | --- |
 | 1312 跨事件外部個案 | PASS | [外部兩日收盤與顯示精度](1312_rights_basis.json)配對封存前後收盤，支持 13.20 元口徑。 | 此個案已驗收，無需介入。 |
 | 988 筆和 10 日逐檔重播 | PARTIAL（內部） | [歷史重播](historical_listing_result.json)比對完整名單 SHA-256。11/20 嚴格 425／944，放寬 463／1,038。 | 完整外部市場資料仍待交付。 |
-| 逐日歷史普通股、停復牌及公司行動 | PARTIAL（已知個案） | [歷史區間](historical_listing_evidence.json)及[缺收盤摘要](missing_close_summary.json)。39 個期內掛牌、5 個期內退出日期對上官方封存，31 段停買已核對。377 個缺收盤有公告證據，440 個有交易活動證據，147 個未知。 | 全期點時上市與承繼清冊、反分割與停止交易全量資料仍缺。若有授權清冊，可交付。 |
+| 逐日歷史普通股、停復牌及公司行動 | PARTIAL（已知個案） | [歷史區間](historical_listing_evidence.json)及[缺收盤摘要](missing_close_summary.json)。39 個期內掛牌、5 個期內退出日期對上官方封存，31 段停買已核對。377 個缺收盤有公告證據。公開暫停交易報表未回傳 8105、1435 等已知長期停牌，無法單獨驗證全期交易狀態。 | 全期點時上市與承繼清冊、反分割與停止交易全量資料仍缺。若有授權清冊，可交付。 |
+| 缺收盤歸因（本次重建母體） | PASS | [缺價摘要](missing_close_summary.json)與[TWSE 逐列證據](twse_stock_day_gap_evidence.json)。封存重播核對 964／964 個配對與 10 日資格守門，未知為零。 | 本項無需介入。仍無可恢復資格的收盤。 |
 | 全市場獨立還原價 | BLOCKED | [供應商需求](SUPPLIER_DATA_REQUEST.md)與 [5 類抽樣事件](external_event_cases.json)。驗收會列出兩種 1312 口徑、樣本差異與 10 日逐檔市場差異。 | 需要合法匯出或授權，及調整方式原始文件。 |
 | 正式口徑與啟用 | REVIEW | [1312 重播](1312_rights_scenario.json)顯示 425／424。覈對未決上市、價格與新低差異後確認。 | 需要使用者核准正式指標定義及是否啟用。 |
 
@@ -48,29 +49,12 @@ python -m scripts.external_delivery_check strict-ordinary.json metadata.json quo
 python -m scripts.external_delivery_check research/examples/external_delivery/{report.json,metadata.json,quotes.csv,calendar.csv,listings.csv}
 ```
 
-[合成範例](examples/external_delivery)僅展示欄位。驗收會比對雙邊完整交易日曆、報價精度、1312 情境、上市身分與逐檔資格／低點差異，另列未提供的上市歷史。105 項本地測試通過。使用者需提供合法供應商匯出與可使用範圍，或提供已授權來源的存取方式。
+[合成範例](examples/external_delivery)僅展示欄位。驗收會比對雙邊完整交易日曆、報價精度、1312 情境、上市身分與逐檔資格／低點差異，另列未提供的上市歷史。使用者需提供合法供應商匯出與可使用範圍，或提供已授權來源的存取方式。
 
-取得供應商資料後，可加入 `--alternative-report alternate-ordinary.json --raw-history data/history/new_low_closes.json --event-cases research/external_event_cases.json`。替代報表以另一種 1312 口徑重播。跨事件未提供報價及未取樣類別會列出，兩種診斷輸出均維持研究旗標關閉。111 項本地測試通過。
+取得供應商資料後，可加入 `--alternative-report alternate-ordinary.json --raw-history data/history/new_low_closes.json --event-cases research/external_event_cases.json`。替代報表以另一種 1312 口徑重播。跨事件未提供報價及未取樣類別會列出，兩種診斷輸出均維持研究旗標關閉。
 
+## 研究證據範圍
 
-## 最新研究分支驗收補充
-
-| 項目 | 狀態 | 可追溯證據 | 驗收方法 | 尚缺資料 | 使用者介入 |
-| --- | --- | --- | --- | --- | --- |
-| 缺價歸因與優先查核 | PARTIAL | `scripts/missing_close_audit.py`、`research/PROGRESS.md`；既有 411／964 已分類、553 未知 | 重播缺價審計，核對總數守門、未知佇列、研究日影響，並執行 CI | 553 筆缺價的完整官方歸因；本次變更 CI 尚未驗收 | 否，除非官方證據無法取得 |
-| 歷史普通股點時母體 | PARTIAL | `research/historical_listing_evidence.json` 與既有官方個案 | 逐日比對獨立上市／下市／承繼清冊 | 全期間獨立清冊 | 取得授權資料時需要 |
-| 外部完整市場還原行情 | BLOCKED | `research/SUPPLIER_DATA_REQUEST.md`、`scripts/external_delivery_check.py` | 全市場 253 日逐檔、雙 1312 口徑及事件樣本驗收 | 合法授權外部匯出與調整規則 | 是 |
-| 最後五分正式啟用 | REVIEW | 內部重播 425／944 與 1312 替代情境 424／944 | 完成外部獨立驗證並經人工核准 | 獨立市場基準與口徑決策 | 是 |
-|
-
-內部重播、外部個案核對與全市場獨立驗證為不同層級；不得以內部 111 項歷史測試通過代替本次提交 CI，亦不得將外部個案驗證視為全市場驗證。正式維持 45/50，`score_eligible=false`。
-
-## 停復牌與缺價續查
-
-已有 31 段公告停買區間，合計 377 個配對。TWSE 個股日表補證 36 個配對，連同既有交易活動證據共 118 個。剩餘 469 個未知。官方終止上市封存與五個重建退出邊界逐筆相符，涵蓋本案日期窗的該份清冊。完整逐日證券身分、承繼關係與獨立行情仍待交付，狀態為 PARTIAL／BLOCKED。
-
-## 外部行情價差與承繼驗收
-
-現有工具可接收含 `security_id` 的掛牌清冊。代號重用時，驗收要求每一段提供證券識別碼，逐日比值不跨上市邊界。報告列出兩種 1312 口徑的整體新低差異及相鄰交易日逐檔價差，保存原始交付檔雜湊。[供應商需求](SUPPLIER_DATA_REQUEST.md)附完整期間及授權規格；此項維持 BLOCKED，需提供有授權的完整交付。
-
-第三批交易活動核對後，共 817／964 個配對已歸類，147 個未知。各交易日影響見[缺價摘要](missing_close_summary.json)。目前無可恢復資格的官方收盤。封存重播以研究分支 SHA 檢出固定歷史快照。
+- 歷史掛牌封存核對 39 個期內起點與 5 個期內終點，逐日 262 個市場交易日完成內部重建。完整市場的承繼、停復牌、反分割及存續公司仍待獨立清冊。
+- 外部驗收列出兩種 1312 口徑的逐檔價差與新低差異，並分辨同一識別碼換碼與不同證券重複使用代號。收到全市場匯出後核對檔案 SHA-256、交易日曆、上市期間、調整口徑及授權。
+- 缺價歸因通過、1312 外部個案通過、內部歷史重播通過與市場級獨立驗證是各自的驗收項目。市場級驗證仍為 BLOCKED，正式口徑維持 REVIEW。

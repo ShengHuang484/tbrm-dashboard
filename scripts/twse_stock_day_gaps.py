@@ -12,12 +12,13 @@ from urllib.request import Request, urlopen
 from scripts.corporate_action_audit import positive
 
 URL = "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY"
+ALTERNATE_URL = "https://www.twse.com.tw/exchangeReport/STOCK_DAY"
 REQUIRED = ("日期", "成交股數", "成交筆數", "收盤價")
 NO_CLOSE = {"", "--", "---"}
 
 
-def source_url(code, month):
-    return f"{URL}?response=json&date={month.replace('-', '')}01&stockNo={code}"
+def source_url(code, month, endpoint=URL):
+    return f"{endpoint}?response=json&date={month.replace('-', '')}01&stockNo={code}"
 
 
 def session(value):
@@ -75,7 +76,7 @@ def replay_evidence(batches):
         code, month = batch["code"], batch["month"]
         if (not re.fullmatch(r"[1-9][0-9]{3}", code)
                 or not re.fullmatch(r"[0-9]{4}-[0-9]{2}", month)
-                or batch["source_url"] != source_url(code, month)
+                or batch["source_url"] not in {source_url(code, month), source_url(code, month, ALTERNATE_URL)}
                 or not re.fullmatch(r"[0-9a-f]{64}", batch["response_sha256"])):
             raise ValueError("invalid official gap evidence metadata")
         requested = batch["requested_sessions"]
@@ -92,7 +93,7 @@ def replay_evidence(batches):
             yield (code, day), row_status(rows[day][1]) if day in rows else "official_row_absent"
 
 
-def capture(code, month, days, body):
+def capture(code, month, days, body, endpoint=URL):
     raw = json.loads(body)
     if (raw.get("stat") != "OK" or raw.get("date") != month.replace("-", "") + "01"
             or not re.match(rf"^[0-9]+年[0-9]+月\s+{code}(?:\s|$)", raw.get("title", ""))):
@@ -100,7 +101,7 @@ def capture(code, month, days, body):
     rows = report_rows(raw["fields"], raw["data"], month)
     if not rows:
         raise ValueError("TWSE STOCK_DAY returned no unambiguous daily rows")
-    result = dict(code=code, month=month, source_url=source_url(code, month),
+    result = dict(code=code, month=month, source_url=source_url(code, month, endpoint),
                   report_title=raw["title"], response_sha256=hashlib.sha256(body).hexdigest(),
                   fields=raw["fields"], requested_sessions=sorted(days),
                   raw_rows=[rows[day][0] for day in sorted(days) if day in rows])
@@ -109,7 +110,8 @@ def capture(code, month, days, body):
     return result
 
 
-def collect(queue, market_dates, fetch, priorities, limit, pause, *, existing=(), rank_by_pairs=False):
+def collect(queue, market_dates, fetch, priorities, limit, pause, *, existing=(), rank_by_pairs=False,
+            endpoint=URL):
     checked = {key for key, _ in replay_evidence(existing)}
     targets = defaultdict(set)
     for group in queue:
@@ -123,9 +125,9 @@ def collect(queue, market_dates, fetch, priorities, limit, pause, *, existing=()
         ordered.sort(key=lambda item: -len(item[1]))
     evidence, unavailable = [], []
     for (code, month), days in ordered[:limit]:
-        url = source_url(code, month)
+        url = source_url(code, month, endpoint)
         try:
-            evidence.append(capture(code, month, days, fetch(url)))
+            evidence.append(capture(code, month, days, fetch(url), endpoint))
         except (OSError, ValueError, KeyError, TypeError) as exc:
             unavailable.append(dict(code=code, month=month, source_url=url,
                                     requested_sessions=sorted(days), error=str(exc)[:180]))
@@ -148,6 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--limit", type=int, default=40)
     parser.add_argument("--existing-evidence", type=Path)
     parser.add_argument("--rank-by-pairs", action="store_true")
+    parser.add_argument("--alternate-route", action="store_true")
     args = parser.parse_args()
     result = json.loads(args.audit.read_text())
     if result.get("priority_queue_truncated"):
@@ -157,5 +160,6 @@ if __name__ == "__main__":
     existing = json.loads(args.existing_evidence.read_text())["batches"] if args.existing_evidence else ()
     print(json.dumps(collect(result["unknown_priority_queue"], sorted(json.loads(args.history.read_text())),
                              download, args.priority or ["critical"], args.limit, lambda: sleep(0.8),
-                             existing=existing, rank_by_pairs=args.rank_by_pairs),
+                             existing=existing, rank_by_pairs=args.rank_by_pairs,
+                             endpoint=ALTERNATE_URL if args.alternate_route else URL),
                      ensure_ascii=False, separators=(",", ":")))

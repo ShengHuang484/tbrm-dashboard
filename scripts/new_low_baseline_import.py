@@ -31,7 +31,8 @@ def security_code(code):
     return len(code) == 4 and code.isascii() and code.isdigit() and not code.startswith("0")
 
 
-def normalize(metadata, quotes, calendar, listings=None, *, expected_dates=None):
+def normalize(metadata, quotes, calendar, listings=None, *, expected_dates=None,
+              require_security_id_for_reused=False):
     for field in ("provider", "source_url", "adjustment_method", "data_origin", "usage_basis"):
         if not isinstance(metadata.get(field), str) or not metadata[field].strip():
             raise ValueError(f"missing export provenance: {field}")
@@ -86,7 +87,7 @@ def normalize(metadata, quotes, calendar, listings=None, *, expected_dates=None)
                 for previous, current in zip(ordered, ordered[1:]):
                     if previous["delisted_on"] is None or previous["delisted_on"] > current["listed_from"]:
                         raise ValueError(f"overlapping listing codes for security_id: {security}")
-        if columns == LISTING_COLUMNS:
+        if columns == LISTING_COLUMNS and require_security_id_for_reused:
             repeated = sorted(code for code, total in Counter(row["code"] for row in intervals).items() if total > 1)
             if repeated:
                 raise ValueError("repeated listing codes require security_id: " + ", ".join(repeated))

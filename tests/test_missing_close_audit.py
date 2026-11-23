@@ -2,7 +2,7 @@ import json
 import unittest
 
 from scripts.missing_close_audit import audit, summarize
-from scripts.twse_stock_day_gaps import capture, collect
+from scripts.twse_stock_day_gaps import ALTERNATE_URL, capture, collect
 
 
 class MissingCloseAuditTests(unittest.TestCase):
@@ -119,8 +119,10 @@ class MissingCloseAuditTests(unittest.TestCase):
 
         queue = [dict(code=code, first=self.a, last=self.b, priority="high") for code in ("1101", "1102")]
         result = collect(queue, [self.a, self.b, self.c], download, ["high"], 1, lambda: None,
-                         existing=[evidence], rank_by_pairs=True)
+                         existing=[evidence], rank_by_pairs=True, endpoint=ALTERNATE_URL)
         self.assertEqual(len(calls), 1)
         self.assertTrue(calls[0].endswith("stockNo=1102"))
+        self.assertEqual(result["batches"][0]["source_url"], calls[0])
+        self.assertTrue(calls[0].startswith(ALTERNATE_URL))
         self.assertEqual(result["batches"][0]["requested_sessions"], [self.a, self.b])
         self.assertEqual(result["planned_requests"], 2)

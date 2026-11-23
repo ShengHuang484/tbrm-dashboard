@@ -17,4 +17,6 @@
 
 有成對行情的相鄰市場交易日會按代號比較調整後收盤比值，保留供應商兩端各半個顯示單位的捨入範圍。代號跨上市區間時單獨列示。請附可重播的版本或修正紀錄以及調整基準日，以便區分取位差異、調整方式差異及行情更正。
 
+若交付附有檔案校驗碼，請在來源 JSON 的 `file_sha256` 填入 `quotes`、`calendar`、`listings` 三個原始 CSV 的小寫 SHA-256。驗收工具會逐檔比對，並另外記錄收到的來源 JSON 雜湊。
+
 [欄位範例](examples/external_delivery) · [跨事件驗收樣本](external_event_cases.json) · [啟用及驗收命令](ACTIVATION_CHECKLIST.md)

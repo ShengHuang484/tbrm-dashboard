@@ -1,8 +1,10 @@
+import hashlib
 import json
 import unittest
 from pathlib import Path
 
 from scripts.external_delivery_check import inspect
+from scripts.new_low_baseline_import import normalize
 
 
 class ExternalDeliveryTests(unittest.TestCase):
@@ -70,6 +72,8 @@ class ExternalDeliveryTests(unittest.TestCase):
         quotes, calendar, _ = self.csv
         repeated = b"1101,2000-01-01,2026-11-20\n1101,2026-11-20,\n"
         header = b"code,listed_from,delisted_on"
+        self.assertEqual(len(normalize(self.metadata, quotes, calendar,
+                                      header + b"\n" + repeated)["listings"]), 2)
         with self.assertRaisesRegex(ValueError, "repeated listing codes require security_id: 1101"):
             inspect(self.report, self.metadata, quotes, calendar, header + b"\n" + repeated)
         listings = (header + b",security_id\n1101,2000-01-01,2026-11-20,issuer-original\n"
@@ -93,3 +97,13 @@ class ExternalDeliveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "overlapping listing codes for security_id"):
             inspect(self.report, self.metadata, quotes, calendar,
                     listings.replace(b"2000-01-01,2026-11-19", b"2000-01-01,2026-11-20"))
+
+    def test_declared_csv_checksums_match_the_received_bytes(self):
+        checksums = {name: hashlib.sha256(raw).hexdigest()
+                     for name, raw in zip(("quotes", "calendar", "listings"), self.csv)}
+        metadata = dict(self.metadata, file_sha256=checksums)
+        result = inspect(self.report, metadata, *self.csv)
+        self.assertEqual(result["comparison"]["export_provenance"]["sha256"], checksums)
+        checksums["quotes"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "declared delivery SHA-256"):
+            inspect(self.report, metadata, *self.csv)
