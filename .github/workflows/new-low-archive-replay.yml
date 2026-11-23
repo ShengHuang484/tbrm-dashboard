@@ -1,0 +1,44 @@
+name: New-low archived evidence replay
+
+on:
+  push:
+    branches:
+      - research/new-low-quality-gates-20261123
+    paths:
+      - '.github/workflows/new-low-archive-replay.yml'
+      - 'scripts/new_low_replay_check.py'
+      - 'scripts/action_completeness.py'
+      - 'scripts/monthly_ex_right_scenario.py'
+      - 'scripts/new_low_adjusted_audit.py'
+      - 'scripts/new_low_policy_sensitivity.py'
+      - 'research/monthly_action_run.json'
+      - 'research/quote_policy_sensitivity.json'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  archived-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve the two pinned research archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/14785003044/zip" > first-month.zip
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/14769425450/zip" > subsequent-months.zip
+      - name: Recompute 990-factor counts and both quote policies
+        run: |
+          python -m scripts.action_completeness data/history/new_low_closes.json \
+            --monthly-archives first-month.zip subsequent-months.zip > adjusted.json
+          python -m scripts.new_low_policy_sensitivity data/history/new_low_closes.json \
+            adjusted.json > sensitivity.json
+          python -m scripts.new_low_replay_check adjusted.json research/monthly_action_run.json \
+            sensitivity.json research/quote_policy_sensitivity.json
