@@ -8,9 +8,16 @@ from scripts.corporate_action_external_validation import compare_transition
 from scripts.new_low_adjusted_audit import audit_adjusted_lows
 
 
-def compare(history, report, evidence):
+TWSE_REFERENCE = "twse-reference"
+ZERO_RIGHTS = "zero-rights"
+
+
+def select_events(events, basis=TWSE_REFERENCE, evidence=None):
+    if basis == TWSE_REFERENCE:
+        return list(events)
+    if basis != ZERO_RIGHTS or evidence is None:
+        raise ValueError("zero-rights basis requires documented rights evidence")
     key = evidence["code"], evidence["effective_date"]
-    events = report["applied_events"]
     matches = [r for r in events if (r["code"], r["ex_date"]) == key]
     if len(matches) != 1 or matches[0]["event_type"] != "monthly_ex_right_reconciled":
         raise ValueError("expected one reconciled monthly event")
@@ -24,8 +31,13 @@ def compare(history, report, evidence):
             < positive(evidence["subscription_price"])):
         raise ValueError("prices do not describe a pure above-market subscription")
     replacement = dict(event, reference_price=str(close))
-    scenario = audit_adjusted_lows(history, [replacement if r is event else r for r in events],
-                                   report["lookback"])
+    return [replacement if r is event else r for r in events]
+
+
+def compare(history, report, evidence):
+    key = evidence["code"], evidence["effective_date"]
+    events = select_events(report["applied_events"], ZERO_RIGHTS, evidence)
+    scenario = audit_adjusted_lows(history, events, report["lookback"])
     changes = []
     for old, new in zip(report["sessions"], scenario["sessions"], strict=True):
         if (old["date"] != new["date"] or old["eligible_codes"] != new["eligible_codes"]):
@@ -43,7 +55,7 @@ def compare(history, report, evidence):
         transition = {
             name: compare_transition(history, dict(sample, reference=reference))
             for name, reference in (("official_reference", evidence["official_reference"]),
-                                    ("zero_rights_value", str(close)))
+                                    ("zero_rights_value", evidence["dividend_only_reference"]))
         }
     return dict(external_transition=transition, code=key[0], effective_date=key[1], sessions=len(scenario["sessions"]),
                 changed_sessions=changes, score_eligible=False)

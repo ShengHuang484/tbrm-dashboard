@@ -8,6 +8,7 @@ from pathlib import Path
 from scripts.new_low_adjusted_audit import audit_adjusted_lows
 from scripts.new_low_listing import listing_windows, listings_on
 from scripts.new_low_replay_check import membership_digest
+from scripts.new_low_rights_scenario import TWSE_REFERENCE, ZERO_RIGHTS, select_events
 
 
 def audit_stops(history, windows, stops):
@@ -35,7 +36,8 @@ def audit_stops(history, windows, stops):
     return results
 
 
-def replay(history, adjusted, roster, evidence, *, strict_report=False, listings_archive=None):
+def replay(history, adjusted, roster, evidence, *, strict_report=False, listings_archive=None,
+           rights_basis=TWSE_REFERENCE, rights_evidence=None):
     dates = sorted(history)
     if evidence["snapshot_date"] < dates[-1]:
         raise ValueError("snapshot predates research endpoint")
@@ -52,7 +54,8 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False, listings
     windows = listing_windows(listings)
     ordinary = {day: {code: close for code, close in quotes.items() if code not in receipts}
                 for day, quotes in history.items()}
-    events = [row for row in adjusted["applied_events"] if row["code"] not in receipts]
+    events = select_events([row for row in adjusted["applied_events"] if row["code"] not in receipts],
+                           rights_basis, rights_evidence)
     conflicts = {}
     for day, quotes in ordinary.items():
         outside = sorted(quotes.keys() - listings_on(windows, day).keys())
@@ -93,10 +96,11 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False, listings
         coverage["archived_starts_without_reconstruction"] = sorted(reported - expected)
     result = audit_adjusted_lows(ordinary, events, adjusted["lookback"], listings=listings)
     if strict_report:
-        result.update(applied_events=events, issuer_snapshot_date=evidence["snapshot_date"],
+        result.update(applied_events=events, rights_basis=rights_basis,
+                      issuer_snapshot_date=evidence["snapshot_date"],
                       historical_exit_codes=sorted({row["code"] for row in exits}))
         return result
-    return dict(snapshot_date=evidence["snapshot_date"], market_sessions=len(dates),
+    return dict(snapshot_date=evidence["snapshot_date"], rights_basis=rights_basis, market_sessions=len(dates),
                 historical_exit_codes=sorted({row["code"] for row in exits}),
                 factor_count=result["factor_count"], outside_listing_quotes={}, trading_stop_checks=stops,
                 coverage=coverage,
@@ -114,11 +118,16 @@ if __name__ == "__main__":
         parser.add_argument(name, type=Path)
     parser.add_argument("--strict-report", action="store_true")
     parser.add_argument("--listings-archive", type=Path)
+    parser.add_argument("--rights-basis", choices=(TWSE_REFERENCE, ZERO_RIGHTS), default=TWSE_REFERENCE)
+    parser.add_argument("--rights-evidence", type=Path)
     args = parser.parse_args()
     with args.roster.open(newline="") as roster:
         result = replay(json.loads(args.history.read_text()), json.loads(args.adjusted.read_text()),
                         list(csv.DictReader(roster)), json.loads(args.evidence.read_text()),
                         strict_report=args.strict_report,
                         listings_archive=json.loads(args.listings_archive.read_text())
-                        if args.listings_archive else None)
+                        if args.listings_archive else None,
+                        rights_basis=args.rights_basis,
+                        rights_evidence=json.loads(args.rights_evidence.read_text())
+                        if args.rights_evidence else None)
     print(json.dumps(result, indent=2))

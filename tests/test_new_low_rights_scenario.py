@@ -34,3 +34,11 @@ class RightsScenarioTest(unittest.TestCase):
         result = compare(history, report, evidence)["external_transition"]
         self.assertFalse(result["official_reference"]["agrees_with_display_precision"])
         self.assertTrue(result["zero_rights_value"]["agrees_with_display_precision"])
+
+    def test_zero_rights_requires_event_evidence(self):
+        from scripts.new_low_rights_scenario import TWSE_REFERENCE, ZERO_RIGHTS, select_events
+
+        event = {"code": "1312", "reference_price": "13.40"}
+        self.assertEqual(select_events([event], TWSE_REFERENCE), [event])
+        with self.assertRaisesRegex(ValueError, "documented"):
+            select_events([event], ZERO_RIGHTS)
