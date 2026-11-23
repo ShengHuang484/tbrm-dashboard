@@ -102,6 +102,36 @@ def scoped_isins(raw, market, kind, cfi_prefix):
     return identifiers
 
 
+def check_full_isin(raw, day, general, innovation, tdr):
+    """Compare a complete published page with the separately scoped reports."""
+    text = raw.decode("cp950")
+    if not re.search(r"</table>\s*<font[^>]*><center>掛牌日以正式公告為準</center></font>\s*$",
+                     text, re.IGNORECASE):
+        raise ValueError("ISIN full response is incomplete")
+    if ordinary_isin_prefix(raw, day) != general:
+        raise ValueError("full and prefix general-board identities disagree")
+    sections = list(re.finditer(
+        r"<tr\b[^>]*>\s*<td\b[^>]*colspan\s*=\s*7[^>]*>\s*<b>\s*([^<]+)", text, re.IGNORECASE))
+    for label, expected in (("創新板", innovation), ("臺灣存託憑證(TDR)", tdr)):
+        indices = [i for i, section in enumerate(sections) if section[1].strip() == label]
+        if len(indices) != 1 or indices[0] >= len(sections) - 1:
+            raise ValueError(f"full ISIN section boundary missing: {label}")
+        index, = indices
+        parser = Rows()
+        parser.feed(text[sections[index].start():sections[index + 1].start()])
+        seen = {}
+        for row in parser.rows[1:]:
+            name, isin, listed_on, _, _, _, _ = row
+            code = name.split()[0]
+            if code in seen:
+                raise ValueError(f"duplicate full ISIN code: {code}")
+            seen[code] = dict(security_id=isin, listed_from=date.fromisoformat(
+                listed_on.replace("/", "-")).isoformat())
+        if seen != expected:
+            raise ValueError(f"full and scoped ISIN identities disagree: {label}")
+    return dict(general_board=len(general), innovation_board=len(innovation), tdr_rows=len(tdr))
+
+
 def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
     historical = json.loads(checkpoint)
     history = historical["history"]
@@ -216,6 +246,10 @@ def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
         for kind, url in (("listings", ISIN_URL), ("gaps", sources["stock_1538"]), ("actions", sources["reduction"])):
             plan["sources"][kind] = dict(source_url=url, sha256=digest(normalized[kind]))
         sources.update(tib_isin=TIB_ISIN_URL, tdr_isin=TDR_ISIN_URL)
+        if "isin_full" in inputs:
+            scoped_evidence["full_isin_crosscheck"] = check_full_isin(
+                inputs["isin_full"], day, roster, tib_ids, tdr_ids)
+            sources["isin_full"] = ISIN_URL
         expected_error = "session action evidence is incomplete"
         blockers = ["complete reviewed corporate-action coverage"]
         if scoped_evidence["listing_start_differences"]:
@@ -256,6 +290,9 @@ if __name__ == "__main__":
               ("quotes", "calendar", "isin_prefix", "tib", "reduction", "ex_right", "stock_1538")}
     if args.identity_retrieved_on:
         inputs.update({key: (args.evidence / (key + ".raw")).read_bytes() for key in ("tib_isin", "tdr_isin")})
+        full = args.evidence / "isin_full.raw"
+        if full.exists():
+            inputs["isin_full"] = full.read_bytes()
     report = evidence_report(args.session, args.checkpoint.read_bytes(), inputs,
                              identity_retrieved_on=args.identity_retrieved_on)
     print(json.dumps(report, ensure_ascii=False, indent=2))

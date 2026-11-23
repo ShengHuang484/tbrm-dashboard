@@ -331,6 +331,20 @@
       "observed_rows": 0,
       "requested_date": "2025-10-22",
       "historical_sessions_verified": 0
+    },
+    "twse_isin_complete": {
+      "url": "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2",
+      "sha256": "8ade6f0477045706545c6c91471bf9c801acc2776c128848efb2b396f249a8f4",
+      "bytes": 10496089,
+      "body_scope": "full",
+      "displayed_update_date": "2026-11-23",
+      "upstream": "TWSE",
+      "historical_sessions_verified": 0,
+      "scope": {
+        "general_board": 1057,
+        "innovation_board": 31,
+        "tdr_rows": 10
+      }
     }
   },
   "independent_universe_verified": false,

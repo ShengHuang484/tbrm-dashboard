@@ -44,3 +44,5 @@
 ## 獨立還原日線存取
 
 [FinMind／TEJ 實際回應](supplier_access_probe_20261123.json)顯示會員或 API key 阻擋，現有合法全市場交付為零。仍為 **BLOCKED**。取得既有授權後先核對 2867 下市及 1312 現增的小樣，再跑 [六檔交付驗收](SUPPLIER_DATA_REQUEST.md)。
+
+完整 ISIN 原始回應已核對三個證券類別，與分查結果一致。若重播目錄另有 `isin_full.raw`，工具會驗證完整頁尾及兩種來源的代號、ISIN 與上市日期一致，並記錄全檔 SHA-256。

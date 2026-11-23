@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from scripts.new_low_session_probe import evidence_report, ordinary_isin_prefix, scoped_isins
+from scripts.new_low_session_probe import check_full_isin, evidence_report, ordinary_isin_prefix, scoped_isins
 
 
 class SessionProbeTest(unittest.TestCase):
@@ -25,6 +25,10 @@ class SessionProbeTest(unittest.TestCase):
             ordinary_isin_prefix(self.html(), "2026-11-20")
         with self.assertRaisesRegex(ValueError, "whole general-board"):
             ordinary_isin_prefix(self.html().split("上市認購(售)權證".encode("cp950"))[0], self.day)
+
+    def test_full_isin_comparison_rejects_truncated_files(self):
+        with self.assertRaisesRegex(ValueError, "full response is incomplete"):
+            check_full_isin(self.html(), self.day, {}, {}, {})
 
     def fixture(self):
         sources = {key: self.payload(value) for key, value in {

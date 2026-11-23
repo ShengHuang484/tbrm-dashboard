@@ -248,7 +248,12 @@
         "isin": "2026-01-19"
       }
     ],
-    "independent_membership_verified": false
+    "independent_membership_verified": false,
+    "full_isin_crosscheck": {
+      "general_board": 1057,
+      "innovation_board": 31,
+      "tdr_rows": 10
+    }
   },
   "replay_input_sha256": {
     "calendar": "a83db645df2e2335caf175edb52cde31f0b4316c25b3fa725151a83477e51dbf",
@@ -310,6 +315,12 @@
       "url": "https://isin.twse.com.tw/isin/class_main.jsp?chklike=Y&issuetype=J&market=1",
       "sha256": "b01d87b09f276c90a0b4fc1817e4042201b2297d8eda15a7885fd12a89d9af0d",
       "bytes": 5719,
+      "body_scope": "full"
+    },
+    "isin_full": {
+      "url": "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2",
+      "sha256": "8ade6f0477045706545c6c91471bf9c801acc2776c128848efb2b396f249a8f4",
+      "bytes": 10496089,
       "body_scope": "full"
     }
   },
