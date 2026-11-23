@@ -38,6 +38,9 @@ class ExternalDeliveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing=.*2026-11-19"):
             inspect(self.report, self.metadata, quotes,
                     b"date\n2026-11-20\n", listings)
+        with self.assertRaisesRegex(ValueError, "extra=.*2026-11-18"):
+            inspect(self.report, self.metadata, quotes,
+                    b"date\n2026-11-18\n2026-11-19\n2026-11-20\n", listings)
 
     def test_both_bases_and_vendor_action_sample(self):
         report = json.loads(json.dumps(self.report).replace("1101", "1312"))
@@ -57,5 +60,24 @@ class ExternalDeliveryTests(unittest.TestCase):
         self.assertEqual(result["alternative_basis_diagnostic"]["sessions"][0]["external_only_low_codes"], [])
         self.assertEqual(result["event_price_checks"][0]["status"], "within_display_precision")
         self.assertEqual(result["alternative_event_price_checks"][0]["status"], "price_basis_difference")
+        self.assertEqual(result["price_movement_checks"][0]["differences_by_code"], {})
+        self.assertEqual(result["alternative_price_movement_checks"][0]["differences_by_code"]
+                         ["1312"]["status"], "price_movement_difference")
         self.assertIn("merger", result["event_types_without_sample"])
         self.assertFalse(result["market_baseline_verified"])
+
+    def test_repeated_code_requires_identity_and_is_not_compared_across_boundary(self):
+        quotes, calendar, _ = self.csv
+        repeated = b"1101,2000-01-01,2026-11-20\n1101,2026-11-20,\n"
+        header = b"code,listed_from,delisted_on"
+        with self.assertRaisesRegex(ValueError, "repeated listing codes require security_id: 1101"):
+            inspect(self.report, self.metadata, quotes, calendar, header + b"\n" + repeated)
+        listings = (header + b",security_id\n1101,2000-01-01,2026-11-20,issuer-original\n"
+                    b"1101,2026-11-20,,issuer-reused\n")
+        before, after = self.report["market_dates"]
+        result = inspect(self.report, self.metadata, quotes, calendar, listings,
+                         history={before: {"1101": "30"}, after: {"1101": "29"}})
+        self.assertEqual(result["price_movement_checks"][0]["listing_boundaries"], ["1101"])
+        self.assertEqual(result["price_movement_checks"][0]["compared"], 0)
+        self.assertEqual([r["security_id"] for r in result["vendor_repeated_listing_codes"]["1101"]],
+                         ["issuer-original", "issuer-reused"])

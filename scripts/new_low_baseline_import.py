@@ -14,6 +14,7 @@ from scripts.new_low_listing import listing_windows
 QUOTE_COLUMNS = ["date", "code", "adjusted_close"]
 CALENDAR_COLUMNS = ["date"]
 LISTING_COLUMNS = ["code", "listed_from", "delisted_on"]
+IDENTIFIED_LISTING_COLUMNS = [*LISTING_COLUMNS, "security_id"]
 
 
 def rows(raw, fields):
@@ -66,11 +67,20 @@ def normalize(metadata, quotes, calendar, listings=None, *, expected_dates=None)
     result["sha256"] = {"quotes": hashlib.sha256(quotes).hexdigest(),
                         "calendar": hashlib.sha256(calendar).hexdigest()}
     if listings is not None:
+        header = next(csv.reader(io.StringIO(listings.decode("utf-8-sig"), newline="")), [])
+        columns = IDENTIFIED_LISTING_COLUMNS if header == IDENTIFIED_LISTING_COLUMNS else LISTING_COLUMNS
         intervals = [dict(row, delisted_on=row["delisted_on"] or None)
-                     for row in rows(listings, LISTING_COLUMNS)]
+                     for row in rows(listings, columns)]
         if not intervals:
             raise ValueError("listing export contains no intervals")
         listing_windows(intervals)
+        if columns == IDENTIFIED_LISTING_COLUMNS and any(
+                not row["security_id"] or row["security_id"] != row["security_id"].strip() for row in intervals):
+            raise ValueError("listing security_id must be nonempty and trimmed")
+        if columns == LISTING_COLUMNS:
+            repeated = sorted(code for code, total in Counter(row["code"] for row in intervals).items() if total > 1)
+            if repeated:
+                raise ValueError("repeated listing codes require security_id: " + ", ".join(repeated))
         result["listings"] = intervals
         result["sha256"]["listings"] = hashlib.sha256(listings).hexdigest()
     return result

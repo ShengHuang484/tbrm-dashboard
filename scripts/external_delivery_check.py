@@ -1,11 +1,14 @@
 """Check the structure and market coverage of a supplier delivery for human review."""
 import argparse
+import hashlib
 import json
 from datetime import date
 from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 
-from scripts.corporate_action_external_validation import compare_transition
+from scripts.corporate_action_audit import positive
+from scripts.corporate_action_external_validation import compare_transition, ratio_interval
 from scripts.new_low_baseline import compare
 from scripts.new_low_baseline_import import normalize
 from scripts.new_low_listing import listing_windows, listings_on
@@ -13,6 +16,49 @@ from scripts.new_low_rights_scenario import TWSE_REFERENCE, ZERO_RIGHTS
 
 RULES = ("cash_dividend", "stock_dividend", "rights_issue", "capital_reduction",
          "split", "reverse_split", "merger")
+
+
+def price_movement_differences(history, report, baseline, local, external, digits):
+    dates = baseline["market_dates"]
+    if sorted(history) != dates:
+        raise ValueError("raw history does not match delivery calendar")
+    events = {(e["code"], e["ex_date"]): e for e in report.get("applied_events", [])}
+    prices = baseline["adjusted_closes"]
+    half_step = Fraction(1, 2 * 10 ** digits)
+    prior = dates[0]
+    previous_vendor = listings_on(external, prior)
+    previous_local = listings_on(local, prior)
+    results = []
+    for day in dates[1:]:
+        vendor = listings_on(external, day)
+        local_listed = listings_on(local, day)
+        comparable = history[prior].keys() & history[day].keys() & prices[prior].keys() & prices[day].keys()
+        tested = 0
+        differences = {}
+        boundaries = []
+        for code in sorted(comparable):
+            if code not in vendor or code not in local_listed:
+                continue
+            if vendor[code] != previous_vendor.get(code) or local_listed[code] != previous_local.get(code):
+                boundaries.append(code)
+                continue
+            left, right = (Fraction(positive(prices[d][code])) for d in (prior, day))
+            event = events.get((code, day))
+            reference = event["reference_price"] if event else history[prior][code]
+            expected = Fraction(positive(history[day][code])) / Fraction(positive(reference))
+            if min(left, right) <= half_step:
+                differences[code] = {"status": "insufficient_price_precision"}
+                continue
+            lower, upper = ratio_interval(left, right, half_step)
+            tested += 1
+            if not lower <= expected <= upper:
+                differences[code] = dict(status="price_movement_difference",
+                    expected_ratio=str(expected), vendor_interval=[str(lower), str(upper)],
+                    event_reference=event is not None)
+        results.append(dict(date=day, prior_date=prior, compared=tested,
+                            differences_by_code=differences, listing_boundaries=boundaries))
+        prior, previous_vendor, previous_local = day, vendor, local_listed
+    return results
 
 
 def check_event_samples(history, report, baseline, cases, digits):
@@ -53,7 +99,7 @@ def inspect(report, metadata, quotes, calendar, listings, *,
     if basis not in (TWSE_REFERENCE, ZERO_RIGHTS) or basis != report.get("rights_basis"):
         raise ValueError("delivery rights basis differs from selected research basis")
     digits = metadata.get("price_decimal_places")
-    if type(digits) is not int or digits < 0:
+    if type(digits) is not int or not 0 <= digits <= 30:
         raise ValueError("missing price decimal precision")
     rules = metadata.get("corporate_action_rules", {})
     if any(not isinstance(rules.get(key), str) or not rules[key].strip() for key in RULES):
@@ -108,8 +154,19 @@ def inspect(report, metadata, quotes, calendar, listings, *,
             for code in row[field]:
                 reasons.setdefault(code, []).append(label)
         row["disagreement_by_code"] = reasons
+    identities = {}
+    for row in baseline["listings"]:
+        identities.setdefault(row["code"], []).append(row)
+    reused_codes = {code: sorted(intervals, key=lambda r: r["listed_from"])
+                    for code, intervals in identities.items() if len(intervals) > 1}
     return dict(delivery_metadata=metadata, listing_disagreement=coverage,
                 comparison=comparison, alternative_basis_diagnostic=alternatives,
+                vendor_repeated_listing_codes=reused_codes,
+                price_movement_checks=price_movement_differences(history, report, baseline, local, external, digits)
+                if history is not None else [],
+                alternative_price_movement_checks=price_movement_differences(
+                    history, alternative, baseline, local, external, digits)
+                if history is not None and alternative is not None else [],
                 event_price_checks=price_checks, alternative_event_price_checks=alternative_price_checks,
                 event_types_without_sample=sorted(set(RULES) - {r["action"] for r in price_checks
                     if r["status"] != "missing_vendor_transition_quote"}),
@@ -126,8 +183,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     def read(path):
         return json.loads(path.read_text()) if path else None
-    print(json.dumps(inspect(json.loads(args.report.read_text()), json.loads(args.metadata.read_text()),
-                             *(p.read_bytes() for p in (args.quotes, args.calendar, args.listings)),
-                             alternative=read(args.alternative_report), history=read(args.raw_history),
-                             event_cases=read(args.event_cases) or []),
-                     ensure_ascii=False, indent=2))
+    metadata = args.metadata.read_bytes()
+    result = inspect(read(args.report), json.loads(metadata),
+                     *(p.read_bytes() for p in (args.quotes, args.calendar, args.listings)),
+                     alternative=read(args.alternative_report), history=read(args.raw_history),
+                     event_cases=read(args.event_cases) or [])
+    result["source_metadata_sha256"] = hashlib.sha256(metadata).hexdigest()
+    print(json.dumps(result, ensure_ascii=False, indent=2))

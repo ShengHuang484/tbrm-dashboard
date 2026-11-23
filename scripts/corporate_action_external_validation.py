@@ -7,6 +7,13 @@ from pathlib import Path
 from scripts.corporate_action_audit import positive
 
 
+def ratio_interval(before_adjusted, after_adjusted, half_step):
+    if min(before_adjusted, after_adjusted) <= half_step:
+        raise ValueError("external price resolution too coarse")
+    return ((after_adjusted - half_step) / (before_adjusted + half_step),
+            (after_adjusted + half_step) / (before_adjusted - half_step))
+
+
 def compare_transition(history, sample):
     """Compare adjusted returns allowing for each published close's rounding.
 
@@ -25,10 +32,7 @@ def compare_transition(history, sample):
     before_adjusted = Fraction(positive(sample["external_before"]))
     after_adjusted = Fraction(positive(sample["external_after"]))
     half_step = Fraction(positive(sample["display_step"])) / 2
-    if min(before_adjusted, after_adjusted) <= half_step:
-        raise ValueError("external price resolution too coarse")
-    lower = (after_adjusted - half_step) / (before_adjusted + half_step)
-    upper = (after_adjusted + half_step) / (before_adjusted - half_step)
+    lower, upper = ratio_interval(before_adjusted, after_adjusted, half_step)
     return {
         "code": code, "effective_date": after, "expected_ratio": str(expected),
         "external_ratio_interval": [str(lower), str(upper)],
