@@ -16,6 +16,12 @@ class HistoricalListingReplayTest(unittest.TestCase):
         result = replay(history, dict(applied_events=[], lookback=1), roster, evidence)
         self.assertEqual([row["eligible"] for row in result["sessions"]], [1, 2])
         self.assertFalse(result["listing_universe_verified"])
+        strict = replay(history, dict(applied_events=[], lookback=1), roster, evidence,
+                        strict_report=True)
+        self.assertEqual(strict["sessions"][0]["eligible_codes"], ["1102"])
+        self.assertFalse(strict["score_eligible"])
         evidence["historical_exits"].clear()
         result = replay(history, dict(applied_events=[], lookback=1), roster, evidence)
         self.assertEqual(result["outside_listing_quotes"], {a: ["1101"]})
+        with self.assertRaisesRegex(ValueError, "outside reconstructed"):
+            replay(history, dict(applied_events=[], lookback=1), roster, evidence, strict_report=True)
