@@ -108,3 +108,10 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 將[起始月](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45101315461)與[後續月報](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45059710691)的 ZIP 傳給 `python -m scripts.action_completeness data/history/new_low_closes.json --monthly-archives first.zip remaining.zip`。程式拒絕缺月、重複月份、雜湊不符與重疊事件，並以每日原始收盤對照事件前一交易日。新增 957 個月報係數，合計套用 990 筆。10 筆休市標記改用既有復市證據，另有 1589 的事件在行情首日，保留邊界紀錄。
 - [逐日研究結果](monthly_action_run.json)顯示 11/20 在同一個 946 檔嚴格母體中，原始新低 483 檔，套用已納入事件後為 425 檔。6669 在官方 2026-09 月報為股票股利除權，參考價 2,614.99，競價基準 2,615.00，已納入。剩餘 6921 的 46% 跳動發生在[創新板開始交易](https://m.moneydj.com/f1a.aspx?a=e8709c16-1b02-47ce-9325-1c8ef7c227d9)隔天，未據價格推算公司行動。
 - 66 項本地測試通過。這批數值採官方事件與同源原始報價，目前僅供研究，仍需市場級外部基準及公司行動全範圍覆蓋。
+
+## 2026-11-23 免付費基準調查及換股終止上市邊界
+
+- 新增 `python -m scripts.corporate_action_external_validation data/history/new_low_closes.json research/external_transition_evidence.json`。比較外部還原價跨事件的比值，用公開顯示位數建立可接受區間，消除同一段序列的整體縮放。Goodinfo 的 7780（17.51 → 19.26）與 6949（74.50 → 67.10）均吻合；8422 尚未取得覆蓋事件兩端且同一還原基準的外部日收。這是獨立取價的樣本驗證，沒有覆蓋整個市場與 252 日回看。
+- 逐一檢查證交所的 5 個終止上市日，原代號都沒有生效日起的報價。3454 現金股份轉換與 2867 換股保留前後證券身分，未串接歷史，並加入生效日仍出現舊代號時的回歸測試。全期間存續公司合併及反分割覆蓋仍待確認。
+- [富果歷史行情](https://developer.fugle.tw/docs/data/http-api/historical/candles/)支援按代號取還原日 K，每次小於一年，基本方案需帳戶 API 金鑰，無金鑰的實測回傳 HTTP 401。需再確認免費歷史額度、調整定義與全市場母體。未建立帳號或使用憑證。[FinLab 免費版](https://finlab.finance/data/price-trading)止於 2023 年；[公開 CSV 倉庫](https://github.com/voidful/tw_stocker)的 manifest 全庫最新 2026-04-01，51 個日線檔均無有效資料列，未涵蓋目前驗證窗。Goodinfo 個股樣本可用，尚未取得可合法重現的全市場匯出。
+- 本地 68 項測試通過。剩餘主動工時約 5–13 小時，外部資料取得與授權另計。下一輪可查歷史公告中的存續公司／普通股反分割（2–5 小時），核對合法供應商匯出的上市母體、停牌及還原價（2–5 小時），取得後重跑市場級逐檔差異及回歸（1–3 小時）。正式狀態維持 45/50、`score_eligible=false`。
