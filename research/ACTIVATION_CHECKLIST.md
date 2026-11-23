@@ -62,3 +62,7 @@ python -m scripts.session_action_coverage checkpoint.json raw-directory/ supplem
 ```
 
 主要目錄沿用 session probe 原始檔並加 `mops_disclosures.raw`。補充目錄使用 `newlisting.raw`、`par_rwd_change.raw`、`par_legacy_range.raw`。
+
+### 外部小樣驗收
+
+交付準備 **PASS**。外部驗證 **BLOCKED**。工具、範例與授權欄位已備妥，等 2867、1312、11/23 三組授權輸出及可查閱的使用條款。 [一鍵命令及 PASS／FAIL 範例](SUPPLIER_DATA_REQUEST.md#可直接交付的三組小樣驗收包)。

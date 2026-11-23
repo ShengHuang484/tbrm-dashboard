@@ -1,0 +1,23 @@
+{
+  "origin": "synthetic",
+  "supplier": "Example only",
+  "upstream_source": "Illustrative field template",
+  "source_url": "https://example.com/sample",
+  "export_version": "example-v1",
+  "adjustment_method": "Illustration of TWD closes anchored at 2026-11-20",
+  "adjustment_anchor_date": "2026-11-20",
+  "market": "TWSE",
+  "currency": "TWD",
+  "license_reference": "Example only; replace with supplier license reference",
+  "usage_basis": "Fixture only; actual supplier must authorize access",
+  "permissions": {
+    "research": true,
+    "retention": true,
+    "replay": true
+  },
+  "sha256": {
+    "lifecycle": "cec3c52be575e2ac78d853f6d2ba4d8d55dbffe0615330445a9fc12c6526422c",
+    "rights": "f99fd17848c3990b6974f0bd811ae4918d2ab7d2f21e3c4c5dd135821309179e",
+    "roster": "bbeeca267fd3b6827f844c47224387c29cf95998d3bf6262e2b8bd2300bc754c"
+  }
+}

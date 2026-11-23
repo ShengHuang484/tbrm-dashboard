@@ -55,3 +55,24 @@ python -m scripts.historical_roster_check roster-reference.json --roster supplie
 [TEJ 試用說明](https://api.tej.com.tw/documents.html)要求向供應商索取試用 API key，而且試用限指定表。其[目錄](https://api.tej.com.tw/databases.html)列有證券屬性與日調整股價，尚需供應商確認三組樣本是否都可匯出及其使用授權。[FinMind 調整日線](https://finmind.github.io/tutor/TaiwanMarket/Technical/)限指定會員，先前實際請求未取得資料。既有 Goodinfo 1312 顯示樣本可做個案對照，完整驗收另需原始精度及完整時間窗。三組小樣是來源核對的第一步，完整交付仍依本文件的 262 交易日六檔規格。
 
 [Goodinfo 2867 還原價頁](https://goodinfo.tw/tw/ShowK_Chart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=2867)於 11/24 顯示查無相關資料。[公司轉換公告鏡像](https://goodinfo.tw/tw/StockAnnounceList.asp?END_DT=2026%2F8%2F17&START_DT=2026%2F7%2F18&STOCK_ID=2867)可驗下市個案，價格樣本仍待合法交付。
+
+### 可直接交付的三組小樣驗收包
+
+請提供一個目錄，內含下列四個檔案。可複製 [欄位、資料及授權範例](examples/supplier_sample/) 後替換內容。CSV 使用 UTF-8，欄名及欄位順序依例。日期為台北交易日，價格為 TWD 的一般交易收盤。價格缺值以空欄表示。原始價至少 2 位小數，調整價至少 4 位，最多 10 位；供應商須說明取位方法。
+
+| 檔案 | 小樣必交範圍 |
+|---|---|
+| `lifecycle.csv` | 2867 的 08-19 最後交易、08-20 停止交易、09-01 終止上市，以及 2884 的 09-01 交易，共 4 個查核節點。09-01 的 2867 列明 2884 及每舊股 0.2596 新股。提供可核對的永久證券 ISIN。另附完整區間時，保留原檔並匯出這 4 列供小樣驗收。 |
+| `rights.csv` | 1312 的 05-27、06-10、06-11、11-20。兩個序列錨定 11-20；僅於 06-11 前將 13.40 口徑乘上 13.40／13.20，13.20 口徑因子為 1。這些日期至錨點間的本地封存只有此一 1312 價格因子。 |
+| `roster.csv` | 2026-11-23 的 1,088 個 TWSE 一般板及創新板普通股代號與 ISIN，須排除 TDR。以代號排序、LF 換行建立正規化比對雜湊。KY 等外國發行人的 ISIN 一併保留。若有差異，請另外提供市場別、證券種類、生效日或供應商公告。 |
+| `manifest.json` | 三份交付原始位元各自的 SHA-256、來源與上游、取得版本、價格方法、固定錨點、幣別、供應商、授權參照，及研究、留存、重播權限。另附可供人工查閱的授權文件；公開衍生統計許可請在文件內明列。 |
+
+在 repo 根目錄執行一鍵驗收。
+
+```bash
+python -m scripts.supplier_sample_check /path/to/delivery
+```
+
+- **PASS（exit 0）**範例輸出為 `{"intake_status":"PASS","coverage":"three_samples_only","license_and_independence_review":"REVIEW","score_eligible":false}`。可執行 `python -m unittest tests.test_supplier_sample_check.SupplierSampleTest.test_synthetic_pass_keeps_independence_and_scoring_unverified` 重現合成案例。
+- **FAIL（exit 1）**可對 repo 內的欄位範例直接跑驗收。範例只有兩筆名冊，結果會報 `roster does not match the same-source reference count and identity digest`。原始位元雜湊不符、前後身分混接、停牌日填價或 1312 使用同一折算因子，也會明確拒絕。
+- 小樣 PASS 表示檔案與本地研究對照相符。供應商上游獨立性、使用權及全歷史範圍須另行驗證。現況 **等待外部合法交付**。
