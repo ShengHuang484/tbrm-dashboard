@@ -149,3 +149,8 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 
 - 執行 `python -m scripts.par_value_scope data/history/new_low_closes.json`，封存的 FinMind 八筆事件有三筆對上已套用的上市普通股面額變更，另五筆依事件日的櫃買中心公告或其公開轉載歸屬上櫃。逐案網址見 tpex_par_value_notices.json。未因缺少 TWSE 報價直接排除，也未衍生新係數。
 - 遇日期不符、櫃買事件日有 TWSE 報價或缺交易日，保留待審。78 項測試通過。此查核僅涵蓋該外部清單，完整市場事件及還原基準仍未核證。
+
+## 2026-11-23 可寧衛分割跨日還原價
+
+- Goodinfo 融資融券還原日表的同一歷史快照列有 8422 的 2025-11-05 收盤 23.94、11-17 收盤 23.65。兩端比值在顯示精度內符合原始復市收盤 24.70／官方分割參考價 25.00；錯用更早前收交易日或其他係數會被測試攔截。來源見 external_transition_evidence.json；網站日後回調或捲動日期時絕對值可能改變。
+- 四筆跨事件外部樣本均通過。2330 歷史區間查詢回傳 HTTP 403；可讀取的 8422 目前預設表只有 240 列。兩者皆不足以核證完整嚴格市場窗口。全套 79 項測試通過。

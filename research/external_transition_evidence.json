@@ -29,6 +29,16 @@
       "external_after": "2610",
       "display_step": "0.01",
       "source_url": "https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=6669"
+    },
+    {
+      "code": "8422",
+      "before_date": "2025-11-05",
+      "effective_date": "2025-11-17",
+      "reference": "25.00",
+      "external_before": "23.94",
+      "external_after": "23.65",
+      "display_step": "0.01",
+      "source_url": "https://goodinfo.tw/tw/ShowMarginChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=8422"
     }
   ],
   "delistings": [

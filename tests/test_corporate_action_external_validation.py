@@ -25,3 +25,9 @@ class ExternalValidationTest(unittest.TestCase):
         self.assertFalse(any(r["carry_history_to_successor"] for r in reports))
         [bad] = audit_delistings({"2026-09-01": {"2867": 3}}, [self.evidence["delistings"][3]])
         self.assertEqual(bad["post_boundary_quote_dates"], ["2026-09-01"])
+
+    def test_8422_must_use_last_pre_suspension_quote(self):
+        sample = next(r for r in self.evidence["transitions"] if r["code"] == "8422")
+        self.assertEqual(compare_transition(self.history, sample)["expected_ratio"], "247/250")
+        with self.assertRaisesRegex(ValueError, "last pre-event"):
+            compare_transition(self.history, dict(sample, before_date="2025-11-04"))
