@@ -102,3 +102,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 新增 `python -m scripts.action_completeness data/history/new_low_closes.json`。以原始行情驗證候選生效日與前收，拒絕同檔同日重複事件、無法核對的復市前收及需要另處理的減資併除權。整合 10 筆日期異常、20 筆窗口內可回調減資及 3 筆面額變更，共 33 筆。2832 的最後舊制報價在窗口前，獨立列為邊界事件。
 - 8422 自 2025-11-17 套用 1/10，7780 自 2026-01-19 套用 1/10，6949 自 2026-09-07 套用 1/20。三筆均核對發行人換發資訊、原始停牌前收與 FinMind 參考價。本地測試 64 項通過。
 - 價格跳動達 30% 且最多相隔 10 個缺價交易日的篩檢，留下 6921（新上市翌日）及 6669（股票股利除權，原始月報另有此事件）兩筆。這個篩檢只能發現部分價格不連續事件，且不據此推算調整因子。33 筆情境仍只在 11/10 出現 93 → 92 檔的差異。
+
+## 2026-11-23 14 個月除權息封存整合
+
+- 將[起始月](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45101315461)與[後續月報](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45059710691)的 ZIP 傳給 `python -m scripts.action_completeness data/history/new_low_closes.json --monthly-archives first.zip remaining.zip`。程式拒絕缺月、重複月份、雜湊不符與重疊事件，並以每日原始收盤對照事件前一交易日。新增 957 個月報係數，合計套用 990 筆。10 筆休市標記改用既有復市證據，另有 1589 的事件在行情首日，保留邊界紀錄。
+- [逐日研究結果](monthly_action_run.json)顯示 11/20 在同一個 946 檔嚴格母體中，原始新低 483 檔，套用已納入事件後為 425 檔。6669 在官方 2026-09 月報為股票股利除權，參考價 2,614.99，競價基準 2,615.00，已納入。剩餘 6921 的 46% 跳動發生在[創新板開始交易](https://m.moneydj.com/f1a.aspx?a=e8709c16-1b02-47ce-9325-1c8ef7c227d9)隔天，未據價格推算公司行動。
+- 66 項本地測試通過。這批數值採官方事件與同源原始報價，目前僅供研究，仍需市場級外部基準及公司行動全範圍覆蓋。

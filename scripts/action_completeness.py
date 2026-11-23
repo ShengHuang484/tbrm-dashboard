@@ -6,6 +6,7 @@ from pathlib import Path
 
 from scripts.corporate_action_audit import positive
 from scripts.new_low_adjusted_audit import audit_adjusted_lows
+from scripts.monthly_ex_right_scenario import load_months, reconcile_months
 
 
 def assemble(history, ex_right, crosscheck, face_actions, reduction_boundary):
@@ -110,11 +111,18 @@ def screen_discontinuities(history, events, boundary, threshold="0.30", max_gap=
     return candidates
 
 
-def audit(history, ex_right, crosscheck, face_actions, reduction_boundary):
+def audit(history, ex_right, crosscheck, face_actions, reduction_boundary, *, monthly_archives=()):
     events, boundary = assemble(history, ex_right, crosscheck, face_actions, reduction_boundary)
+    excluded, hashes = [], {}
+    if monthly_archives:
+        records, hashes = load_months(monthly_archives, sorted(history))
+        monthly_events, excluded = reconcile_months(history, records, ex_right, events)
+        events.extend(monthly_events)
     result = audit_adjusted_lows(history, events)
     result.update({
-        "scenario": "corroborated_subset",
+        "scenario": "monthly_archive_reconciliation" if hashes else "corroborated_subset",
+        "monthly_hashes": hashes,
+        "monthly_exclusions": excluded,
         "applied_events": events,
         "boundary_events": boundary,
         "unexplained_discontinuities": screen_discontinuities(history, events, boundary),
@@ -126,6 +134,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("history", type=Path)
     parser.add_argument("--evidence-directory", type=Path, default=Path("research"))
+    parser.add_argument("--monthly-archives", nargs="+", type=Path, default=[])
     args = parser.parse_args()
     root = args.evidence_directory
     evidence = [json.loads((root / name).read_text(encoding="utf-8")) for name in (
@@ -133,5 +142,6 @@ if __name__ == "__main__":
         "lifecycle_crosscheck_results.json",
     )]
     evidence[-1] = evidence[-1]["reduction_pre_window_close"]
-    result = audit(json.loads(args.history.read_text(encoding="utf-8")), *evidence)
+    result = audit(json.loads(args.history.read_text(encoding="utf-8")), *evidence,
+                   monthly_archives=args.monthly_archives)
     print(json.dumps(result, ensure_ascii=False, indent=2))
