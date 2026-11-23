@@ -44,3 +44,10 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 
 - 新增 TWTAUU 減資候選清冊擷取。按原始收盤檔的完整日期範圍查詢，檢查回應期間、欄名及重複事件，留存原始回應、雜湊及兩類參考價。工作區直接連線逾時，使用研究分支的只讀 Actions 擷取。
 - 分割或反分割的普通股另查[變更股票面額及換發公告](https://www.twse.com.tw/zh/announcement/change/cal.html)。ETF 分割清單的證券範圍不同。合併另以證券前後身的上市與終止上市紀錄核對。本地測試 55 項通過，整體公司行動完整性仍需獨立比對。
+
+## 2026-11-23 第一次正式減資報表與原始除權息月報比對
+
+- [減資 Actions](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405) 擷取 2025-10-22 至 2026-11-20 共 21 筆減資復市候選事件。原始 JSON SHA-256 為 `92621534a0f488aadd3760809bc10441a79aa0070df8aadbdb75e69fdec77abf`。21 筆有復市日原始收盤，20 筆停牌前收盤與原始歷史精確一致，這 20 筆的報價缺口為 6–7 個交易日。2832 的停牌前收早於原始檔起點，[元大減資日程表](https://www.yuanta.com.tw/eYuanta/Securities/News/GetAPItem?Type=StockHotNews&id=202511030082542)支持 11/03 復市，仍需補更早原始歷史以驗證前收。
+- 期末仍有報價的 20 檔減資候選股票中，只有 1 檔進入嚴格 252 日分母。這量化了採該缺價政策的選樣影響。報價原因全分類、放寬政策的敏感度、上市母體獨立核對仍待完成。
+- 舊 [除權息來源封存](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45059710691) 的 10 筆原日期前收全數吻合復市前本地原始收盤。已補上[逐檔價格](effective_date_crosscheck.md)，其中 2610、2891 與券商參考價差 0.01 元，5519 可用現金及股票股利公式重建官方參考價。正式日期改派仍保留待審。原始 TWT49U 封存始自 2025-11，尚需查 2025-10-22 至月底以對齊原始收盤起點。
+- [研究分支 CI](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965266) 通過。後續仍需涵蓋普通股分割、反分割及合併事件，並取得外部調整後價格或新低檔數作獨立基準。
