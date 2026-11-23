@@ -94,6 +94,8 @@ def audit(day, inputs, source_manifest, replay, reduction_terms):
         "reverse_split": finding("BLOCKED", list(PAR_REPORTS), "No complete date-scoped reverse-split register."),
         "share_conversion": finding("BLOCKED", ["mops_disclosures", "newlisting"],
             "Filing and fact dates do not establish exchange effectiveness."),
+        "merger": finding("BLOCKED", ["mops_disclosures", "newlisting"],
+            "No complete session register of mergers and trading dispositions."),
         "replacement_shares": finding("BLOCKED", ["newlisting", "mops_disclosures", *PAR_REPORTS],
             "Initial listing records omit continuing issuers' replacement shares."),
     }
@@ -117,7 +119,13 @@ def main():
     windows = json.loads((root / "incremental_action_windows_20261123.json").read_bytes())
     supplemental = json.loads((root / "incremental_scope_followup_20261123.json").read_bytes())
     inputs = {name: (args.raw_directory / f"{name}.raw").read_bytes() for name in REPLAY_INPUTS}
-    replay = evidence_report(day, args.checkpoint.read_bytes(), inputs, identity_retrieved_on=day)
+    checkpoint = args.checkpoint.read_bytes()
+    if hashlib.sha256(checkpoint).hexdigest() != acceptance["checkpoint_sha256"]:
+        raise ValueError("checkpoint differs from the archived 11/23 pre-session checkpoint")
+    for name, evidence in acceptance["sources"].items():
+        if hashlib.sha256(inputs[name]).hexdigest() != evidence["sha256"]:
+            raise ValueError(f"archived session input differs for {name}")
+    replay = evidence_report(day, checkpoint, inputs, identity_retrieved_on=day)
     inputs = {name: inputs[name] for name in ("ex_right", "ex_window", "reduction", "reduction_window")}
     for name in (*PAR_REPORTS, "newlisting"):
         inputs[name] = (args.supplemental_directory / f"{name}.raw").read_bytes()

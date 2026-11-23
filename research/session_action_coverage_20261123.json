@@ -154,6 +154,15 @@
       "full_scope_attested": false,
       "limit": "Filing and fact dates do not establish exchange effectiveness."
     },
+    "merger": {
+      "status": "BLOCKED",
+      "sources": [
+        "mops_disclosures",
+        "newlisting"
+      ],
+      "full_scope_attested": false,
+      "limit": "No complete session register of mergers and trading dispositions."
+    },
     "replacement_shares": {
       "status": "BLOCKED",
       "sources": [
