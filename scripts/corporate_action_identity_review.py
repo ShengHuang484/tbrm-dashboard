@@ -9,6 +9,7 @@ from scripts.corporate_action_audit import positive
 KINDS = {
     "listed_survivor_treasury_share_cancellation": "no_holder_exchange_documented",
     "subsidiary_merger_announcement": "exchange_applies_to_subsidiary",
+    "listed_acquirer_issues_exchange_shares": "consideration_to_acquired_company_holders",
     "listed_cash_exchange": "cash_exit",
     "deferred_subsidiary_merger": "pending_effective_date",
     "listed_share_exchange": "cross_security_exchange",
@@ -38,6 +39,12 @@ def audit_identity_evidence(history, records):
         result = dict(event, last_pre_reference_quote=predecessor[-1] if predecessor else None,
                       first_at_or_after_reference_quote=subsequent[0] if subsequent else None,
                       factor=None, cross_security_history_splice=False)
+        if event["kind"] == "listed_acquirer_issues_exchange_shares":
+            if (not event["target_entity"].strip()
+                    or any(type(event[field]) is not int or event[field] <= 0
+                           for field in ("shares_issued", "target_shares_acquired"))):
+                raise ValueError("invalid new-share consideration")
+            result["listed_acquirer_quote_boundary_conflict"] = not predecessor or day not in quoted
         if event["kind"] == "deferred_subsidiary_merger":
             if event["effective_date"] is not None:
                 raise ValueError("a deferred announcement cannot confirm an effective date")

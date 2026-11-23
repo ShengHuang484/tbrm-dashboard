@@ -48,3 +48,15 @@ class IdentityEvidenceTest(unittest.TestCase):
         [result] = audit_identity_evidence(history, [row])["records"]
         self.assertEqual(result["quoted_during_stop"], ["2026-03-19"])
         self.assertIsNone(result["factor"])
+
+    def test_new_shares_issued_to_target_do_not_rebase_acquirer_history(self):
+        records = json.loads(Path("research/share_identity_evidence.json").read_text())
+        row = next(r for r in records if r["code"] == "1103")
+        history = {"2026-07-02": {"1103": 10}, "2026-07-03": {"1103": 11}}
+        [result] = audit_identity_evidence(history, [row])["records"]
+        self.assertFalse(result["listed_acquirer_quote_boundary_conflict"])
+        self.assertIsNone(result["factor"])
+        self.assertFalse(result["cross_security_history_splice"])
+        history["2026-07-03"].clear()
+        [result] = audit_identity_evidence(history, [row])["records"]
+        self.assertTrue(result["listed_acquirer_quote_boundary_conflict"])
