@@ -53,3 +53,5 @@ python -m scripts.historical_roster_check roster-reference.json --roster supplie
 ```
 
 [TEJ 試用說明](https://api.tej.com.tw/documents.html)要求向供應商索取試用 API key，而且試用限指定表。其[目錄](https://api.tej.com.tw/databases.html)列有證券屬性與日調整股價，尚需供應商確認三組樣本是否都可匯出及其使用授權。[FinMind 調整日線](https://finmind.github.io/tutor/TaiwanMarket/Technical/)限指定會員，先前實際請求未取得資料。既有 Goodinfo 1312 顯示樣本可做個案對照，完整驗收另需原始精度及完整時間窗。三組小樣是來源核對的第一步，完整交付仍依本文件的 262 交易日六檔規格。
+
+[Goodinfo 2867 還原價頁](https://goodinfo.tw/tw/ShowK_Chart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=2867)於 11/24 顯示查無相關資料。[公司轉換公告鏡像](https://goodinfo.tw/tw/StockAnnounceList.asp?END_DT=2026%2F8%2F17&START_DT=2026%2F7%2F18&STOCK_ID=2867)可驗下市個案，價格樣本仍待合法交付。

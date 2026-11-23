@@ -12,6 +12,7 @@ on:
       - 'scripts/twse_event_download.py'
       - 'scripts/twse_event_extract.py'
       - 'scripts/twse_event_archive_audit.py'
+      - 'scripts/new_low_session_probe.py'
       - '.github/workflows/twse-source-smoke.yml'
 
 permissions:

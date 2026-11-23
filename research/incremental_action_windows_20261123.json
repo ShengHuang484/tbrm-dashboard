@@ -96,12 +96,72 @@
       "sha256": "6b1f1a966afd297e564df926102b228832965f59b535bc6b278c8fdbedd671af",
       "bytes": 97977,
       "representation": "response"
+    },
+    "par_rwd_change": {
+      "url": "https://www.twse.com.tw/rwd/zh/change/TWTB7U?response=json&startDate=20261120&endDate=20261124",
+      "bytes": 695,
+      "sha256": "79a75c9bc70d703128280f60d8022d6d3c9246549b88e9e64009e3634c3e042a",
+      "http": 200,
+      "stat": "OK",
+      "title": "變更股票面額預告表",
+      "params": {
+        "response": "json",
+        "startDate": "20261120",
+        "endDate": "20261124",
+        "controller": "change",
+        "action": "TWTB7U",
+        "lang": "zh"
+      },
+      "data": [
+        [
+          "115/08/27",
+          "6949",
+          "沛爾生醫-創",
+          "115/09/07",
+          "20.00000000",
+          "10.00",
+          "0.50",
+          "6949  ,20260826",
+          "6949  ,20260827,20260907",
+          ",10.00,0.50"
+        ]
+      ]
+    },
+    "par_legacy_range": {
+      "url": "https://www.twse.com.tw/exchangeReport/TWTB7U?response=json&startDate=20261120&endDate=20261124",
+      "bytes": 695,
+      "sha256": "79a75c9bc70d703128280f60d8022d6d3c9246549b88e9e64009e3634c3e042a",
+      "http": 200,
+      "stat": "OK",
+      "title": "變更股票面額預告表",
+      "params": {
+        "response": "json",
+        "startDate": "20261120",
+        "endDate": "20261124",
+        "controller": "change",
+        "action": "TWTB7U",
+        "lang": "zh"
+      },
+      "data": [
+        [
+          "115/08/27",
+          "6949",
+          "沛爾生醫-創",
+          "115/09/07",
+          "20.00000000",
+          "10.00",
+          "0.50",
+          "6949  ,20260826",
+          "6949  ,20260827,20260907",
+          ",10.00,0.50"
+        ]
+      ]
     }
   },
   "remaining_coverage_gaps": {
     "ex_dividend_stock_dividend_and_rights": "TWSE date range agrees with target-date response, and supplies adjacent positive controls. No target rows observed. Completeness across all securities and cash subscriptions remains unproven.",
     "reductions": "One 1808 result reconciled to both reports and the issuer notice. The observed row is verified individually.",
-    "par_value_splits_reverse_splits": "Attempted date-range path returns an HTML error page (HTTP 200). Legacy path returns a limited preannouncement table with 6949 in August/September and no date bounds. Need date-scoped full event coverage.",
+    "par_value_splits_reverse_splits": "The valid RWD route and legacy date-range route both echo the requested November bounds but return the same 6949 August/September preannouncement. Endpoint does not demonstrate a date-filtered published effective-event archive. Need date-scoped full event coverage.",
     "first_listings_transfers_mergers_and_share_exchanges": "Recent listing table has 797 application records and no first-trade date matching the target. It does not cover all new shares and continuing-issuer changes. Need stamped market-effective notices covering listings, successors and continuing securities.",
     "security_history": "Four listing-start explanations unresolved and one exact emerging date requires an official record; no history changed."
   }

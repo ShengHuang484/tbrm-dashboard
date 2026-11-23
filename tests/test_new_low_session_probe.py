@@ -129,3 +129,14 @@ class SessionProbeTest(unittest.TestCase):
         del sources["reduction_window"]
         with self.assertRaisesRegex(ValueError, "requires both TWSE reports"):
             evidence_report(self.day, checkpoint, sources)
+
+
+    def test_action_range_rejects_rows_outside_echoed_bounds(self):
+        checkpoint, sources = self.fixture()
+        sources["ex_window"] = self.payload(dict(stat="OK", strDate="20261120", endDate="20261124",
+                                                fields=["資料日期", "股票代號"], data=[
+                                                    ["115年09月07日", "6949"]]))
+        reduction = json.loads(sources["reduction"])
+        sources["reduction_window"] = self.payload(dict(reduction, strDate="20261120", endDate="20261124"))
+        with self.assertRaisesRegex(ValueError, "outside its declared dates"):
+            evidence_report(self.day, checkpoint, sources)
