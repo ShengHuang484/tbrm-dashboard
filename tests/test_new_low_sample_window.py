@@ -28,3 +28,22 @@ class SampleWindowTests(unittest.TestCase):
         self.assertEqual(result["price_ratio_mismatch_dates"], self.days[1:2])
         result = self.inspect([16, 20, 14, None])
         self.assertTrue(result["external_low_on_displayed_prices"])
+
+    def test_rounded_tie_is_uncertain_but_lower_witness_survives_missing_dates(self):
+        self.assertIsNone(self.inspect([None, 14, 14, None])["external_low_beyond_display_rounding"])
+        result = self.inspect([None, 13, 14, None])
+        self.assertFalse(result["external_low_beyond_display_rounding"])
+        self.assertEqual(result["strictly_lower_prior_dates"], [self.days[1]])
+
+    def test_weekly_close_maps_only_to_last_market_session(self):
+        from scripts.new_low_sample_window import weekly_baseline
+
+        dates = ["2026-01-08", "2026-01-09", "2026-01-12"]
+        evidence = dict(provider="fixture", source_url="https://example.com",
+                        weekly_closes=[dict(last_session=dates[1], adjusted_close="10")])
+        self.assertEqual(weekly_baseline(dates, "1101", evidence)["adjusted_closes"],
+                         {dates[1]: {"1101": "10"}})
+        for invalid in (dates[0], dates[2]):
+            evidence["weekly_closes"][0]["last_session"] = invalid
+            with self.assertRaisesRegex(ValueError, "completed"):
+                weekly_baseline(dates, "1101", evidence)
