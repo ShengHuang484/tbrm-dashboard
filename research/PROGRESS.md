@@ -81,3 +81,10 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 調整後新低審計接受逐證券上市區間，以上市日含、下市日不含計算。重掛牌需重新累積回看期，事件不可跨上市區間套用。當日上市但無報價、上市期過短、回看缺價及範圍外報價分欄。母體尚未驗證時，仍可用原診斷入口重現舊結果。
 - 新增 `python -m scripts.new_low_baseline <local-report.json> <external-baseline.json>`。外部檔需提供 `provider`、`source_url`、`adjustment_method`、`market_dates` 與 `adjusted_closes`（日期→代號→還原收盤）。沿用同一市場日曆，在本地合格母體中逐檔對照完整窗口，列出外部缺價及雙向新低差異。即使兩邊一致也維持 `market_baseline_verified=false`，待確認外部資料獨立性及完整性。
 - 新增官方上市、下市、面額及 2832 停牌前月份擷取 Actions。現有 TWTB7U 是公告快照，無法單靠空白或單筆結果證明全期間完整。市場級還原行情尚未取得，FinMind 付費資料或其他有完整期間及可驗證價格基準的同口徑匯出需另外取得。60 項本地測試通過。
+
+## 2026-11-23 上市與停牌前收實測、日期修訂影響
+
+- [官方上市與面額 Actions](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45102469956) 抓到新上市、終止上市、面額快照與 2832 歷史成交。窗口內的新上市快照共有 39 檔，39/39 上市日吻合原始行情首筆日期。快照最新上市日停在 10/30，11 月其餘區間與未入清單的掛牌類別仍需補查。2832 在窗口前的 10/21 收盤為 36.00，與減資報表一致，因此 21/21 減資前收已對上官方行情。這是行情比對，減資事件清冊的第二來源仍未齊。[結構化查核結果](lifecycle_crosscheck_results.json)包含行情日期與原始證據雜湊。
+- 面額預告回傳 6949 一筆，詳情頁載明 `/change/TWTB8UDetail`，可追溯個案。公告快照沒有全期間覆蓋保證，普通股反分割與合併完整性仍待清冊支持。
+- `python -m scripts.new_low_date_scenario data/history/new_low_closes.json research/ex_right_date_results.json` 僅套用十筆日期異常的係數。十個測試日只有 11/10 變動，6931 由新低改判為非新低，當日由 93 檔變成 92 檔，期末仍為 483 檔。此情境未套用其他公司行動，不可當作全市場調整後正式統計。61 項本地測試通過。
+- 最新剩餘主動工時估計 8–18 小時，外部資料取得與授權等待另計。優先查有明確期間的獨立公司行動清冊（3–7 小時）及全市場還原行情、日曆與上市母體（3–7 小時），取得後逐檔比對、分類差異並重跑回測（2–4 小時）。如來源涵蓋不足，估計需再修正。
