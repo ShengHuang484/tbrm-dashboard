@@ -52,3 +52,13 @@
 [最小試用樣本](SUPPLIER_DATA_REQUEST.md#最小試用樣本)分為 2867 下市、1312 現增和 11/23 逐日母體。已實跑 11/23 同源基準匯出，可核對 1,088 個代號與 ISIN。供應商檔案仍 **BLOCKED**，需提供樣本及研究、留存與重播的授權說明。
 
 面額預告表實測會回顯請求日期並返回窗外的 6949。11/23 面額、分割及反分割完整性維持 **BLOCKED**，需可按生效日查驗的清冊或完整範圍聲明。
+
+### 11/23 公司行動來源完整性
+
+[有效日矩陣及重播結果](session_action_coverage_20261123.json)區分單例核實與市場全量。除權息、減資為 **PARTIAL**，其餘類別 **BLOCKED**。1808 公式和收盤價對照為個案 **PASS**。市場完整性及正式啟用仍待日期與事件類別範圍聲明。
+
+```bash
+python -m scripts.session_action_coverage checkpoint.json raw-directory/ supplemental-directory/
+```
+
+主要目錄沿用 session probe 原始檔並加 `mops_disclosures.raw`。補充目錄使用 `newlisting.raw`、`par_rwd_change.raw`、`par_legacy_range.raw`。

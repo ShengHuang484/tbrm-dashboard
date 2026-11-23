@@ -1,0 +1,170 @@
+{
+  "session": "2026-11-23",
+  "status": "BLOCKED",
+  "replay_error": "session action evidence is incomplete",
+  "checkpoint_sha256": "8a586b78cadf6a219b1e18f7033bf2c569b104508a592e50ce0177a27ccf1299",
+  "source_sha256": {
+    "ex_right": "2bc084ac1baf83d0dcbfd05912fa194882fa4364bf03d32dfbf56a0bcd3f9098",
+    "ex_window": "795e73fc7e194fd159dfdea9c6f6c3c245e1a2f58cfefba57ba2565a18dd42d2",
+    "reduction": "9a9bd3d10de938634faf0727532b991bafe102f40ac024282f3cf99dea6752ec",
+    "reduction_window": "2b6afed5e240ef8510e3813a819649b85b19571b6fefc24b3d22427a931b49bb",
+    "par_rwd_change": "79a75c9bc70d703128280f60d8022d6d3c9246549b88e9e64009e3634c3e042a",
+    "par_legacy_range": "79a75c9bc70d703128280f60d8022d6d3c9246549b88e9e64009e3634c3e042a",
+    "newlisting": "6b1f1a966afd297e564df926102b228832965f59b535bc6b278c8fdbedd671af",
+    "mops_disclosures": "5d2b99e69133013704150ab8b28d13a24973168a294f6ed5762d0bc5916a34fa"
+  },
+  "window_controls": {
+    "ex_window": {
+      "start": "20261120",
+      "end": "20261124",
+      "observed_codes_by_date": {
+        "2026-11-20": [
+          "0051",
+          "0055",
+          "00771",
+          "00850",
+          "4562"
+        ],
+        "2026-11-24": [
+          "00901",
+          "00930",
+          "6655"
+        ]
+      },
+      "target_rows": 0,
+      "coverage_reviewed": false
+    },
+    "reduction_window": {
+      "start": "20261120",
+      "end": "20261124",
+      "observed_codes_by_date": {
+        "2026-11-23": [
+          "1808"
+        ]
+      },
+      "target_rows": 1,
+      "coverage_reviewed": false
+    }
+  },
+  "par_value_controls": {
+    "par_rwd_change": {
+      "effective_date_field": "恢復買賣日期",
+      "observed_dates": [
+        "2026-09-07"
+      ],
+      "outside_window": [
+        "2026-09-07"
+      ],
+      "rows_without_effective_date": 0,
+      "requested_bounds_echoed": true
+    },
+    "par_legacy_range": {
+      "effective_date_field": "恢復買賣日期",
+      "observed_dates": [
+        "2026-09-07"
+      ],
+      "outside_window": [
+        "2026-09-07"
+      ],
+      "rows_without_effective_date": 0,
+      "requested_bounds_echoed": true
+    }
+  },
+  "initial_listing_date_control": {
+    "effective_date_field": "股票上市買賣日期",
+    "outside_window": 590,
+    "rows_without_effective_date": 0,
+    "session_in_observed_dates": false
+  },
+  "disclosure_date_control": {
+    "snapshot_matches_session": true,
+    "filing_dates": [
+      "1151123"
+    ],
+    "announcement_dates": [
+      "1151122"
+    ],
+    "reported_fact_dates": [
+      "1150824",
+      "1151124"
+    ],
+    "exchange_effective_date_field": false
+  },
+  "capital_reduction_positive_control": {
+    "code": "1808",
+    "old_session": "2026-11-11",
+    "old_close": "31.00",
+    "exchange_reference": "36.25",
+    "official_close": "34.85",
+    "status": "PASS",
+    "formula_reference": "36.25"
+  },
+  "coverage_matrix": {
+    "ex_rights_and_dividends": {
+      "status": "PARTIAL",
+      "sources": [
+        "ex_right",
+        "ex_window"
+      ],
+      "full_scope_attested": false,
+      "limit": "Adjacent effective dates confirmed; empty day response has no scope declaration."
+    },
+    "capital_reduction": {
+      "status": "PARTIAL",
+      "sources": [
+        "reduction",
+        "reduction_window"
+      ],
+      "full_scope_attested": false,
+      "limit": "Window and daily rows agree; no proof that other replacement or adjustment classes are included."
+    },
+    "par_value_change": {
+      "status": "BLOCKED",
+      "sources": [
+        "par_rwd_change",
+        "par_legacy_range"
+      ],
+      "full_scope_attested": false,
+      "limit": "Preannouncement rows occur outside echoed range."
+    },
+    "split": {
+      "status": "BLOCKED",
+      "sources": [
+        "par_rwd_change",
+        "par_legacy_range"
+      ],
+      "full_scope_attested": false,
+      "limit": "No complete date-scoped split register."
+    },
+    "reverse_split": {
+      "status": "BLOCKED",
+      "sources": [
+        "par_rwd_change",
+        "par_legacy_range"
+      ],
+      "full_scope_attested": false,
+      "limit": "No complete date-scoped reverse-split register."
+    },
+    "share_conversion": {
+      "status": "BLOCKED",
+      "sources": [
+        "mops_disclosures",
+        "newlisting"
+      ],
+      "full_scope_attested": false,
+      "limit": "Filing and fact dates do not establish exchange effectiveness."
+    },
+    "replacement_shares": {
+      "status": "BLOCKED",
+      "sources": [
+        "newlisting",
+        "mops_disclosures",
+        "par_rwd_change",
+        "par_legacy_range"
+      ],
+      "full_scope_attested": false,
+      "limit": "Initial listing records omit continuing issuers' replacement shares."
+    }
+  },
+  "score_eligible": false
+}
