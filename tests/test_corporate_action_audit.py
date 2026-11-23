@@ -18,6 +18,21 @@ class CorporateActionTests(unittest.TestCase):
             {"2330": [100, 95, 96]}, [event()])
         self.assertEqual(result["2330"], [Decimal("95.00"), Decimal("95"), Decimal("96")])
 
+    def test_peel_split_matches_independent_adjusted_closes(self):
+        # Goodinfo adjusted-close snapshot around the 20-for-1 split:
+        # https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=6949
+        dates = ["2026-08-20", "2026-08-21", "2026-08-24",
+                 "2026-08-25", "2026-08-26", "2026-09-07"]
+        split = event(
+            code="6949", ex_date="2026-09-07", prior_close="1490",
+            reference_price="74.50", event_type="split",
+            source_url="https://www.twse.com.tw/zh/announcement/change/twtb7u.html",
+        )
+        adjusted = backward_adjusted_series(
+            dates, {"6949": [1125, 1155, 1235, 1355, 1490, "67.10"]}, [split])
+        expected = ["56.25", "57.75", "61.75", "67.75", "74.50", "67.10"]
+        self.assertEqual(adjusted["6949"], [Decimal(price) for price in expected])
+
     def test_multiple_events_compound(self):
         result = backward_adjusted_series(
             ["2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04"],

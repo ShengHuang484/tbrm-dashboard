@@ -57,3 +57,11 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - [證交所 TWTB7U](https://www.twse.com.tw/exchangeReport/TWTB7U?date=undefined&response=html&selectType=undefined)列出 6949 沛爾生醫 2026-09-07 以 20 倍股數換發。[發行公司公告](https://goodinfo.tw/tw/StockAnnounceDetail.asp?CLAIM_TIME=2026%2F09%2F02+07%3A00%3A03&STOCK_ID=6949&SUBJECT=%E5%85%AC%E5%91%8A%E6%9C%AC%E5%85%AC%E5%8F%B8%E8%82%A1%E7%A5%A8%E9%9D%A2%E9%A1%8D%E7%94%B1%E3%80%8C%E6%96%B0%E5%8F%B0%E5%B9%A310%E5%85%83%E3%80%8D%E8%AE%8A%E6%9B%B4%E7%82%BA%E3%80%8C%E6%96%B0%E5%8F%B0%E5%B9%A30.5%E5%85%83%E3%80%8D)也明示用 8/26 收盤除以 20。原始前收 1,490，理論參考價 74.50，復市收盤 67.10，係數為 1/20。一筆普通股分割有交易所和發行公司佐證。TWTB7U 是預告表，仍需查歷史涵蓋期間及反分割。
 - 比對[證交所終止上市清單](https://www.twse.com.tw/company/suspendListingCsvAndHtml?lang=zh&type=html)，窗口內列有 6423、3454、6806、2867、1589，五檔原始報價均早於終止上市日結束。3454 [由台達電以現金進行股份轉換](https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69c37647f019c89fca2900063.pdf)，不應把兩證券歷史串接。1589 為[財報一案的終止上市](https://investoredu.twse.com.tw/FileSystem/FileUpload/d0048d9a-e912-42ee-9c32-7a5bbff1d010.pdf)。其餘個案、窗口內新上市和代碼承繼、倖存公司事件仍需獨立核對。
 - 已加上原始行情起始月的 TWT49U 擷取，補查原封存未包含的 2025-10-22 至月底。調整後的整體市場基準仍欠第二份涵蓋同期間且價格定義一致的資料。
+
+## 2026-11-23 起始月封存、外部還原價與缺價敏感度
+
+- 起始月[封存 Actions](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45101315461)取得 57 筆全證券日期列。依現有普通股代碼規則和原始行情窗口篩選，剩 7 筆，其中 6 筆前收精確吻合。1589 事件恰在原始行情首日，無窗口內前收，對窗口內任何歷史價格都不套用該事件。納入完整性清單時仍保留該筆。原始檔 SHA-256 為 `5f446fde77c72f421e57a8b2194a1ce6ede013fff9843b8bde395ecb703a200f`。
+- 6949 的 20 比 1 分割前後，6 筆本地原始收盤經計算後均精確吻合 [Goodinfo 還原股價](https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=6949)，已加入固定值回歸測試。全套本地測試 56 項通過。獨立核對已完成這一檔的樣本，市場級調整後新低仍未驗證。
+- 原始價格敏感度比較中，允許向前找最近 252 筆有效報價，期末分母從 946 增至 1,040，原始新低從 483 增至 520。這項對照允許拉長回看日曆跨度，不插補價格，也不變更嚴格研究預設。正式採用前仍需用獨立上市及停牌紀錄驗證選樣影響。
+- 終止上市五檔的原因已查齊。6423 轉櫃、3454 為現金股份轉換、6806 為負淨值、2867 與玉山金換股、1589 為財報未補正。2867 的原始行情於 8/19 結束，也與[公司對外說明](https://www.cna.com.tw/news/afe/202607130297.aspx)吻合。6423、6806 的原因見[轉櫃公告](https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69a3d6cf9019bc625f80f075e.pdf)及[負淨值公告](https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019e212d55f901ef.pdf)。五筆原因的核對尚不能證明所有合併及存續方公司行動已涵蓋。
+- 仍欠 10 筆異常的可重現正式生效日、減資清冊第二來源、普通股分割／反分割／合併全期間清冊，以及同口徑外部市場基準。維持 `score_eligible=false` 與 45/50。
