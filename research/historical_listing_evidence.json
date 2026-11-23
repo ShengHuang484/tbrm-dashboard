@@ -1,0 +1,40 @@
+{
+  "snapshot_date": "2026-11-22",
+  "historical_exits": [
+    {
+      "code": "6423",
+      "listed_from": "2024-05-15",
+      "delisted_on": "2026-01-22",
+      "listing_source": "https://www.twse.com.tw/staticFiles/news/news/tsecnews/ff8080818f70a76b018f75e989830034.pdf",
+      "exit_source": "https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69a3d6cf9019bc625f80f075e.pdf"
+    },
+    {
+      "code": "3454",
+      "listed_from": "2011-07-22",
+      "delisted_on": "2026-03-27",
+      "listing_source": "https://www.twse.com.tw/downloads/zh/about/company/Annual/100/P38.pdf",
+      "exit_source": "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69c37647f019c89fca2900063.pdf"
+    },
+    {
+      "code": "6806",
+      "listed_from": "2021-11-15",
+      "delisted_on": "2026-06-23",
+      "listing_source": "https://www.twse.com.tw/company/newlisting?response=html&yy=110",
+      "exit_source": "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019e212d55f901ef.pdf"
+    },
+    {
+      "code": "2867",
+      "listed_from": "2012-12-18",
+      "delisted_on": "2026-09-01",
+      "listing_source": "https://goodinfo.tw/tw/BasicInfo.asp?STOCK_ID=2867",
+      "exit_source": "https://www.cna.com.tw/news/afe/202607130297.aspx"
+    },
+    {
+      "code": "1589",
+      "listed_from": "2012-04-27",
+      "delisted_on": "2026-11-18",
+      "listing_source": "https://wwwc.twse.com.tw/pdf/ch/1589_ch.pdf",
+      "exit_source": "https://investoredu.twse.com.tw/FileSystem/FileUpload/d0048d9a-e912-42ee-9c32-7a5bbff1d010.pdf"
+    }
+  ]
+}

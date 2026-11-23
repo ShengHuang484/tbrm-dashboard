@@ -49,3 +49,8 @@ jobs:
           python -m scripts.new_low_rights_scenario data/history/new_low_closes.json adjusted.json \
             research/1312_rights_basis.json > rights-scenario.json
           diff -u research/1312_rights_scenario.json rights-scenario.json
+      - name: Verify historical listing interval memberships
+        run: |
+          python -m scripts.historical_listing_replay data/history/new_low_closes.json adjusted.json \
+            research/issuer_master_20261122.csv research/historical_listing_evidence.json > historical-listing.json
+          diff -u research/historical_listing_result.json historical-listing.json

@@ -1,0 +1,97 @@
+{
+  "snapshot_date": "2026-11-22",
+  "market_sessions": 262,
+  "historical_exit_codes": [
+    "1589",
+    "2867",
+    "3454",
+    "6423",
+    "6806"
+  ],
+  "factor_count": 988,
+  "outside_listing_quotes": {},
+  "sessions": [
+    {
+      "date": "2026-11-09",
+      "eligible": 939,
+      "lows": 51,
+      "active": 1089,
+      "unquoted_current": 2,
+      "membership_sha256": "288a1bf19a52eae8cef5fb14d67d8412bfd5ffa627fa605c0cf1b31d59a25067"
+    },
+    {
+      "date": "2026-11-10",
+      "eligible": 938,
+      "lows": 77,
+      "active": 1089,
+      "unquoted_current": 4,
+      "membership_sha256": "9a9e8dbcf4f25acb1a79b840b325b1648162f5e830f41cb259a45ccd7bd855d3"
+    },
+    {
+      "date": "2026-11-11",
+      "eligible": 938,
+      "lows": 71,
+      "active": 1089,
+      "unquoted_current": 5,
+      "membership_sha256": "488bb0b0d67242c66393425ccc0bd9f462ba4ef33f392bcc6502bdd98c05c6a1"
+    },
+    {
+      "date": "2026-11-12",
+      "eligible": 939,
+      "lows": 70,
+      "active": 1089,
+      "unquoted_current": 5,
+      "membership_sha256": "6afc15b59e9748010aa4d03ef46d904ee1d3fe5f717b52a71dc7487070093132"
+    },
+    {
+      "date": "2026-11-13",
+      "eligible": 940,
+      "lows": 24,
+      "active": 1089,
+      "unquoted_current": 4,
+      "membership_sha256": "4d46d26bf13937c0f8dff264b548a438c9b02f7114b59643bb02c6ed57de3912"
+    },
+    {
+      "date": "2026-11-16",
+      "eligible": 940,
+      "lows": 136,
+      "active": 1089,
+      "unquoted_current": 5,
+      "membership_sha256": "eaee277194cc72e67347d14b4a67296b3dd5193b0dcaf52aa06cc1b7223c4eea"
+    },
+    {
+      "date": "2026-11-17",
+      "eligible": 940,
+      "lows": 152,
+      "active": 1089,
+      "unquoted_current": 4,
+      "membership_sha256": "825edc9b7d9a073b19795fd78802f2baa3cb9d550b7b33a48b6b05ecfc728324"
+    },
+    {
+      "date": "2026-11-18",
+      "eligible": 941,
+      "lows": 87,
+      "active": 1088,
+      "unquoted_current": 2,
+      "membership_sha256": "116f7a8c3e54e5b2ff43bfbbad9921d9a52045213ca0d34f4ef90cd98f58b148"
+    },
+    {
+      "date": "2026-11-19",
+      "eligible": 942,
+      "lows": 267,
+      "active": 1088,
+      "unquoted_current": 2,
+      "membership_sha256": "79405b62f877adf9588519016e5d4811b0a4a243b34f3bde4ca4920d1dcac2d2"
+    },
+    {
+      "date": "2026-11-20",
+      "eligible": 944,
+      "lows": 425,
+      "active": 1088,
+      "unquoted_current": 2,
+      "membership_sha256": "3581e66981dceeaee722ef03173d5e4c11aa36b5faaf3498218c9655a420ed8f"
+    }
+  ],
+  "listing_universe_verified": false,
+  "score_eligible": false
+}
