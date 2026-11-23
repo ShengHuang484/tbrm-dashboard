@@ -65,6 +65,25 @@
       "sources": [
         "https://wealth.firstbank.com.tw/investment-tips/trend-insight/news/news-detail?id=%7B651E6D67-1261-4C85-815D-9F660BACA1A8%7D"
       ]
+    },
+    {
+      "code": "1589",
+      "start": "2026-04-07",
+      "end": "2026-11-18",
+      "disposition": "delist",
+      "sources": [
+        "https://investoredu.twse.com.tw/FileSystem/FileUpload/d0048d9a-e912-42ee-9c32-7a5bbff1d010.pdf"
+      ]
+    },
+    {
+      "code": "1808",
+      "start": "2026-11-12",
+      "end": "2026-11-23",
+      "disposition": "resume",
+      "sources": [
+        "https://stockchannelnew.sinotrade.com.tw/z/zf/zfz/zfz_543AD7FC-D66E-4CCF-BA3F-C26381C36057.djhtm",
+        "https://www.twse.com.tw/exchangeReport/TWTAUU?response=html&startDate=20261123&endDate=20261123"
+      ]
     }
   ]
 }

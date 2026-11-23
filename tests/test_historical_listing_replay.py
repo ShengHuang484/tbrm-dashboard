@@ -36,3 +36,15 @@ class HistoricalListingReplayTest(unittest.TestCase):
         result = replay(history, dict(applied_events=[], lookback=1), roster, evidence)
         [check] = result["trading_stop_checks"]
         self.assertEqual(check["conflicting_sessions"], [b, c])
+
+    def test_unexplained_absence_is_distinct_from_a_documented_stop(self):
+        a, b, c = "2026-01-02", "2026-01-05", "2026-01-06"
+        history = {a: {"6806": 5}, b: {}, c: {}}
+        roster = [dict(code="6806", listed_from=a, industry="01")]
+        evidence = dict(snapshot_date=c, historical_exits=[], trading_stops=[])
+        archive = dict(date_window=[a, c], new_listing_observations=[])
+        result = replay(history, dict(applied_events=[], lookback=1), roster, evidence,
+                        listings_archive=archive)
+        self.assertEqual(result["coverage"]["unclassified_absence_dates"], {"6806": [b, c]})
+        self.assertEqual(result["coverage"]["reconstructed_starts_without_archive"], [("6806", a)])
+        self.assertEqual(result["coverage"]["documented_stop_pairs"], 0)

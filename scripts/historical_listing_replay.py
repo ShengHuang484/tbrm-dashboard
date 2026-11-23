@@ -35,7 +35,7 @@ def audit_stops(history, windows, stops):
     return results
 
 
-def replay(history, adjusted, roster, evidence, *, strict_report=False):
+def replay(history, adjusted, roster, evidence, *, strict_report=False, listings_archive=None):
     dates = sorted(history)
     if evidence["snapshot_date"] < dates[-1]:
         raise ValueError("snapshot predates research endpoint")
@@ -66,6 +66,31 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False):
         return dict(outside_listing_quotes=conflicts, trading_stop_checks=stops,
                     listing_universe_verified=False,
                     score_eligible=False)
+    documented = {(r["code"], d) for r in stops for d in r["affected_sessions"]}
+    active_pairs = missing_pairs = 0
+    unresolved = {}
+    for day, quotes in ordinary.items():
+        active = listings_on(windows, day)
+        absent = active.keys() - quotes.keys()
+        active_pairs += len(active)
+        missing_pairs += len(absent)
+        for code in sorted(absent):
+            if (code, day) not in documented:
+                unresolved.setdefault(code, []).append(day)
+    coverage = dict(reconstructed_active_pairs=active_pairs, missing_close_pairs=missing_pairs,
+                    documented_stop_pairs=len(documented),
+                    unclassified_absence_pairs=missing_pairs - len(documented),
+                    unclassified_absence_dates=unresolved)
+    if listings_archive is not None:
+        if listings_archive["date_window"] != [dates[0], dates[-1]]:
+            raise ValueError("new listing archive differs from the research window")
+        expected = {(r["code"], r["listed_from"]) for r in listings
+                    if dates[0] <= r["listed_from"] <= dates[-1]}
+        reported = {(r["code"], r["listed_from"])
+                    for r in listings_archive["new_listing_observations"]}
+        coverage["archive_new_listing_matches"] = len(expected & reported)
+        coverage["reconstructed_starts_without_archive"] = sorted(expected - reported)
+        coverage["archived_starts_without_reconstruction"] = sorted(reported - expected)
     result = audit_adjusted_lows(ordinary, events, adjusted["lookback"], listings=listings)
     if strict_report:
         result.update(applied_events=events, issuer_snapshot_date=evidence["snapshot_date"],
@@ -74,6 +99,7 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False):
     return dict(snapshot_date=evidence["snapshot_date"], market_sessions=len(dates),
                 historical_exit_codes=sorted({row["code"] for row in exits}),
                 factor_count=result["factor_count"], outside_listing_quotes={}, trading_stop_checks=stops,
+                coverage=coverage,
                 sessions=[dict(date=row["date"], eligible=row["strict_eligible"],
                                lows=row["adjusted_low_count"], active=row["active_listings"],
                                unquoted_current=row["unquoted_current_listings"],
@@ -87,9 +113,12 @@ if __name__ == "__main__":
     for name in ("history", "adjusted", "roster", "evidence"):
         parser.add_argument(name, type=Path)
     parser.add_argument("--strict-report", action="store_true")
+    parser.add_argument("--listings-archive", type=Path)
     args = parser.parse_args()
     with args.roster.open(newline="") as roster:
         result = replay(json.loads(args.history.read_text()), json.loads(args.adjusted.read_text()),
                         list(csv.DictReader(roster)), json.loads(args.evidence.read_text()),
-                        strict_report=args.strict_report)
+                        strict_report=args.strict_report,
+                        listings_archive=json.loads(args.listings_archive.read_text())
+                        if args.listings_archive else None)
     print(json.dumps(result, indent=2))

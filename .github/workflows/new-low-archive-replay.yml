@@ -52,5 +52,6 @@ jobs:
       - name: Verify historical listing interval memberships
         run: |
           python -m scripts.historical_listing_replay data/history/new_low_closes.json adjusted.json \
-            research/issuer_master_20261122.csv research/historical_listing_evidence.json > historical-listing.json
+            research/issuer_master_20261122.csv research/historical_listing_evidence.json \
+            --listings-archive research/lifecycle_crosscheck_results.json > historical-listing.json
           diff -u research/historical_listing_result.json historical-listing.json
