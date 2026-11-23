@@ -8,6 +8,7 @@ on:
       - '.github/workflows/new-low-archive-replay.yml'
       - 'scripts/*.py'
       - 'research/*.json'
+      - 'research/issuer_master_*.csv'
       - 'data/history/new_low_closes.json'
   workflow_dispatch:
 
@@ -38,3 +39,8 @@ jobs:
             adjusted.json > sensitivity.json
           python -m scripts.new_low_replay_check adjusted.json research/monthly_action_run.json \
             sensitivity.json research/quote_policy_sensitivity.json
+      - name: Replay issuer security-type scope
+        run: |
+          python -m scripts.issuer_universe compare data/history/new_low_closes.json adjusted.json \
+            research/issuer_master_20261122.csv 2026-11-22 > issuer-scope.json
+          diff -u research/issuer_scope_result.json issuer-scope.json
