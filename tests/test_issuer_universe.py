@@ -23,3 +23,16 @@ class IssuerScopeTests(unittest.TestCase):
         for invalid in ([row, row], [dict(row, 產業別="01")]):
             with self.assertRaises(ValueError):
                 snapshot(raw(invalid))
+
+    def test_strict_export_keeps_exact_filtered_membership_for_baseline(self):
+        days = ["2026-01-08", "2026-01-09"]
+        history = {days[0]: {"1101": 20, "9105": 5}, days[1]: {"1101": 19, "9105": 4}}
+        rows = [dict(code="9105", listed_from=days[0], industry="91"),
+                dict(code="1101", listed_from=days[0], industry="01")]
+        result = reconcile(history, [], rows, days[1], 1, strict_report=True)
+        [session] = result["sessions"]
+        self.assertEqual(session["eligible_codes"], ["1101"])
+        self.assertEqual(session["adjusted_low_codes"], ["1101"])
+        self.assertEqual(result["excluded_receipt_codes"], ["9105"])
+        self.assertFalse(result["listing_universe_verified"])
+        self.assertFalse(result["score_eligible"])

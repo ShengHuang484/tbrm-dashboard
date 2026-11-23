@@ -201,3 +201,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - Goodinfo 同一還原週線顯示 2330 在 1/09 收盤 1,665、11/20 收盤 2,000。兩筆均對應該週最後市場交易日，且 1/09 位於 252 日回看窗口內。即使將顯示價兩端各保留 0.5 元捨入區間，1/09 仍低於 11/20，因此外部資料支持 11/20 未創新低。兩筆與本地按事件還原後的比值在顯示精度內一致。
 - 新增 `scripts.new_low_sample_window --weekly`。只有經日曆核對的週末收盤可當日線觀察點，不能填補週內或整個 252 日窗口。顯示值相等時，另保留未取位價格可能改變判定的不確定性。94 項測試通過，TDR 排除後官方封存情境也已本地重播。
 - 完整市場仍需可用的獨立日線和歷史證券清冊。TWMD 文件的此公開日線回傳交易所原始行情，常規查詢需金鑰，未用作獨立還原證據。
+
+## 2026-11-23 外部基準改用排除已知 TDR 的逐檔報表
+
+- 取得完整外部資料後，先用 `python -m scripts.issuer_universe compare data/history/new_low_closes.json adjusted.json research/issuer_master_20261122.csv 2026-11-22 --strict-report > strict-ordinary.json` 產生帶有完整合格與新低代號的輸入，再執行 `python -m scripts.new_low_baseline strict-ordinary.json baseline.json`。
+- 本地用既有原始封存驗證 10 個日期逐檔名單。11/20 為 944 檔合格、425 檔新低、988 筆調整事件。95 項測試通過。仍需涵蓋研究期的外部普通股身分、完整 253 日價格窗口及價格調整規格，才能核證市場結果。正式維持 45/50、score_eligible=false。
+- 續作估計 4–10 小時主動工時，不含等待資料或授權。優先取得獨立全市場匯出及按日上市／停牌／承繼證據，再逐檔比較。

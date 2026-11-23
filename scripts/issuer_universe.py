@@ -7,6 +7,7 @@ import json
 from datetime import date
 from pathlib import Path
 
+from scripts.new_low_adjusted_audit import audit_adjusted_lows
 from scripts.new_low_policy_sensitivity import compare_policies
 
 URL = "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
@@ -37,7 +38,7 @@ def snapshot(raw):
                                    raw_sha256=hashlib.sha256(raw).hexdigest())
 
 
-def reconcile(history, events, records, snapshot_date, lookback=252):
+def reconcile(history, events, records, snapshot_date, lookback=252, *, strict_report=False):
     first, last = min(history), max(history)
     if snapshot_date < last:
         raise ValueError("issuer snapshot precedes research endpoint")
@@ -52,6 +53,11 @@ def reconcile(history, events, records, snapshot_date, lookback=252):
 
     prices = {d: {c: p for c, p in row.items() if not receipt(c, d)} for d, row in history.items()}
     retained = [e for e in events if not receipt(e["code"], e["ex_date"])]
+    if strict_report:
+        report = audit_adjusted_lows(prices, retained, lookback)
+        report.update(issuer_snapshot_date=snapshot_date, applied_events=retained,
+                      excluded_receipt_codes=sorted(receipts))
+        return report
     policies = compare_policies(prices, retained, lookback)
     endpoint_ordinary = {c for c,r in by_code.items() if r["industry"] != "91"
                          and r["listed_from"] <= last and len(c) == 4}
@@ -79,6 +85,7 @@ if __name__ == "__main__":
     for name in ("history", "action_report", "csv"):
         run.add_argument(name, type=Path)
     run.add_argument("snapshot_date")
+    run.add_argument("--strict-report", action="store_true")
     args = parser.parse_args()
     if args.command == "extract":
         data, result = snapshot(args.raw.read_bytes())
@@ -86,5 +93,6 @@ if __name__ == "__main__":
     else:
         result = reconcile(json.loads(args.history.read_text()), json.loads(
             args.action_report.read_text())["applied_events"], list(csv.DictReader(
-                io.StringIO(args.csv.read_text()))), args.snapshot_date)
+                io.StringIO(args.csv.read_text()))), args.snapshot_date,
+            strict_report=args.strict_report)
     print(json.dumps(result, indent=2))
