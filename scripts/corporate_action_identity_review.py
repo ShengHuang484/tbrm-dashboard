@@ -9,6 +9,8 @@ from scripts.corporate_action_audit import positive
 KINDS = {
     "listed_survivor_treasury_share_cancellation": "no_holder_exchange_documented",
     "subsidiary_merger_announcement": "exchange_applies_to_subsidiary",
+    "listed_cash_exchange": "cash_exit",
+    "deferred_subsidiary_merger": "pending_effective_date",
     "listed_share_exchange": "cross_security_exchange",
 }
 
@@ -25,7 +27,7 @@ def audit_identity_evidence(history, records):
         used.add(identity)
         if date.fromisoformat(day).isoformat() != day or not dates[0] <= day <= dates[-1]:
             raise ValueError("identity evidence outside the review window")
-        if KINDS.get(event["kind"]) != event["price_basis_status"]:
+        if event["kind"] not in KINDS or KINDS[event["kind"]] != event["price_basis_status"]:
             raise ValueError("unknown identity action or price-basis status")
         sources = event["sources"]
         if len(set(sources)) < 2 or any(not url.startswith("https://") for url in sources):
@@ -36,14 +38,25 @@ def audit_identity_evidence(history, records):
         result = dict(event, last_pre_reference_quote=predecessor[-1] if predecessor else None,
                       first_at_or_after_reference_quote=subsequent[0] if subsequent else None,
                       factor=None, cross_security_history_splice=False)
-        if event["kind"] == "listed_share_exchange":
+        if event["kind"] == "deferred_subsidiary_merger":
+            if event["effective_date"] is not None:
+                raise ValueError("a deferred announcement cannot confirm an effective date")
+        if event["kind"] in ("listed_share_exchange", "listed_cash_exchange"):
             successor = event["successor"]
             if successor == code:
                 raise ValueError("cross-security exchange needs two distinct codes")
-            positive(event["new_shares_per_old_share"])
+            if event["kind"] == "listed_cash_exchange":
+                positive(event["cash_twd_per_old_share"])
+                stop = event["trading_stops_on"]
+                if date.fromisoformat(stop).isoformat() != stop or stop > day:
+                    raise ValueError("invalid stop-trading boundary")
+                result["quoted_during_stop"] = [d for d in predecessor if d >= stop]
+            else:
+                positive(event["new_shares_per_old_share"])
             result["predecessor_boundary_conflict"] = bool(subsequent) or not predecessor
             result["successor_already_quoted"] = any(
                 session < day and successor in history[session] for session in dates)
+        result["last_pre_reference_close"] = history[predecessor[-1]][code] if predecessor else None
         results.append(result)
     return {"records": results, "corporate_action_completeness_verified": False,
             "score_eligible": False}

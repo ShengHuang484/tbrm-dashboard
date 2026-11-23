@@ -30,5 +30,32 @@
       "https://news.cnyes.com/news/print/6548591",
       "https://www.cna.com.tw/news/afe/202607130297.aspx"
     ]
+  },
+  {
+    "code": "3010",
+    "reference_date": "2026-08-19",
+    "kind": "deferred_subsidiary_merger",
+    "price_basis_status": "pending_effective_date",
+    "withdrawn_planned_date": "2026-07-10",
+    "effective_date": null,
+    "survivor_entity": "恆源新能股份有限公司",
+    "absorbed_entity": "詠恆新能股份有限公司",
+    "sources": [
+      "https://anuenews.cnyes.com/news/id/6488891",
+      "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=958c27d0-9e94-425e-b552-7248c5dd1ed0"
+    ]
+  },
+  {
+    "code": "3454",
+    "reference_date": "2026-03-27",
+    "kind": "listed_cash_exchange",
+    "price_basis_status": "cash_exit",
+    "successor": "2308",
+    "cash_twd_per_old_share": "100",
+    "trading_stops_on": "2026-03-19",
+    "sources": [
+      "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69c37647f019c89fca2900063.pdf",
+      "https://filecenter.deltaww.com/ir/download/calendar/2026%20Annual%20General%20Shareholders%20Meeting%20Handbook_Chi.pdf"
+    ]
   }
 ]
