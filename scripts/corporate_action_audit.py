@@ -17,7 +17,7 @@ def positive(value):
     return n
 
 
-def event_factors(events):
+def event_factors(events, *, number=Decimal):
     factors = {}
     for e in events:
         if e.get("verified") is not True:
@@ -38,7 +38,7 @@ def event_factors(events):
         key = (code, day)
         if key in factors:
             raise ValueError("duplicate event date")
-        factors[key] = positive(e.get("reference_price")) / positive(e.get("prior_close"))
+        factors[key] = number(positive(e.get("reference_price"))) / number(positive(e.get("prior_close")))
     return factors
 
 
