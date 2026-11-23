@@ -90,3 +90,27 @@ class SessionProbeTest(unittest.TestCase):
             evidence_report(self.day, checkpoint, sources, identity_retrieved_on="2026-11-20")
         with self.assertRaisesRegex(ValueError, "invalid scoped ISIN"):
             scoped_isins(sources["tdr_isin"], "上市臺灣創新板", "創新板", "ES")
+
+
+    def test_window_positive_controls_do_not_complete_event_coverage(self):
+        checkpoint, sources = self.fixture()
+        sources["ex_window"] = self.payload(dict(stat="OK", strDate="20261120", endDate="20261124",
+                                                fields=["資料日期", "股票代號"], data=[
+                                                    ["115年11月20日", "4562"], ["115年11月24日", "6655"]]))
+        reduction = json.loads(sources["reduction"])
+        sources["reduction_window"] = self.payload(dict(reduction, strDate="20261120", endDate="20261124"))
+        report = evidence_report(self.day, checkpoint, sources)
+        observed = report["action_window_observations"]
+        self.assertEqual(observed["ex_window"]["target_rows"], 0)
+        self.assertEqual(observed["ex_window"]["observed_codes_by_date"]["2026-11-24"], ["6655"])
+        self.assertFalse(observed["ex_window"]["coverage_reviewed"])
+        self.assertEqual(observed["reduction_window"]["target_rows"], 1)
+        self.assertEqual(report["status"], "BLOCKED")
+
+        reduction["data"][0][3] = "36.26"
+        sources["reduction_window"] = self.payload(dict(reduction, strDate="20261120", endDate="20261124"))
+        with self.assertRaisesRegex(ValueError, "disagrees with the target-day"):
+            evidence_report(self.day, checkpoint, sources)
+        del sources["reduction_window"]
+        with self.assertRaisesRegex(ValueError, "requires both TWSE reports"):
+            evidence_report(self.day, checkpoint, sources)

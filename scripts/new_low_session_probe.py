@@ -132,6 +132,50 @@ def check_full_isin(raw, day, general, innovation, tdr):
     return dict(general_board=len(general), innovation_board=len(innovation), tdr_rows=len(tdr))
 
 
+ACTION_WINDOWS = {
+    "ex_window": ("https://www.twse.com.tw/rwd/zh/exRight/TWT49U", "資料日期"),
+    "reduction_window": ("https://www.twse.com.tw/exchangeReport/TWTAUU", "恢復買賣日期"),
+}
+
+
+def compare_action_windows(day, inputs, reduction_rows):
+    available = ACTION_WINDOWS.keys() & inputs.keys()
+    if not available:
+        return {}, {}
+    if available != ACTION_WINDOWS.keys():
+        raise ValueError("action window review requires both TWSE reports")
+
+    summaries, sources = {}, {}
+    for key, (url, date_column) in ACTION_WINDOWS.items():
+        payload = json.loads(inputs[key])
+        start, end = payload.get("strDate", ""), payload.get("endDate", "")
+        compact = day.replace("-", "")
+        if (payload.get("stat") != "OK" or not re.fullmatch(r"[0-9]{8}", start)
+                or not re.fullmatch(r"[0-9]{8}", end) or not start < compact < end):
+            raise ValueError(f"{key} does not cover both sides of the session")
+        fields = payload["fields"]
+        if len(set(fields)) != len(fields) or not {date_column, "股票代號"} <= set(fields):
+            raise ValueError(f"{key} has invalid date or security columns")
+        by_date = {}
+        target_rows = []
+        for raw in payload["data"]:
+            row = dict(zip(fields, raw, strict=True))
+            effective = roc_date(row[date_column])
+            if not start <= effective.replace("-", "") <= end:
+                raise ValueError(f"{key} contains a row outside its declared dates")
+            by_date.setdefault(effective, []).append(row["股票代號"])
+            if effective == day:
+                target_rows.append(row)
+        expected_rows = [] if key == "ex_window" else reduction_rows
+        if ([sorted(row.items()) for row in target_rows] !=
+                [sorted(row.items()) for row in expected_rows]):
+            raise ValueError(f"{key} disagrees with the target-day response")
+        summaries[key] = dict(start=start, end=end, observed_codes_by_date=by_date,
+                              target_rows=len(target_rows), coverage_reviewed=False)
+        sources[key] = f"{url}?response=json&startDate={start}&endDate={end}"
+    return summaries, sources
+
+
 def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
     historical = json.loads(checkpoint)
     history = historical["history"]
@@ -201,6 +245,9 @@ def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
         "ex_right": f"https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate={day_compact}&endDate={day_compact}",
         "stock_1538": source_url("1538", day[:7]),
     }
+    action_windows, action_sources = compare_action_windows(
+        day, inputs, [dict(zip(fields, raw, strict=True)) for raw in reduction["data"]])
+    sources.update(action_sources)
     normalized = {"calendar": normalized_calendar, "quotes": inputs["quotes"]}
     scoped_evidence = {}
     blockers = ["complete dated ordinary-share roster with Innovation Board security identifiers and scope exclusions",
@@ -270,6 +317,7 @@ def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
                 innovation_board_trade_table_codes=sorted(tib),
                 quoted_codes_outside_observed_boards=sorted(quotes.keys() - roster.keys() - tib.keys()),
                 reduction_observations=events, ex_right_response=ex_right["stat"],
+                action_window_observations=action_windows,
                 confirmed_gap_reasons={"1538": gap["1538", day]}, gap_evidence=gap_evidence, replay_error=blocked,
                 blocked_inputs=blockers, scoped_identity_evidence=scoped_evidence,
                 replay_input_sha256={key: digest(value) for key, value in normalized.items()},
@@ -293,6 +341,10 @@ if __name__ == "__main__":
         full = args.evidence / "isin_full.raw"
         if full.exists():
             inputs["isin_full"] = full.read_bytes()
+    for key in ACTION_WINDOWS:
+        raw = args.evidence / (key + ".raw")
+        if raw.exists():
+            inputs[key] = raw.read_bytes()
     report = evidence_report(args.session, args.checkpoint.read_bytes(), inputs,
                              identity_retrieved_on=args.identity_retrieved_on)
     print(json.dumps(report, ensure_ascii=False, indent=2))
