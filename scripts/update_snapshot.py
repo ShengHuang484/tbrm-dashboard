@@ -117,74 +117,89 @@ def fetch_dated_limit_down(data_dir, target=None):
 
 
 
-def fetch_dated_margin(data_dir):
-    """Fetch official daily aggregate margin balance; never treat a fetch as a trading day."""
-    from datetime import date, timedelta
-    import time
-    stocks=json.loads((data_dir/'twse_stocks.json').read_text(encoding='utf-8'))
-    dates=sorted({str(x.get('Date','')) for x in stocks if isinstance(x,dict) and re.fullmatch(r'\d{7}',str(x.get('Date','')))})
-    if not dates:raise ValueError('cannot establish TWSE trading date')
-    roc=dates[-1]; latest=date(int(roc[:3])+1911,int(roc[3:5]),int(roc[5:]))
-    path=data_dir/'twse_dated_margin.json'
-    try:
-        old=json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
-        if not isinstance(old,list):old=[]
-    except (ValueError,OSError):old=[]
-    by_date={r['date']:r for r in old if isinstance(r,dict) and isinstance(r.get('date'),str) and isinstance(r.get('balance_1000_twd'),(int,float))}
-    diagnostics=[]
-    # Collect up to 45 calendar days, enough for 20 trading-day intervals.
-    # Reuse validated history and limit requests to 30 per execution.
-    for i in range(45):
-        day=latest-timedelta(days=i)
-        if day.weekday()>=5:continue
-        iso=day.isoformat()
-        if iso in by_date:continue
-        if len(diagnostics)>=30:break
-        url='https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&date='+day.strftime('%Y%m%d')
+def dated_margin_report(day):
+    """Require verified report date on either official TWSE route."""
+    errors = []
+    for route in ("exchangeReport", "rwd/zh/marginTrading"):
+        url = f"https://www.twse.com.tw/{route}/MI_MARGN?response=json&selectType=ALL&date={day.replace('-', '')}"
         try:
-            raw=fetch(url)
-            if raw.get('stat')!='OK':
-                diagnostics.append({'date':iso,'status':'not_available','stat':str(raw.get('stat'))[:90]});continue
-            if str(raw.get('date',''))!=day.strftime('%Y%m%d'):
-                diagnostics.append({'date':iso,'status':'date_mismatch'});continue
-            tables=[]
-            if isinstance(raw.get('tables'),list):
-                for t in raw['tables']:
-                    if isinstance(t,dict):tables.append((t.get('fields',[]),t.get('data',[])))
-            for key,val in raw.items():
-                if re.fullmatch(r'data\d*',key) and isinstance(val,list):
-                    suffix=key[4:];tables.append((raw.get('fields'+suffix,[]),val))
-            if isinstance(raw.get('data'),list):tables.append((raw.get('fields',[]),raw['data']))
-            values=[]
-            for fields,rows in tables:
-                if not isinstance(rows,list):continue
-                for row in rows:
-                    if isinstance(row,dict):
-                        name=str(next((v for k,v in row.items() if '項目' in k),'')).strip()
-                        val=next((v for k,v in row.items() if '今日餘額' in k),None)
-                    elif isinstance(row,list):
-                        name=str(row[0]) if row else ''
-                        j=next((j for j,f in enumerate(fields) if '今日餘額' in str(f)),4 if len(row)>=5 else -1)
-                        val=row[j] if j>=0 and j<len(row) else None
-                    else:continue
-                    name=re.sub(r'<[^>]+>','',name).replace(' ','')
-                    if '融資金額' not in name:continue
-                    try:amount=float(str(val).replace(',','').strip())
-                    except (TypeError,ValueError):continue
-                    if amount>0:values.append(amount)
-            if len(values)!=1:
-                diagnostics.append({'date':iso,'status':'unrecognized','tables':len(tables),'matching_values':len(values),'keys':list(raw)[:20]});continue
-            by_date[iso]={'date':iso,'balance_1000_twd':values[0],'source_url':url}
-            diagnostics.append({'date':iso,'status':'ok'})
-        except Exception as exc:
-            diagnostics.append({'date':iso,'status':'error','message':str(exc)[:120]})
-        time.sleep(.12)
-    entries=sorted(by_date.values(),key=lambda x:x['date'])[-100:]
-    path.write_text(json.dumps(entries,ensure_ascii=False,indent=2),encoding='utf-8')
-    (data_dir/'twse_dated_margin_diagnostic.json').write_text(json.dumps({'latest_index_date':latest.isoformat(),'attempts':diagnostics,'valid_days':len(entries)},ensure_ascii=False,indent=2),encoding='utf-8')
-    if not entries or entries[-1]['date']!=latest.isoformat():
-        raise ValueError('dated margin balance missing for index trading date; inspect diagnostic')
-    return {'date':latest.isoformat(),'valid_days':len(entries)}
+            raw = fetch(url)
+            if raw.get("stat") != "OK":
+                raise ValueError(str(raw.get("stat")))
+            if str(raw.get("date", "")) != day.replace("-", ""):
+                raise ValueError("margin report date mismatch")
+            return raw, url
+        except (OSError, ValueError, TypeError) as exc:
+            errors.append(f"{route}: {exc}")
+    raise ValueError("TWSE dated margin unavailable: " + "; ".join(errors))
+
+
+def margin_tables(raw):
+    tables = list(raw.get("tables") or [])
+    for key, rows in raw.items():
+        if re.fullmatch(r"data[0-9]*", key) and isinstance(rows, list):
+            tables.append({"fields": raw.get("fields" + key[4:], []), "data": rows})
+    seen = set()
+    for table in tables:
+        signature = json.dumps([table.get("fields"), table.get("data")], ensure_ascii=False)
+        if signature not in seen:
+            seen.add(signature)
+            yield table
+
+
+def margin_total(raw):
+    from decimal import Decimal
+    amounts = []
+    for table in margin_tables(raw):
+        fields = [str(f).strip() for f in table.get("fields", [])]
+        if "項目" not in fields or "今日餘額" not in fields:
+            continue
+        for row in table["data"]:
+            label = re.sub(r"<[^>]*>|\s", "", str(row[fields.index("項目")])).translate(
+                str.maketrans("（）", "()"))
+            if label == "融資金額(仟元)":
+                amounts.append(Decimal(str(row[fields.index("今日餘額")]).replace(",", "")))
+    if len(amounts) != 1 or not amounts[0].is_finite() or amounts[0] <= 0:
+        raise ValueError("TWSE aggregate margin balance missing or ambiguous")
+    return float(amounts[0])
+
+
+def fetch_dated_margin(data_dir, sessions, loader=dated_margin_report):
+    """Fill the 21 verified index sessions, never calendar days or carried balances."""
+    if len(sessions) != 21 or list(sessions) != sorted(set(sessions)):
+        raise ValueError("margin requires 21 ordered distinct index sessions")
+    path = data_dir / "twse_dated_margin.json"
+    saved = json.loads(path.read_text()) if path.exists() else []
+    diagnostics = []
+    latest_report = None
+    errors = {}
+    for day in reversed(sessions):
+        # Recheck the current session so maintenance can use the same dated report.
+        if day != sessions[-1] and any(row["date"] == day and 0 < row["balance_1000_twd"] < float("inf")
+                                      for row in saved):
+            continue
+        try:
+            raw, url = loader(day)
+            if raw.get("stat") != "OK" or str(raw.get("date")) != day.replace("-", ""):
+                raise ValueError("margin report date not verified")
+            amount = margin_total(raw)
+            archive_daily(data_dir, "twse_dated_margin", [
+                {"date": day, "balance_1000_twd": amount, "source_url": url}])
+            if day == sessions[-1]:
+                latest_report = raw, url
+            diagnostics.append({"date": day, "status": "ok"})
+        except (OSError, ValueError, KeyError, TypeError, IndexError, ArithmeticError) as exc:
+            errors[day] = str(exc)[:240]
+            diagnostics.append({"date": day, "status": "failed", "message": errors[day]})
+    current = json.loads(path.read_text()) if path.exists() else []
+    present = {r["date"] for r in current if 0 < r["balance_1000_twd"] < float("inf")}
+    missing = [day for day in sessions if day not in present]
+    (data_dir / "twse_dated_margin_diagnostic.json").write_text(json.dumps(
+        {"latest_index_date": sessions[-1], "attempts": diagnostics, "valid_days": len(current)},
+        ensure_ascii=False, indent=2), encoding="utf-8")
+    return dict(status="partial" if missing else "ok", missing=missing, required=21,
+                date=max(present, default=None), errors=errors), latest_report
+
 
 def archive_daily(data_dir, name, rows):
     path=data_dir/(name+'.json')
@@ -275,9 +290,7 @@ def maintenance(raw, stocks, day, stocks_backup=None):
     def n(v):return Decimal(str(v).replace(',','').strip())
     def clean(v):return re.sub(r'<[^>]*>|\s','',str(v))
     if raw.get('stat')!='OK' or str(raw.get('date',''))!=day.replace('-',''):raise ValueError('margin date not verified')
-    tables=list(raw.get('tables',[]))
-    for k,v in raw.items():
-        if re.fullmatch(r'data\d*',k):tables.append({'fields':raw.get('fields'+k[4:],[]),'data':v})
+    tables=margin_tables(raw)
     amounts=[]; totals=[]; balances={}
     seen=set(); schema=[]; labels=[]
     for t in tables:
@@ -297,10 +310,10 @@ def maintenance(raw, stocks, day, stocks_backup=None):
             j=f.index('今日餘額'); k=f.index('股票代號' if '股票代號' in f else '代號')
             for r in rows:
                 code=clean(r[k]); val=n(r[j])
-                if code in balances or val<0:raise ValueError('invalid margin balance')
+                if code in balances or not val.is_finite() or val<0:raise ValueError('invalid margin balance')
                 balances[code]=val
     print('maintenance diagnostics',json.dumps({'schema':schema,'summary_rows':labels[:10],'amounts':[str(x) for x in amounts],'totals':[str(x) for x in totals],'security_count':len(balances),'sum_lots':str(sum(balances.values()))},ensure_ascii=False))
-    if len(amounts)!=1 or len(totals)!=1 or amounts[0]<=0 or totals[0]<=0 or sum(balances.values())!=totals[0]:raise ValueError(f'margin totals do not reconcile: amounts={amounts}, totals={totals}, securities={len(balances)}, sum_lots={sum(balances.values())}')
+    if len(amounts)!=1 or len(totals)!=1 or not amounts[0].is_finite() or not totals[0].is_finite() or amounts[0]<=0 or totals[0]<=0 or sum(balances.values())!=totals[0]:raise ValueError(f'margin totals do not reconcile: amounts={amounts}, totals={totals}, securities={len(balances)}, sum_lots={sum(balances.values())}')
     roc=str(int(day[:4])-1911)+day[5:7]+day[8:]
     prices={str(r['Code']):r['ClosingPrice'] for r in stocks if str(r.get('Date'))==roc and 'Code' in r and 'ClosingPrice' in r}
     def valid(v):
@@ -339,6 +352,7 @@ def maintenance(raw, stocks, day, stocks_backup=None):
     value=sum((balances[c]*p for c,p in selected.items()),Decimal(0))
     fallback_value=sum((balances[c]*selected[c] for c in fallback),Decimal(0))
     # Historical prices are approximate, not same-day marks. Cap their estimated value contribution.
+    if not value.is_finite() or value <= 0:raise ValueError('invalid financed market value')
     share=fallback_value/value
     if share>Decimal('0.001'):raise ValueError('historical price share exceeds 0.1%: '+str(share))
     print('maintenance fallback',json.dumps(fallback,ensure_ascii=False),'value share',str(share))
@@ -747,14 +761,6 @@ def main(data_dir=None, stock_snapshot=None):
         summary['errors']['twse_dated_breadth']=str(exc)[:240]
         print('twse_dated_breadth failed:',exc)
     try:
-        margin=fetch_dated_margin(data_dir)
-        summary['sources']['twse_dated_margin']={'status':'ok',**margin}
-        print('twse_dated_margin ok',margin)
-    except Exception as exc:
-        summary['sources']['twse_dated_margin']={'status':'failed'}
-        summary['errors']['twse_dated_margin']=str(exc)[:240]
-        print('twse_dated_margin failed:',exc)
-    try:
         if summary['sources'].get('taifex_futures',{}).get('status')=='ok':archive_futures(data_dir)
     except Exception as exc:summary['errors']['futures_history']=str(exc)[:240]
     try:
@@ -768,24 +774,6 @@ def main(data_dir=None, stock_snapshot=None):
         summary['sources']['taifex_vix']={'status':'failed'}
         summary['errors']['taifex_vix']=str(exc)[:240]
         print('taifex_vix failed:',exc)
-    try:
-        if summary['sources'].get('twse_stocks',{}).get('status')!='ok':raise ValueError('stock download failed')
-        stocks=json.loads((data_dir/'twse_stocks.json').read_text())
-        dates={str(r.get('Date','')) for r in stocks}
-        if len(dates)!=1:raise ValueError('mixed stock dates')
-        roc=dates.pop(); day=datetime.strptime(str(int(roc[:3])+1911)+roc[3:],'%Y%m%d').date().isoformat()
-        url='https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date='+day.replace('-','')
-        raw=fetch(url)
-        print('maintenance schema',str([(t.get('fields'),t.get('title')) for t in raw.get('tables',[])])[:3000],list(raw))
-        print('maintenance parser v2.4.5')
-        report=maintenance(raw,dated_maintenance_prices(day),day,stocks)
-        (data_dir/'margin_maintenance.json').write_text(json.dumps(report),encoding='utf-8')
-        summary['sources']['margin_maintenance']={'status':'ok',**report,'url':url}
-    except Exception as exc:
-        (data_dir/'margin_maintenance.json').unlink(missing_ok=True)
-        summary['sources']['margin_maintenance']={'status':'failed'}
-        summary['errors']['margin_maintenance']=str(exc)[:240]
-        print('margin_maintenance failed:',exc)
     try:
         if summary['sources'].get('twse_stocks',{}).get('status')!='ok':raise ValueError('stock download failed')
         stocks=json.loads((data_dir/'twse_stocks.json').read_text())
@@ -812,6 +800,21 @@ def main(data_dir=None, stock_snapshot=None):
         summary['sources']['index_history']={'status':'failed'}
         summary['errors']['index_history']=str(exc)[:240]
         print('index_history failed:',exc)
+    if summary["sources"].get("index_history", {}).get("status") == "ok":
+        try:
+            history = json.loads((data_dir / "index_history.json").read_text())
+            sessions = [r["date"] for r in history["rows"]][-21:]
+            coverage, report = fetch_dated_margin(data_dir, sessions)
+            summary["sources"]["twse_dated_margin"] = coverage
+            if report is None:
+                raise ValueError(coverage["errors"].get(day, "same-day margin report unavailable"))
+            raw, url = report
+            estimated = maintenance(raw, dated_maintenance_prices(day), day, stocks)
+            (data_dir / "margin_maintenance.json").write_text(json.dumps(estimated), encoding="utf-8")
+            summary["sources"]["margin_maintenance"] = dict(status="ok", url=url, **estimated)
+        except Exception as exc:
+            summary["sources"]["margin_maintenance"] = {"status": "failed"}
+            summary["errors"]["margin_maintenance"] = str(exc)[:240]
     try:
         if summary['sources'].get('index_history',{}).get('status')=='ok': backfill_confirmation(data_dir,day,summary)
     except Exception as exc: summary['errors']['confirmation_backfill']=str(exc)[:240]

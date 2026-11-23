@@ -138,3 +138,45 @@ class PutCallTests(unittest.TestCase):
             parse_putcall(html, OLD)
         with self.assertRaisesRegex(ValueError, "reconcile"):
             parse_putcall(html.replace("54.21", "30.90"), NEW)
+
+
+class DatedMarginTests(unittest.TestCase):
+    @staticmethod
+    def report(day, value="100,000"):
+        return {"stat": "OK", "date": day.replace("-", ""), "tables": [
+            {"fields": ["項目", "今日餘額"], "data": [["融資金額(仟元)", value]]}
+        ]}
+
+    def test_backfill_uses_verified_sessions_only_and_reuses_history(self):
+        from scripts.update_snapshot import fetch_dated_margin
+        weekdays = [date(2026, 10, 22) + timedelta(days=n) for n in range(33)]
+        sessions = [str(d) for d in weekdays if d.weekday() < 5 and str(d) != "2026-10-26"][-21:]
+        calls = []
+
+        def loader(day):
+            calls.append(day)
+            if day == NEW and calls.count(NEW) == 1:
+                return self.report(OLD), "https://example.org"
+            return self.report(day), "https://example.org"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            partial, raw = fetch_dated_margin(folder, sessions, loader)
+            self.assertEqual(partial["missing"], [NEW])
+            self.assertIsNone(raw)
+            valid, raw = fetch_dated_margin(folder, sessions, loader)
+            self.assertEqual(valid["missing"], [])
+            self.assertEqual(calls[-1], NEW)
+            self.assertEqual(len(calls), 22)
+            self.assertEqual(len(json.loads((folder / "twse_dated_margin.json").read_text())), 21)
+
+    def test_report_requires_named_amount_column_and_finite_value(self):
+        from scripts.update_snapshot import margin_total
+        self.assertEqual(margin_total(self.report(NEW)), 100000)
+        for value in ("NaN", "Infinity", "0"):
+            with self.assertRaises(ValueError):
+                margin_total(self.report(NEW, value))
+        raw = self.report(NEW)
+        raw["tables"][0]["fields"][1] = "前日餘額"
+        with self.assertRaises(ValueError):
+            margin_total(raw)
