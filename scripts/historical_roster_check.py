@@ -15,7 +15,8 @@ ORIGINS = {"twse", "external", "synthetic"}
 
 def check(report, manifest=None, roster=None):
     dates = report["market_dates"]
-    if not dates or dates != sorted(set(dates)):
+    if (not dates or dates != sorted(set(dates))
+            or any(date.fromisoformat(day).isoformat() != day for day in dates)):
         raise ValueError("expected ordered, unique market dates")
     observations = {}
     if (manifest is None) != (roster is None):
@@ -30,6 +31,8 @@ def check(report, manifest=None, roster=None):
         if (url.scheme != "https" or not url.hostname
                 or date.fromisoformat(collected).isoformat() != collected):
             raise ValueError("invalid roster source provenance")
+        if origin == "twse" and not (url.hostname == "twse.com.tw" or url.hostname.endswith(".twse.com.tw")):
+            raise ValueError("TWSE roster must cite a TWSE source")
         if origin == "external" and (not manifest.get("usage_basis", "").strip()
                                      or not manifest.get("upstream_source", "").strip()):
             raise ValueError("external roster requires upstream and usage declarations")
@@ -52,17 +55,27 @@ def check(report, manifest=None, roster=None):
         if any(not members for members in observations.values()):
             raise ValueError("declared roster date has no members")
     known = listing_windows(report["listing_intervals"])
+    internal_ids = {(r["code"], r["listed_from"]): r["security_id"]
+                    for r in report["listing_intervals"] if r.get("security_id")}
     days = []
     previous = None
+    previously_seen = {}
     for day in dates:
         local = listings_on(known, day)
         observed = observations.get(day)
         row = dict(date=day, reconstructed_codes=sorted(local), observed_members=None,
-                   reconstructed_only=None, observed_only=None, adjacent_changes=None)
+                   reconstructed_only=None, observed_only=None, identity_mismatches=None,
+                   adjacent_changes=None)
         if observed is not None:
             row.update(observed_members=dict(sorted(observed.items())),
                        reconstructed_only=sorted(local.keys() - observed.keys()),
-                       observed_only=sorted(observed.keys() - local.keys()))
+                       observed_only=sorted(observed.keys() - local.keys()),
+                       identity_mismatches=[
+                           dict(code=code, reconstructed=internal_ids[code, local[code][0]],
+                                observed=observed[code])
+                           for code in sorted(local.keys() & observed.keys())
+                           if (code, local[code][0]) in internal_ids
+                           and internal_ids[code, local[code][0]] != observed[code]])
             if previous is not None:
                 before = {identity: code for code, identity in previous.items()}
                 after = {identity: code for code, identity in observed.items()}
@@ -71,9 +84,16 @@ def check(report, manifest=None, roster=None):
                     exited=sorted(previous.keys() - observed.keys()),
                     reused_codes=sorted(code for code in previous.keys() & observed.keys()
                                         if previous[code] != observed[code]),
+                    returned_codes=[
+                        dict(code=code, prior_security_id=previously_seen[code], security_id=observed[code])
+                        for code in sorted(observed.keys() - previous.keys())
+                        if code in previously_seen],
                     ticker_transitions=[dict(security_id=i, previous_code=before[i], current_code=after[i])
                                         for i in sorted(before.keys() & after.keys()) if before[i] != after[i]],
                 )
+            previously_seen.update(observed)
+        else:
+            previously_seen.clear()
         days.append(row)
         previous = observed
     unknown_ranges = []
@@ -84,8 +104,11 @@ def check(report, manifest=None, roster=None):
                 unknown_ranges[-1]["sessions"] += 1
             else:
                 unknown_ranges.append(dict(first=day, last=day, sessions=1))
-    differences = sum(bool(row["observed_only"] or row["reconstructed_only"]) for row in days)
-    return dict(status="BLOCKED" if not observations else "REVIEW" if differences else "PARTIAL",
+    differences = sum(bool(row["observed_only"] or row["reconstructed_only"] or row["identity_mismatches"])
+                      for row in days)
+    complete = len(observations) == len(dates)
+    return dict(status="BLOCKED" if not observations else "REVIEW" if differences or complete else "PARTIAL",
+                delivery_coverage_status="PASS" if complete else "PARTIAL" if observations else "BLOCKED",
                 provenance=manifest, observed_sessions=len(observations), expected_sessions=len(dates),
                 sessions_with_membership_differences=differences, unconfirmed_ranges=unknown_ranges,
                 sessions=days, independent_universe_verified=False, score_eligible=False)

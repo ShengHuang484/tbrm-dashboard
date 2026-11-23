@@ -1,4 +1,5 @@
 import hashlib
+from copy import deepcopy
 import json
 import unittest
 from pathlib import Path
@@ -29,10 +30,10 @@ class DeliveryBundleTest(unittest.TestCase):
         self.cases = [dict(action="reverse_split", code="1101", before_date="2026-11-19",
                            effective_date="2026-11-20", evidence_url="https://example.com/split")]
 
-    def run_bundle(self, rehash=True):
+    def run_bundle(self, rehash=True, alternative=None):
         if rehash:
             self.metadata["bundle_sha256"] = {k: hashlib.sha256(raw).hexdigest() for k, raw in self.files.items()}
-        return review(self.report, self.metadata, self.files, history=self.history, alternative=None,
+        return review(self.report, self.metadata, self.files, history=self.history, alternative=alternative,
                       event_cases=self.cases, local_gaps={"groups": []})
 
     def test_reverse_split_return_and_merger_are_distinct(self):
@@ -60,3 +61,25 @@ class DeliveryBundleTest(unittest.TestCase):
         self.files["trading_status"] += b"2026-11-20,1101,announced_stop,https://example.com/status\n"
         with self.assertRaisesRegex(ValueError, "quoted stock"):
             self.run_bundle()
+
+    def test_synthetic_bundle_replays_alternative_rights_basis_with_other_events(self):
+        self.report["listing_intervals"].append(dict(code="1312", listed_from="2000-01-01", delisted_on=None))
+        self.report["sessions"][0]["eligible_codes"].append("1312")
+        self.report["applied_events"].append(dict(code="1312", ex_date="2026-11-20",
+                                                  reference_price="13.40", event_type="rights_issue"))
+        self.files["listings"] += b"1312,2000-01-01,,S3\n"
+        self.files["roster"] += b"2026-11-19,1312,S3\n2026-11-20,1312,S3\n"
+        self.files["quotes"] += b"2026-11-19,1312,13.40\n2026-11-20,1312,12.80\n"
+        self.files["events"] += b"2026-11-20,1312,rights_issue,,https://example.com/rights\n"
+        self.history["2026-11-19"]["1312"] = "13.20"
+        self.history["2026-11-20"]["1312"] = "12.80"
+        self.cases.append(dict(action="rights_issue", code="1312", before_date="2026-11-19",
+                               effective_date="2026-11-20", evidence_url="https://example.com/rights"))
+        alternative = deepcopy(self.report)
+        alternative["rights_basis"] = "zero-rights"
+        alternative["applied_events"][-1]["reference_price"] = "13.20"
+        alternative["sessions"][0]["adjusted_low_codes"] = ["1312"]
+        result = self.run_bundle(alternative=alternative)["quote_and_low_comparison"]
+        self.assertEqual(result["event_price_checks"][-1]["status"], "within_display_precision")
+        self.assertEqual(result["alternative_event_price_checks"][-1]["status"], "price_basis_difference")
+        self.assertEqual(result["alternative_basis_diagnostic"]["sessions"][0]["local_low_count_on_comparable"], 1)

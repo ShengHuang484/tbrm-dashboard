@@ -1,60 +1,30 @@
 # 52 週新低正式啟用檢查表
 
-正式評分為 45/50，`score_eligible=false`。研究分支及草稿 PR #1 保留兩種 1312 情境。
+正式評分為 45/50，`score_eligible=false`。草稿 PR #1 保留兩種 1312 情境，所有工具只產生研究輸出。
 
-| 項目 | 狀態 | 證據與驗收方法 | 尚缺資料／使用者介入 |
+| 驗收條件 | 狀態 | 目前證據及自動驗收 | 尚缺資料、下一步及使用者介入 |
 | --- | --- | --- | --- |
-| 1312 跨事件外部個案 | PASS | [外部兩日收盤與顯示精度](1312_rights_basis.json)配對封存前後收盤，支持 13.20 元口徑。 | 此個案已驗收，無需介入。 |
-| 988 筆和 10 日逐檔重播 | PARTIAL（內部） | [歷史重播](historical_listing_result.json)比對完整名單 SHA-256。11/20 嚴格 425／944，放寬 463／1,038。 | 完整外部市場資料仍待交付。 |
-| 逐日歷史普通股、停復牌及公司行動 | PARTIAL（已知個案） | [歷史區間](historical_listing_evidence.json)及[缺收盤摘要](missing_close_summary.json)。39 個期內掛牌、5 個期內退出日期對上官方封存，31 段停買已核對。377 個缺收盤有公告證據。公開暫停交易報表未回傳 8105、1435 等已知長期停牌，無法單獨驗證全期交易狀態。 | 全期點時上市與承繼清冊、反分割與停止交易全量資料仍缺。若有授權清冊，可交付。 |
-| 缺收盤歸因（本次重建母體） | PASS | [缺價摘要](missing_close_summary.json)與[TWSE 逐列證據](twse_stock_day_gap_evidence.json)。封存重播核對 964／964 個配對與 10 日資格守門，未知為零。 | 本項無需介入。仍無可恢復資格的收盤。 |
-| 全市場獨立還原價 | BLOCKED | [供應商需求](SUPPLIER_DATA_REQUEST.md)與 [5 類抽樣事件](external_event_cases.json)。驗收會列出兩種 1312 口徑、樣本差異與 10 日逐檔市場差異。 | 需要合法匯出或授權，及調整方式原始文件。 |
-| 正式口徑與啟用 | REVIEW | [1312 重播](1312_rights_scenario.json)顯示 425／424。覈對未決上市、價格與新低差異後確認。 | 需要使用者核准正式指標定義及是否啟用。 |
+| 內部歷史與逐檔重播 | PASS | 固定封存 Actions 核對 262 日、普通股 988 筆因子、10 日名單雜湊及 964 個缺價歸因。11/20 嚴格合格 944 檔。 | 續留封存與 CI 結果。無需介入。 |
+| 官方資料個案 | PARTIAL | [歷史區間](historical_listing_evidence.json)及[封存結果](historical_listing_result.json)對上 39 筆期內掛牌、5 筆退出和 31 段停買。公開暫停交易報表未涵蓋 8105、1435 控制案例。 | 取得全期間轉板、停復牌、反分割與承繼清冊後逐筆檢查。已有合法授權者可交付。 |
+| 外部個股 1312 | PASS | [個案資料](1312_rights_basis.json)中跨事件還原報酬支持 13.20 元。以顯示區間核對前後收盤比值。 | 個股證據已驗收。正式定義或其他公司請在相應驗收項目處理。 |
+| 全市場歷史母體獨立驗證 | BLOCKED | `scripts.historical_roster_check` 輸出逐日成員、證券身分、缺漏區間與覆蓋，獨立觀測目前 0／262。 | 以合法 262 日普通股清冊、永久識別碼及市場別跑批次差異。需資料授權與來源覆核。 |
+| 全市場還原行情獨立驗證 | BLOCKED | `scripts.external_delivery_bundle` 核對六檔 SHA-256、日曆、調整基準日、停牌、事件、逐日比值與 10 日兩口徑低點。合併、反分割及 1312 合成驗收已通過。 | [供應商需求](SUPPLIER_DATA_REQUEST.md)列明交付。取得後核對上游來源、精度、公司行動及使用權，再跑全市場。需合法授權。 |
+| 研究用每日增量 | PARTIAL | 262 日 checkpoint 由 Actions 重建。11/23 證交所原始行情獨立於本地封存取得，已核日期；合成情境驗證跨年、休市、颱風停市、延遲及歷史修正。 | 補齊同日逐日名冊、事件、日曆與缺價證據，完成實際增量驗收。尚無排程或正式計分串接。 |
+| 正式口徑與最後 5 分 | REVIEW | [批次掃描](rights_basis_scan.json)有 61 筆普通股候選參考價差，1312 是唯一上調者。11/20 的 425／424 差異只來自 1312。 | 確認完整外部差異後，由使用者核准價外認購權的正式處理及啟用。 |
 
-全期間 262 日已完成內部行情對重建區間檢查。官方掛牌與停買證據涵蓋已列個案。完整獨立母體、停復牌及還原行情均未取得。
+證交所[每日證券市場概況資訊](https://eshop.twse.com.tw/zh/product/detail/000000006f6a5e3401702de5988d004b)商品說明列出證券別、代碼、ISIN 與上市日，適合作為後續官方歷史核對候選。未購買或取得該份歷史資料，且其來源與本地 TWSE 證據同源。供應商仍須聲明上游、計算方法與授權。
 
-## 外部資料交付規格
+## 執行順序
 
-資料狀態為官方封存已取得、個股外部還原樣本部分取得、全市場獨立授權匯出尚未取得。供應商可按下列欄位交付。
+1. 由封存 Actions 的固定來源重建 `strict.json`。歷史上市重播加入 `--rights-basis zero-rights --rights-evidence research/1312_rights_basis.json` 取得替代基準。
+2. 執行 `python -m scripts.historical_roster_check strict.json --roster roster.csv --manifest roster-manifest.json`。來源 JSON 提供 `origin`、`source_url`、`retrieved_on`、`covered_dates`、`sha256`，外部來源另附 `upstream_source` 與 `usage_basis`。
+3. 依供應商規格執行 `scripts.external_delivery_bundle`，人工覆核價格、上市、事件、停牌及無法比較的列，並核對授權。
+4. 經人工核准後，才評估正式連線及啟用。研究基準二選一的建議是先向供應商驗證價外現增認購權與同期配股規則。對 1312，現有外部樣本支持 13.20；保留官方 13.40 作對照。
 
-- **報價 CSV** 採 `date,code,adjusted_close`、UTF-8、ISO 日期、TWD、十進位原始精度。覆蓋 2025-10-22 至 2026-11-20 共 262 個交易日。每個目標日需含當日與前 252 個市場交易日。未成交或停牌缺價不補 0，也不沿用前收。
-- **交易日曆 CSV** 採 `date`。說明市場休市、颱風補正及日期時區。
-- **上市區間 CSV** 採 `code,listed_from,delisted_on`，下市日為排他邊界。需包含期內下市及重新上市。若代號重用，另附 ISIN 或供應商永續識別碼及承繼關係。
-- **來源說明 JSON** 交付匯出日期、`provider`、`source_url`、`adjustment_method`、`data_origin=provider_adjusted_close`、`usage_basis`。另附幣別與小數位、除息／股票股利／有償現增／減資／分割／反分割及合併的調整規則。現增需說明認購價高於參考價的處理；股利需說明未取位或 TWSE 參考價取位。載明可使用、保留及公開衍生統計的授權範圍。
-- TEJ 公開文件列有 TWN/APRCD1「上市櫃調整股價(日)-除權息調整」。本輪未取得授權匯出或確認歷史下市列、所有事件口徑及價格精度。若已有合法存取，可提供上述 CSV 與方法文件供逐筆驗收。[供應商文件](https://www.tejwin.com/insight/%E8%82%A1%E5%83%B9%E9%97%9C%E9%8D%B5%E5%8F%8D%E6%8C%87%E6%A8%99/)
+## 研究用增量執行
 
-## 核驗命令
-
-先依封存工作流程取得 `adjusted.json`，再執行：
-
-```sh
-python -m scripts.historical_listing_replay data/history/new_low_closes.json adjusted.json \
-  research/issuer_master_20261122.csv research/historical_listing_evidence.json \
-  --strict-report > strict-ordinary.json
-python -m scripts.new_low_baseline_import metadata.json quotes.csv calendar.csv \
-  --listings listings.csv > baseline.json
-python -m scripts.new_low_baseline strict-ordinary.json baseline.json > differences.json
-```
-
-覆核所有差異、缺價與不可比列，透過來源方法和樣本事件確認外部基準獨立性，並以所選口徑保存重播證據。
-
-若要輸出現增認購權取零情境，在歷史重播命令加上 `--rights-basis zero-rights --rights-evidence research/1312_rights_basis.json`。
-
-## 供應商交付自動驗收
-
-增加 `currency=TWD`、`timezone=Asia/Taipei`、`price_decimal_places`、`exported_on`、`rights_basis` 與 `corporate_action_rules` 欄位。規則逐項覆蓋現金股利、股票股利、現增、減資、分割、反分割與合併。供應商應附來源方法與授權；格式檢查不替代對兩者的人工核驗。
-
-```sh
-python -m scripts.external_delivery_check strict-ordinary.json metadata.json quotes.csv calendar.csv listings.csv
-python -m scripts.external_delivery_check research/examples/external_delivery/{report.json,metadata.json,quotes.csv,calendar.csv,listings.csv}
-```
-
-[合成範例](examples/external_delivery)僅展示欄位。驗收會比對雙邊完整交易日曆、報價精度、1312 情境、上市身分與逐檔資格／低點差異，另列未提供的上市歷史。使用者需提供合法供應商匯出與可使用範圍，或提供已授權來源的存取方式。
-
-取得供應商資料後，可加入 `--alternative-report alternate-ordinary.json --raw-history data/history/new_low_closes.json --event-cases research/external_event_cases.json`。替代報表以另一種 1312 口徑重播。跨事件未提供報價及未取樣類別會列出，兩種診斷輸出均維持研究旗標關閉。
-
-## 研究證據範圍
-
-- 歷史掛牌封存核對 39 個期內起點與 5 個期內終點，逐日 262 個市場交易日完成內部重建。完整市場的承繼、停復牌、反分割及存續公司仍待獨立清冊。
-- 外部驗收列出兩種 1312 口徑的逐檔價差與新低差異，並分辨同一識別碼換碼與不同證券重複使用代號。收到全市場匯出後核對檔案 SHA-256、交易日曆、上市期間、調整口徑及授權。
-- 缺價歸因通過、1312 外部個案通過、內部歷史重播通過與市場級獨立驗證是各自的驗收項目。市場級驗證仍為 BLOCKED，正式口徑維持 REVIEW。
+- `python -m scripts.new_low_incremental seed raw-history.json strict.json local-gaps-full.json > checkpoint.json`
+- `python -m scripts.new_low_incremental fetch-quote YYYY-MM-DD input/quotes.json` 下載並保存有日期驗證的原始行情。
+- `python -m scripts.new_low_incremental replay checkpoint.json plan.json input/ > updated-research.json`。每次只追加一個已證實交易日，保留前 252 日所需資料。重複、漏日或待發布都中止，休市僅輸出休市診斷。
+- `plan.json` 包含 `mode`（`append` 或 `correction`）、`origin`（`twse` 或 `synthetic`）、`as_of`、`session`、`checkpoint_sha256`、`sources`（每份 `source_url` 與 `sha256`）。歷史修正另需 `--allow-correction` 和 `revision_note`；歷史日曆修訂或多日補資料應逐日重播或重建封存。
+- `calendar.json` 每曆日列 `date,state,reason`。正常交易另需四檔：原始 `quotes.json`、`listings.json`（`date,intervals,excluded_codes`）、`actions.json`（`date,coverage_reviewed,events`）和 `gaps.json`（`date,reasons`）。名冊需說明官方四位數代號的所有非普通股排除，事件需核來源與日別，缺價需逐檔證據。新 checkpoint 位於輸出 JSON 的 `checkpoint` 欄位。

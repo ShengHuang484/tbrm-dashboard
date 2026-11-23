@@ -41,3 +41,15 @@ class RosterCheckTest(unittest.TestCase):
         self.assertEqual(result["status"], "BLOCKED")
         self.assertEqual(result["observed_sessions"], 0)
         self.assertEqual(result["unconfirmed_ranges"][0]["sessions"], 3)
+
+    def test_contiguous_observations_show_returned_code_and_identifier_disagreement(self):
+        content = (b"date,code,security_id\n2025-12-31,1101,S1\n"
+                   b"2026-01-02,1102,S2\n2026-01-05,1102,S2\n2026-01-05,1101,S3\n")
+        self.report["listing_intervals"][0]["security_id"] = "LOCAL-S1"
+        manifest = dict(self.manifest(content), covered_dates=self.dates)
+        result = check(self.report, manifest, content)
+        self.assertEqual(result["delivery_coverage_status"], "PASS")
+        self.assertEqual(result["status"], "REVIEW")
+        self.assertEqual(result["sessions"][0]["identity_mismatches"][0]["observed"], "S1")
+        self.assertEqual(result["sessions"][-1]["adjacent_changes"]["returned_codes"],
+                         [dict(code="1101", prior_security_id="S1", security_id="S3")])

@@ -5,6 +5,7 @@ from datetime import date
 from pathlib import Path
 
 from scripts.corporate_action_audit import positive
+from scripts.new_low_listing import listing_windows, listings_on
 
 KINDS = {
     "listed_survivor_treasury_share_cancellation": "no_holder_exchange_documented",
@@ -16,8 +17,9 @@ KINDS = {
 }
 
 
-def audit_identity_evidence(history, records):
+def audit_identity_evidence(history, records, listings=None):
     dates = sorted(history)
+    windows = listing_windows(listings) if listings is not None else None
     used = set()
     results = []
     for event in records:
@@ -63,6 +65,18 @@ def audit_identity_evidence(history, records):
             result["predecessor_boundary_conflict"] = bool(subsequent) or not predecessor
             result["successor_already_quoted"] = any(
                 session < day and successor in history[session] for session in dates)
+            if windows is not None:
+                current = listings_on(windows, day)
+                prior_session = max((session for session in dates if session < day), default=None)
+                earlier = listings_on(windows, prior_session) if prior_session else {}
+                old_interval = earlier.get(code)
+                survivor = current.get(successor)
+                result["listing_boundary_review"] = {
+                    "predecessor_exits_on_reference_date": (
+                        old_interval is not None and old_interval[1] == day and code not in current),
+                    "successor_active_on_reference_date": survivor is not None,
+                    "successor_same_listing_interval": survivor is not None and survivor == earlier.get(successor),
+                }
         result["last_pre_reference_close"] = history[predecessor[-1]][code] if predecessor else None
         results.append(result)
     return {"records": results, "corporate_action_completeness_verified": False,
@@ -73,7 +87,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("history", type=Path)
     parser.add_argument("evidence", type=Path)
+    parser.add_argument("--listing-report", type=Path)
     args = parser.parse_args()
+    listings = json.loads(args.listing_report.read_text())["listing_intervals"] if args.listing_report else None
     result = audit_identity_evidence(json.loads(args.history.read_text()),
-                                     json.loads(args.evidence.read_text()))
+                                     json.loads(args.evidence.read_text()), listings)
     print(json.dumps(result, ensure_ascii=False, indent=2))

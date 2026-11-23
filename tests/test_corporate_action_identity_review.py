@@ -34,6 +34,19 @@ class IdentityEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate"):
             audit_identity_evidence({"2026-09-01": {"2867": 9}}, evidence * 2)
 
+    def test_share_exchange_must_distinguish_exit_from_existing_survivor(self):
+        records = json.loads(Path("research/share_identity_evidence.json").read_text())
+        row = next(r for r in records if r["code"] == "2867")
+        history = {"2026-08-31": {"2867": 9, "2884": 30}, "2026-09-01": {"2884": 30}}
+        listings = [dict(code="2867", listed_from="2000-01-01", delisted_on="2026-09-01"),
+                    dict(code="2884", listed_from="2000-01-01", delisted_on=None)]
+        [result] = audit_identity_evidence(history, [row], listings)["records"]
+        self.assertTrue(all(result["listing_boundary_review"].values()))
+        self.assertFalse(result["cross_security_history_splice"])
+        listings[0]["delisted_on"] = "2026-09-02"
+        [result] = audit_identity_evidence(history, [row], listings)["records"]
+        self.assertFalse(result["listing_boundary_review"]["predecessor_exits_on_reference_date"])
+
     def test_deferred_revision_cannot_certify_the_superseded_date(self):
         records = json.loads(Path("research/share_identity_evidence.json").read_text())
         row = next(r for r in records if r["code"] == "3010")
