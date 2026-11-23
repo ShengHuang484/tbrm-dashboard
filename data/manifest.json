@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-23T08:11:14.805523+00:00",
+  "fetched_at_utc": "2026-11-23T08:42:19.913284+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -8,8 +8,9 @@
     },
     "twse_stocks": {
       "status": "ok",
-      "records": 1393,
-      "url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
+      "records": 1394,
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261123",
+      "date": "2026-11-23"
     },
     "twse_margin": {
       "status": "ok",
@@ -43,63 +44,22 @@
     },
     "twse_dated_breadth": {
       "status": "ok",
-      "date": "2026-11-20",
-      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261120&type=MS"
+      "date": "2026-11-23",
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261123&type=MS"
     },
     "twse_dated_margin": {
-      "status": "ok",
-      "date": "2026-11-20",
-      "valid_days": 30
+      "status": "failed"
     },
     "taifex_vix": {
       "status": "ok",
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/202611new.txt"
     },
     "margin_maintenance": {
-      "status": "ok",
-      "date": "2026-11-20",
-      "ratio": 140.4283600296578,
-      "matched_securities": 1242,
-      "provisional": true,
-      "fallback_prices": {
-        "00681R": {
-          "date": "2026-11-19",
-          "price": "22.40",
-          "lots": "2",
-          "age_days": 1,
-          "source": "TWSE MI_INDEX",
-          "basis_verified": false,
-          "reason": "missing same-day close"
-        },
-        "00682U": {
-          "date": "2026-11-18",
-          "price": "21.46",
-          "lots": "2",
-          "age_days": 2,
-          "source": "TWSE MI_INDEX",
-          "basis_verified": false,
-          "reason": "missing same-day close"
-        },
-        "1808": {
-          "date": "2026-11-11",
-          "price": "31.00",
-          "lots": "3828",
-          "age_days": 9,
-          "source": "TWSE MI_INDEX",
-          "basis_verified": false,
-          "reason": "extended quote gap; corporate action basis unverified"
-        }
-      },
-      "fallback_value_pct": 0.01943048392036747,
-      "extended_gap_codes": [
-        "1808"
-      ],
-      "price_basis_verified": false,
-      "url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261120"
+      "status": "failed"
     },
     "new_low": {
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "method": "raw_close_proxy",
       "valid_days": 262,
       "required_days": 262,
@@ -111,14 +71,13 @@
       "adjustment_status": "unverified",
       "score_eligible": false,
       "eligible": 940,
-      "latest_stock_count": 1090,
-      "coverage": 0.86239,
+      "latest_stock_count": 1091,
+      "coverage": 0.86159,
       "cohort_method": "fixed_262_day_complete_history",
       "cohort_bias_warning": "Excludes IPOs, delisted and securities without all 262 closes",
       "corporate_action_verified": false,
       "corporate_action_method": "none; daily price jumps are only screening flags",
       "window_dates": [
-        "2026-11-09",
         "2026-11-10",
         "2026-11-11",
         "2026-11-12",
@@ -127,12 +86,12 @@
         "2026-11-17",
         "2026-11-18",
         "2026-11-19",
-        "2026-11-20"
+        "2026-11-20",
+        "2026-11-23"
       ],
       "window_jump_flagged_securities": 0,
       "window_jump_samples": {},
       "latest_10_daily_universe_counts": [
-        1091,
         1089,
         1088,
         1088,
@@ -141,14 +100,14 @@
         1089,
         1090,
         1090,
-        1090
+        1090,
+        1091
       ],
       "minimum_daily_universe_count": 1051,
       "price_adjustment_validation_required": true,
       "dynamic_universe_research_only": {
         "method": "daily_252_prior_closes; strict new low; unadjusted",
         "counts": [
-          65,
           93,
           81,
           85,
@@ -157,10 +116,10 @@
           182,
           104,
           308,
-          483
+          483,
+          171
         ],
         "eligible_stock_counts": [
-          941,
           940,
           940,
           941,
@@ -169,10 +128,10 @@
           942,
           943,
           944,
-          946
+          946,
+          948
         ],
         "missing_lookback_counts": [
-          150,
           149,
           148,
           147,
@@ -181,10 +140,10 @@
           147,
           147,
           146,
-          144
+          144,
+          143
         ],
         "coverage_by_day": [
-          0.86251,
           0.86318,
           0.86397,
           0.86489,
@@ -193,10 +152,11 @@
           0.86501,
           0.86514,
           0.86606,
-          0.86789
+          0.86789,
+          0.86893
         ],
-        "minimum_coverage": 0.86251,
-        "eligible_count_range": 6,
+        "minimum_coverage": 0.86318,
+        "eligible_count_range": 8,
         "score_eligible": false,
         "warning": "Raw prices are not corporate-action-adjusted; universe changes can bias counts"
       },
@@ -329,7 +289,6 @@
         ]
       },
       "counts": [
-        64,
         93,
         81,
         85,
@@ -338,11 +297,12 @@
         182,
         104,
         308,
-        482
+        482,
+        170
       ],
-      "previous_avg": 69.6,
-      "recent_avg": 246.8,
-      "decline_pct": -254.59770114942532,
+      "previous_avg": 88.4,
+      "recent_avg": 249.2,
+      "decline_pct": -181.90045248868776,
       "proxy_points_not_scored": 0,
       "blocking_reasons": [
         "Unadjusted close prices: dividends, rights, splits and capital reductions unverified",
@@ -352,8 +312,8 @@
     },
     "index_history": {
       "status": "ok",
-      "date": "2026-11-20",
-      "records": 255
+      "date": "2026-11-23",
+      "records": 256
     },
     "breadth_history": {
       "status": "ok",
@@ -366,10 +326,15 @@
       "errors": {}
     },
     "margin_calendar_check": {
-      "status": "ok",
-      "missing": [],
+      "status": "partial",
+      "missing": [
+        "2026-11-23"
+      ],
       "required": 21
     }
   },
-  "errors": {}
+  "errors": {
+    "twse_dated_margin": "dated margin balance missing for index trading date; inspect diagnostic",
+    "margin_maintenance": "margin date not verified"
+  }
 }

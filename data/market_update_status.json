@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-11-23T08:42:15.649049+00:00",
+  "expected_session": "2026-11-23",
+  "last_valid_session": "2026-11-23",
+  "status": "PARTIAL",
+  "download_status": "partial",
+  "date_valid": true,
+  "warnings": {
+    "stock_openapi": "STOCK_DAY_ALL 2026-11-20; expected 2026-11-23",
+    "twse_dated_margin": "dated margin balance missing for index trading date; inspect diagnostic",
+    "margin_maintenance": "margin date not verified",
+    "taifex_putcall": "來源日期 2026-11-20，預期 2026-11-23",
+    "taifex_futures": "來源日期 2026-11-20，預期 2026-11-23",
+    "margin_calendar_check": "歷史資料缺漏 2026-11-23"
+  },
+  "source_stock_session": "2026-11-20",
+  "published_stock_source": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261123"
+}

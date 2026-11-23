@@ -14,5 +14,13 @@
     "down": 1058,
     "limit_down": 179,
     "source_url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261120&type=MS"
+  },
+  {
+    "date": "2026-11-23",
+    "up": 652,
+    "limit_up": 43,
+    "down": 362,
+    "limit_down": 9,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261123&type=MS"
   }
 ]
