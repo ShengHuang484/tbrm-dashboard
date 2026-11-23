@@ -36,3 +36,7 @@
 ## 歷史母體來源實查
 
 [TWSE／TPEx／政府開放平臺與 FinMind 查詢證據](historical_source_probe_20261123.json)保留端點、雜湊、查得日期與適用範圍。免費來源可核個案或當期快照。歷史獨立母體仍為 **BLOCKED，0／262**。
+
+## 11/23 真實增量
+
+[實查與守門輸出](incremental_acceptance_20261123.json)為 **BLOCKED**。日曆、官方行情、一般板 ISIN、創新板行情分表、1538 缺價及 1808 減資參考已核對；創新板永久識別、完整事件及依全母體核對的缺價仍待補。可用 `python -m scripts.new_low_session_probe 2026-11-23 checkpoint.json raw-directory/` 重播已保存的原始輸入。檔名為報告 `sources` 內各鍵加 `.raw`，每份位元以其雜湊核對。

@@ -1,0 +1,173 @@
+{
+  "status": "BLOCKED",
+  "session": "2026-11-23",
+  "calendar": [
+    {
+      "date": "2026-11-21",
+      "state": "closed",
+      "reason": "official monthly market trading report"
+    },
+    {
+      "date": "2026-11-22",
+      "state": "closed",
+      "reason": "official monthly market trading report"
+    },
+    {
+      "date": "2026-11-23",
+      "state": "open",
+      "reason": "official monthly market trading report"
+    }
+  ],
+  "checkpoint_sha256": "8a586b78cadf6a219b1e18f7033bf2c569b104508a592e50ce0177a27ccf1299",
+  "seed_input_sha256": {
+    "new_low_closes.json": "9c63b0534fc9db94f4069662c055b1014e76e329f8fa0ce67ce7967152e547e8",
+    "strict.json": "1177755c1f201b365ddccfa9b3134fa5db39c3557bf4351138b6615b849ab090",
+    "full-final.json": "e877de99f99b6d2a06e4533194368781107621ae425113089706987d5448e725"
+  },
+  "official_quote_codes": 1092,
+  "valid_close_codes": 1091,
+  "identified_general_board_codes": 1057,
+  "identified_missing_quote_codes": [
+    "1538"
+  ],
+  "innovation_board_trade_table_codes": [
+    "2237",
+    "2254",
+    "2258",
+    "2432",
+    "3150",
+    "4195",
+    "4582",
+    "4590",
+    "6534",
+    "6645",
+    "6771",
+    "6854",
+    "6908",
+    "6921",
+    "6924",
+    "6949",
+    "6951",
+    "6955",
+    "6969",
+    "6988",
+    "7610",
+    "7631",
+    "7730",
+    "7740",
+    "7803",
+    "7812",
+    "7823",
+    "7827",
+    "7835",
+    "8162",
+    "8487"
+  ],
+  "quoted_codes_outside_observed_boards": [
+    "9103",
+    "9105",
+    "9110",
+    "9136"
+  ],
+  "reduction_observations": [
+    {
+      "code": "1808",
+      "old_session": "2026-11-11",
+      "old_close": "31.00",
+      "exchange_reference": "36.25",
+      "official_close": "34.85"
+    }
+  ],
+  "ex_right_response": "很抱歉，沒有符合條件的資料!",
+  "confirmed_gap_reasons": {
+    "1538": "activity_without_close"
+  },
+  "gap_evidence": {
+    "code": "1538",
+    "month": "2026-11",
+    "source_url": "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY?response=json&date=20261101&stockNo=1538",
+    "report_title": "115年11月 1538 正峰             各日成交資訊",
+    "response_sha256": "0e8f64a728d9804364de3040893a6c5753476e1404d72d3513a1109a92431fbe",
+    "fields": [
+      "日期",
+      "成交股數",
+      "成交金額",
+      "開盤價",
+      "最高價",
+      "最低價",
+      "收盤價",
+      "漲跌價差",
+      "成交筆數",
+      "註記"
+    ],
+    "requested_sessions": [
+      "2026-11-23"
+    ],
+    "raw_rows": [
+      [
+        "115/11/23",
+        "2",
+        "12",
+        "--",
+        "--",
+        "--",
+        "--",
+        " 0.00",
+        "2",
+        ""
+      ]
+    ],
+    "evidence_sha256": "9ab8133ea912c77d3914de0e7bbb276f59c668cb8057f94bb5769da9c8ba362f"
+  },
+  "replay_error": "open session requires all five source files",
+  "blocked_inputs": [
+    "complete dated ordinary-share roster with Innovation Board security identifiers and scope exclusions",
+    "complete reviewed corporate-action coverage",
+    "gap status reconciled against the complete roster"
+  ],
+  "sources": {
+    "quotes": {
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261123",
+      "sha256": "c29cb3f92f7853f13662acd4cbfb9835ba04f643c89fe3779b90505ebdd144db",
+      "bytes": 249028,
+      "body_scope": "full"
+    },
+    "calendar": {
+      "url": "https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date=20261101",
+      "sha256": "9303bf3ea5509015e746a780f0af2db9c2652fd80da015feb6c2c43388dc8a42",
+      "bytes": 1897,
+      "body_scope": "full"
+    },
+    "isin_prefix": {
+      "url": "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2",
+      "sha256": "a36a3510fd6057b21a6b3c8a23e40cd9a29809822bf1d1250f50132245e5a6e8",
+      "bytes": 8000000,
+      "body_scope": "downloaded_prefix"
+    },
+    "tib": {
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=TIB&date=20261123",
+      "sha256": "8da4e60ff1c5cae883a0c48dcec1a646d14d1436dd45acc43eb415489e63b6ce",
+      "bytes": 5931,
+      "body_scope": "full"
+    },
+    "reduction": {
+      "url": "https://www.twse.com.tw/exchangeReport/TWTAUU?response=json&startDate=20261123&endDate=20261123",
+      "sha256": "9a9bd3d10de938634faf0727532b991bafe102f40ac024282f3cf99dea6752ec",
+      "bytes": 1226,
+      "body_scope": "full"
+    },
+    "ex_right": {
+      "url": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20261123&endDate=20261123",
+      "sha256": "2bc084ac1baf83d0dcbfd05912fa194882fa4364bf03d32dfbf56a0bcd3f9098",
+      "bytes": 51,
+      "body_scope": "full"
+    },
+    "stock_1538": {
+      "url": "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY?response=json&date=20261101&stockNo=1538",
+      "sha256": "0e8f64a728d9804364de3040893a6c5753476e1404d72d3513a1109a92431fbe",
+      "bytes": 1870,
+      "body_scope": "full"
+    }
+  },
+  "score_eligible": false
+}
