@@ -15,6 +15,12 @@ def audit(history, report, lifecycle, activity, activity_source):
     dates = report["market_dates"]
     if dates != sorted(history):
         raise ValueError("research calendar does not match archived quotes")
+    lookback = report["lookback"]
+    if type(lookback) is not int or not 1 <= lookback < len(dates):
+        raise ValueError("invalid research lookback")
+    study_dates = [row["date"] for row in report["sessions"]]
+    if study_dates != dates[lookback:]:
+        raise ValueError("study dates do not match strict market-session windows")
     positions = {day: i for i, day in enumerate(dates)}
     windows = listing_windows(report["listing_intervals"])
     missing = {
@@ -47,7 +53,7 @@ def audit(history, report, lifecycle, activity, activity_source):
     excluded_by_listing = {}
     for row in report["sessions"]:
         day = row["date"]
-        start = dates[positions[day] - report["lookback"]]
+        start = dates[positions[day] - lookback]
         active = listings_on(windows, day)
         eligible = set(row["eligible_codes"])
         excluded_by_listing[day] = dict(
@@ -57,13 +63,15 @@ def audit(history, report, lifecycle, activity, activity_source):
         for code, interval in active.items():
             if interval[0] > start:
                 continue
-            if code in eligible:
-                continue
             for index in range(positions[start], positions[day] + 1):
                 gap_day = dates[index]
                 if (key := (code, gap_day)) in missing:
                     candidates[key].append(day)
                     blockers[code, day].add(gap_day)
+        expected = {code for code, (listed_from, _) in active.items()
+                    if listed_from <= start and (code, day) not in blockers}
+        if eligible != expected or len(row["eligible_codes"]) != len(eligible):
+            raise ValueError(f"eligible codes do not match strict quote windows on {day}")
 
     summary = {}
     groups = []
@@ -129,6 +137,17 @@ def audit(history, report, lifecycle, activity, activity_source):
         groups=groups, quote_activity_source=activity_source, score_eligible=False)
 
 
+def summarize(result):
+    groups = result["groups"]
+    queue = result["unknown_priority_queue"]
+    return {key: value for key, value in result.items() if key != "groups"} | dict(
+        group_count=len(groups),
+        highest_priority_unknowns=[g for g in groups if g["reason"] == "unknown"][:10],
+        unknown_priority_queue=queue[:20],
+        priority_queue_truncated=len(queue) > 20,
+    )
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     for arg in ("history", "report", "lifecycle", "activity", "sources"):
@@ -142,9 +161,5 @@ if __name__ == "__main__":
     result["source_artifact_sha256"] = activity["raw_sha256"]
     result["input_sha256"] = {k: hashlib.sha256(v).hexdigest() for k, v in payloads.items()}
     if args.summary:
-        groups = result.pop("groups")
-        result.update(group_count=len(groups), highest_priority_unknowns=[
-            g for g in groups if g["reason"] == "unknown"][:10])
-        result["unknown_priority_queue"] = result["unknown_priority_queue"][:20]
-        result["priority_queue_truncated"] = result["unknown_group_count"] > 20
+        result = summarize(result)
     print(json.dumps(result, ensure_ascii=False, indent=2))

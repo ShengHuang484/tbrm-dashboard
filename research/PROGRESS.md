@@ -289,3 +289,8 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - `scripts.missing_close_audit` 新增 `unknown_priority_queue`、`unknown_group_count`、`unknown_pairs`，按現有分群及研究日阻礙資訊標記 critical / high / historical；critical 代表該區間是至少一個研究日資格的唯一缺口，不代表一定是新低。摘要輸出只展示前 20 段並標示截斷。
 - 新增分類配對總數必須等於缺價總數的守門檢查；不補價、不推斷停牌、不改正式計分。基準仍為已記錄的 411 已分類、553 未知／964，需以新的研究封存重播確認。
 - 本次修改已提交研究分支；尚未完成本次 CI 或回歸測試驗收，不能將先前 111 項測試視為本提交已通過。下一步：補充優先佇列測試、執行研究工作流程、核對輸出及來源證據。
+
+## 2026-11-23 優先佇列封存驗收
+
+- 下載兩份固定 GitHub Actions 封存，重跑交易日、上市及缺收盤流程。確認 964 個缺收盤配對中 411 已分類、553 未知。未知共 415 段，依市場交易日分為 37 段 critical、371 段 high、7 段 historical。11/20 仍有 83 檔只因未知缺價而排除。
+- 新增測試核對分群、排序、分母與嚴格合格名單。摘要只截斷輸出，完整模式保留全部區間。已更新封存重播預期輸出。113 項本地測試通過，正式維持 45/50、score_eligible=false。

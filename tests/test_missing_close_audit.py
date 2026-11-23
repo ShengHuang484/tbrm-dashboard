@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.missing_close_audit import audit
+from scripts.missing_close_audit import audit, summarize
 
 
 class MissingCloseAuditTests(unittest.TestCase):
@@ -40,3 +40,38 @@ class MissingCloseAuditTests(unittest.TestCase):
         [lead] = result["possible_action_stops"]
         self.assertEqual(lead["observed_resumption"], self.c)
         self.assertEqual(result["classification"]["unknown"]["pairs"], 2)
+
+    def test_priority_partition_and_summary_are_reproducible(self):
+        dates = [self.a, self.b, self.c, "2026-01-13", "2026-01-14"]
+        critical = "1101"
+        high = "1102"
+        historical = [str(code) for code in range(1200, 1222)]
+        history = {day: {} for day in dates}
+        for day in (dates[0], dates[2], dates[4]):
+            history[day][high] = 10
+        for day in dates[1:]:
+            history[day][critical] = 10
+        report = dict(market_dates=dates, lookback=4, listing_intervals=[
+            dict(code=code, listed_from=dates[0], delisted_on=dates[1] if code in historical else None)
+            for code in (critical, high, *historical)],
+            sessions=[dict(date=dates[-1], eligible_codes=[], adjusted_low_count=0)])
+        self.lifecycle["coverage"]["missing_close_pairs"] = 25
+        result = audit(history, report, self.lifecycle, self.activity, "https://example.com")
+        queue = result["unknown_priority_queue"]
+        self.assertEqual([r["priority"] for r in queue], ["critical", "high", "high"] + ["historical"] * 22)
+        self.assertEqual(sum(r["pairs"] for r in queue), 25)
+        self.assertEqual(sum(r["pairs"] for r in result["classification"].values()), 25)
+        preview = summarize(result)
+        self.assertEqual(preview["unknown_priority_queue"], queue[:20])
+        self.assertTrue(preview["priority_queue_truncated"])
+        self.assertEqual(result["unknown_group_count"], len(result["groups"]))
+        self.assertEqual(len(result["unknown_priority_queue"]), 25)
+
+    def test_rejects_inconsistent_report_or_denominator(self):
+        self.report["sessions"][0]["eligible_codes"] = ["1101"]
+        with self.assertRaisesRegex(ValueError, "strict quote windows"):
+            audit(self.history, self.report, self.lifecycle, self.activity, "https://example.com")
+        self.report["sessions"][0]["eligible_codes"] = []
+        self.lifecycle["coverage"]["missing_close_pairs"] = 1
+        with self.assertRaisesRegex(ValueError, "denominator"):
+            audit(self.history, self.report, self.lifecycle, self.activity, "https://example.com")
