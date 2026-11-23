@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from scripts.corporate_action_audit import positive
+from scripts.corporate_action_external_validation import compare_transition
 from scripts.new_low_adjusted_audit import audit_adjusted_lows
 
 
@@ -35,7 +36,16 @@ def compare(history, report, evidence):
             changes.append(dict(date=old["date"], original=old["adjusted_low_count"],
                                 scenario=new["adjusted_low_count"],
                                 removed=sorted(removed), added=sorted(added)))
-    return dict(code=key[0], effective_date=key[1], sessions=len(scenario["sessions"]),
+    external = evidence.get("external_transition")
+    transition = {}
+    if external is not None:
+        sample = dict(external, code=key[0], effective_date=key[1])
+        transition = {
+            name: compare_transition(history, dict(sample, reference=reference))
+            for name, reference in (("official_reference", evidence["official_reference"]),
+                                    ("zero_rights_value", str(close)))
+        }
+    return dict(external_transition=transition, code=key[0], effective_date=key[1], sessions=len(scenario["sessions"]),
                 changed_sessions=changes, score_eligible=False)
 
 

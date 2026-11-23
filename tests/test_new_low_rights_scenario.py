@@ -19,3 +19,18 @@ class RightsScenarioTest(unittest.TestCase):
         self.assertEqual(event["reference_price"], "13.40")
         with self.assertRaisesRegex(ValueError, "above-market"):
             compare(history, report, dict(evidence, subscription_price="13.10"))
+
+    def test_external_transition_distinguishes_references_at_display_precision(self):
+        import json
+        from pathlib import Path
+
+        evidence = json.loads(Path("research/1312_rights_basis.json").read_text())
+        days = ["2026-06-10", "2026-06-11"]
+        history = dict(zip(days, [{"1312": 13.2}, {"1312": 12.85}]))
+        event = dict(code="1312", ex_date=days[1], prior_close="13.20", reference_price="13.40",
+                     event_type="monthly_ex_right_reconciled", verified=True,
+                     source_url=evidence["official_method_source"])
+        report = dict(audit_adjusted_lows(history, [event], 1), applied_events=[event])
+        result = compare(history, report, evidence)["external_transition"]
+        self.assertFalse(result["official_reference"]["agrees_with_display_precision"])
+        self.assertTrue(result["zero_rights_value"]["agrees_with_display_precision"])

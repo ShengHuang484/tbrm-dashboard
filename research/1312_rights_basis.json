@@ -17,5 +17,13 @@
     "target_displayed_close": "10",
     "window_observations": 240,
     "required_observations": 253
+  },
+  "official_method_source": "https://www.twse.com.tw/zh/announcement/ex-right/twt49u.html",
+  "external_transition": {
+    "before_date": "2026-06-10",
+    "external_before": "13.2",
+    "external_after": "12.8",
+    "display_step": "0.10",
+    "source_url": "https://goodinfo.tw/tw/ShowK_Chart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=1312"
   }
 }
