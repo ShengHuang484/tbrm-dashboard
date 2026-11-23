@@ -76,3 +76,13 @@ python -m scripts.supplier_sample_check /path/to/delivery
 - **PASS（exit 0）**範例輸出為 `{"intake_status":"PASS","coverage":"three_samples_only","license_and_independence_review":"REVIEW","score_eligible":false}`。可執行 `python -m unittest tests.test_supplier_sample_check.SupplierSampleTest.test_synthetic_pass_keeps_independence_and_scoring_unverified` 重現合成案例。
 - **FAIL（exit 1）**可對 repo 內的欄位範例直接跑驗收。範例只有兩筆名冊，結果會報 `roster does not match the same-source reference count and identity digest`。原始位元雜湊不符、前後身分混接、停牌日填價或 1312 使用同一折算因子，也會明確拒絕。
 - 小樣 PASS 表示檔案與本地研究對照相符。供應商上游獨立性、使用權及全歷史範圍須另行驗證。現況 **等待外部合法交付**。
+
+### 11/23 公司行動生效清冊的指定交付
+
+| 來源 | 請提供 2026-11-23 的項目 |
+|---|---|
+| [TWSE T48 除權息及上下市資訊檔](https://eshop.twse.com.tw/zh/product/detail/000000006e0bbe8d016f182105d90328) | 原始檔、產製日期及生效日與範圍聲明。依公開格式，資料區分 1 為除權息計算結果、2 為預告、3 為上市、4 為下市。計算結果依生效日比對，預告保留為獨立資料；上下市列的參考價欄為零。 |
+| [TWSE A24 除權除息資訊](https://eshop.twse.com.tw/zh/product/detail/c96acc4e31d442eab373414c9f134844) | 普通股除權息及減資檔，附原始位元與公告及有效日欄位說明。普通股減資以恢復交易日比對，1808 是應命中的正控制。 |
+| 交易所生效公告及可核對清冊 | 面額變更、分割、反分割、股份轉換、合併及換發新股。請包含代號／ISIN、有效交易日、舊新證券對照、換股條件及公告連結。若該日無某類生效事件，請明列所確認的證券與事件範圍。 |
+
+上列檔案皆需附研究、留存及重播授權。T48 和 A24 的商品說明僅能確認欄位及產品涵蓋種類；仍須取得 11/23 實際檔案與交易所生效清冊。公開 [T48 格式檔](https://eshop.twse.com.tw/uploadFile/upload/000000006e0bbe8d016f3b0984a1038a.docx) SHA-256 為 `114335e5a51e7237cabcbfc1ec275b5193cdc2302fc0517a09f0e4d584b288d8`。

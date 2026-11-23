@@ -78,3 +78,5 @@ python -m scripts.session_action_coverage checkpoint.json raw-directory/ supplem
 | 上市日欄位差異 | PARTIAL，11 筆已歸因、4 筆待查 | 4934 官方日線個案已補證。未解欄位為 1303、1449、2491、6133，優先向交易所取得舊欄位來源及公告。 |
 | 小樣交付準備／實際驗證 | PASS／BLOCKED | 取得合法 2867、1312、11/23 小樣，跑一鍵驗收，再審上游及授權。 |
 | 正式計分 | 45/50，`score_eligible=false` | 等待全市場阻擋解除與口徑核准。 |
+
+11/23 公司行動資料的下一次交付可依 [T48、A24 及額外生效公告清單](SUPPLIER_DATA_REQUEST.md#1123-公司行動生效清冊的指定交付) 索取。公開格式已核對，仍需同日實際檔案與涵蓋範圍聲明。
