@@ -32,3 +32,7 @@
 ## 封存持續性
 
 研究 workflow 以 PR head 為準，固定封存以原始 ZIP 雜湊驗收。若 GitHub artifact 到期，研究重播會停止，需從獲准保留的副本恢復相同雜湊。
+
+## 歷史母體來源實查
+
+[TWSE／TPEx／政府開放平臺與 FinMind 查詢證據](historical_source_probe_20261123.json)保留端點、雜湊、查得日期與適用範圍。免費來源可核個案或當期快照。歷史獨立母體仍為 **BLOCKED，0／262**。
