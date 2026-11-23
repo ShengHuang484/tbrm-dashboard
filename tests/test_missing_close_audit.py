@@ -2,7 +2,7 @@ import json
 import unittest
 
 from scripts.missing_close_audit import audit, summarize
-from scripts.twse_stock_day_gaps import capture
+from scripts.twse_stock_day_gaps import capture, collect
 
 
 class MissingCloseAuditTests(unittest.TestCase):
@@ -105,3 +105,22 @@ class MissingCloseAuditTests(unittest.TestCase):
         raw["data"].append(raw["data"][0])
         with self.assertRaisesRegex(ValueError, "duplicate"):
             capture("1101", "2026-01", [self.a], json.dumps(raw).encode())
+
+    def test_collection_ranks_new_monthly_requests_by_remaining_pairs(self):
+        raw = dict(stat="OK", date="20260101", title="115年01月 1101 Test",
+                   fields=["日期", "成交股數", "成交筆數", "收盤價"],
+                   data=[["115/01/08", "0", "0", "--"]])
+        evidence = capture("1101", "2026-01", [self.a], json.dumps(raw).encode())
+        calls = []
+
+        def download(url):
+            calls.append(url)
+            return json.dumps(dict(raw, title="115年01月 1102 Test")).encode()
+
+        queue = [dict(code=code, first=self.a, last=self.b, priority="high") for code in ("1101", "1102")]
+        result = collect(queue, [self.a, self.b, self.c], download, ["high"], 1, lambda: None,
+                         existing=[evidence], rank_by_pairs=True)
+        self.assertEqual(len(calls), 1)
+        self.assertTrue(calls[0].endswith("stockNo=1102"))
+        self.assertEqual(result["batches"][0]["requested_sessions"], [self.a, self.b])
+        self.assertEqual(result["planned_requests"], 2)

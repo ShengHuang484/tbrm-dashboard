@@ -109,15 +109,20 @@ def capture(code, month, days, body):
     return result
 
 
-def collect(queue, market_dates, fetch, priorities, limit, pause):
+def collect(queue, market_dates, fetch, priorities, limit, pause, *, existing=(), rank_by_pairs=False):
+    checked = {key for key, _ in replay_evidence(existing)}
     targets = defaultdict(set)
     for group in queue:
         if group["priority"] in priorities:
+            code = group["code"]
             for day in market_dates:
-                if group["first"] <= day <= group["last"]:
-                    targets[group["code"], day[:7]].add(day)
+                if group["first"] <= day <= group["last"] and (code, day) not in checked:
+                    targets[code, day[:7]].add(day)
+    ordered = list(targets.items())
+    if rank_by_pairs:
+        ordered.sort(key=lambda item: -len(item[1]))
     evidence, unavailable = [], []
-    for (code, month), days in list(targets.items())[:limit]:
+    for (code, month), days in ordered[:limit]:
         url = source_url(code, month)
         try:
             evidence.append(capture(code, month, days, fetch(url)))
@@ -141,12 +146,16 @@ if __name__ == "__main__":
     parser.add_argument("history", type=Path)
     parser.add_argument("--priority", choices=("critical", "high", "historical"), action="append")
     parser.add_argument("--limit", type=int, default=40)
+    parser.add_argument("--existing-evidence", type=Path)
+    parser.add_argument("--rank-by-pairs", action="store_true")
     args = parser.parse_args()
     result = json.loads(args.audit.read_text())
     if result.get("priority_queue_truncated"):
         parser.error("complete audit required")
     if args.limit < 1:
         parser.error("request limit must be positive")
+    existing = json.loads(args.existing_evidence.read_text())["batches"] if args.existing_evidence else ()
     print(json.dumps(collect(result["unknown_priority_queue"], sorted(json.loads(args.history.read_text())),
-                             download, args.priority or ["critical"], args.limit, lambda: sleep(0.8)),
+                             download, args.priority or ["critical"], args.limit, lambda: sleep(0.8),
+                             existing=existing, rank_by_pairs=args.rank_by_pairs),
                      ensure_ascii=False, separators=(",", ":")))
