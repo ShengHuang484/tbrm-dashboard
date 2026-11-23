@@ -1,7 +1,20 @@
 """Check archived-input research runs against committed stock-level results."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
+
+
+def membership_digest(session):
+    """Fingerprint every eligible and adjusted-low security, independent of input order."""
+    eligible = session["eligible_codes"]
+    lows = session["adjusted_low_codes"]
+    if (len(set(eligible)) != len(eligible) or len(set(lows)) != len(lows)
+            or not set(lows) <= set(eligible) or len(eligible) != session["strict_eligible"]
+            or len(lows) != session["adjusted_low_count"]):
+        raise ValueError("inconsistent stock-level membership")
+    payload = json.dumps([sorted(eligible), sorted(lows)], separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def check_replay(adjusted, expected_adjusted, sensitivity, expected_sensitivity):
@@ -13,8 +26,10 @@ def check_replay(adjusted, expected_adjusted, sensitivity, expected_sensitivity)
     if len(adjusted["sessions"]) != len(expected_adjusted["sessions"]):
         raise ValueError("archive replay session count mismatch")
     for actual, expected in zip(adjusted["sessions"], expected_adjusted["sessions"]):
+        if membership_digest(actual) != expected["membership_sha256"]:
+            raise ValueError(f"archive replay membership mismatch: {expected['date']}")
         for key, value in expected.items():
-            if actual.get(key) != value:
+            if key != "membership_sha256" and actual.get(key) != value:
                 raise ValueError(f"archive replay mismatch: {expected['date']} {key}")
     if sensitivity != expected_sensitivity:
         raise ValueError("quote-policy sensitivity replay mismatch")

@@ -6,13 +6,9 @@ on:
       - research/new-low-quality-gates-20261123
     paths:
       - '.github/workflows/new-low-archive-replay.yml'
-      - 'scripts/new_low_replay_check.py'
-      - 'scripts/action_completeness.py'
-      - 'scripts/monthly_ex_right_scenario.py'
-      - 'scripts/new_low_adjusted_audit.py'
-      - 'scripts/new_low_policy_sensitivity.py'
-      - 'research/monthly_action_run.json'
-      - 'research/quote_policy_sensitivity.json'
+      - 'scripts/*.py'
+      - 'research/*.json'
+      - 'data/history/new_low_closes.json'
   workflow_dispatch:
 
 permissions:
