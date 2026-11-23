@@ -55,3 +55,12 @@ jobs:
             research/issuer_master_20261122.csv research/historical_listing_evidence.json \
             --listings-archive research/lifecycle_crosscheck_results.json > historical-listing.json
           diff -u research/historical_listing_result.json historical-listing.json
+      - name: Replay missing-close attribution and study impact
+        run: |
+          python -m scripts.historical_listing_replay data/history/new_low_closes.json adjusted.json \
+            research/issuer_master_20261122.csv research/historical_listing_evidence.json \
+            --strict-report > strict-gap-source.json
+          python -m scripts.missing_close_audit data/history/new_low_closes.json strict-gap-source.json \
+            historical-listing.json research/endpoint_gap_results.json \
+            research/endpoint_gap_evidence.json --summary > gap-summary.json
+          diff -u research/missing_close_summary.json gap-summary.json
