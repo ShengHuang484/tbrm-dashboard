@@ -133,3 +133,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 新增 `python -m scripts.new_low_baseline_import metadata.json quotes.csv calendar.csv --listings listings.csv > baseline.json`，再執行 `python -m scripts.new_low_baseline local-report.json baseline.json`。輸入欄位分別為 `date,code,adjusted_close`、`date`、`code,listed_from,delisted_on`。metadata 需包含 provider、source_url、adjustment_method、data_origin（provider_adjusted_close）及 usage_basis。程式拒絕重複、非交易日、無效價格及自行還原來源聲明，並記錄輸入雜湊。
 - 如提供外部上市期間，逐日獨立算出外部嚴格合格母體、新低檔數、本地獨有／外部獨有的合格股票，及兩邊交集內逐檔新低判定差異。即使數值一致，仍保留對資料供應來源、授權、歷史條件及全市場完整性的人工覆核。
 - 新增 [Goodinfo 6669 還原日收](https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=6669) 個案，9/01 與 9/02 分別為 2,614.99 及 2,610，精確吻合該事件的回調價格基準。8422 仍未取得同一外部還原序列兩端。未找到免費市場級完整匯出，維持關閉；73 項本地測試通過。
+
+## 2026-11-23 調整後分母與缺價政策敏感度
+
+- `python -m scripts.new_low_policy_sensitivity data/history/new_low_closes.json action-report.json` 使用同一組生效日與係數重跑嚴格 252 市場交易日和最近 252 筆有效報價兩種政策。稀疏窗口不得跨重新上市區間，也不能使用當日或未來行情補足前序報價。新增停牌間隔跨事件、相等不算新低、重掛牌分隔測試。
+- 以 990 事件重跑 10 天，兩政策對連續報價的共同股票逐日一致。11/20 改用最近 252 筆報價會另外納入 94 檔（946 → 1,040），調整後新低增加 38 檔（425 → 463）。[逐檔敏感度結果](quote_policy_sensitivity.json)保存每日新增母體與新低股票。嚴格市場日仍為基準，外部市場比較拒絕使用敏感度模式輸出。
+- 本地 75 項測試通過。剩餘主動工時估計 4–12 小時，取得資料與授權等待另計。需找可核對的全期間存續公司、反分割及上市／停牌紀錄，並取得同口徑外部還原價，才能重跑逐日逐檔驗證。正式仍為 45/50、`score_eligible=false`。

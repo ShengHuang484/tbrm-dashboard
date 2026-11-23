@@ -5,9 +5,12 @@ from decimal import Decimal
 from pathlib import Path
 
 from scripts.new_low_listing import listing_windows, listings_on
+from scripts.new_low_adjusted_audit import STRICT_SESSIONS
 
 
 def compare(report, baseline):
+    if report.get("quote_policy", STRICT_SESSIONS) != STRICT_SESSIONS:
+        raise ValueError("external comparator requires the strict market-session policy")
     for field in ("provider", "source_url", "adjustment_method"):
         if not isinstance(baseline.get(field), str) or not baseline[field].strip():
             raise ValueError(f"missing baseline provenance: {field}")
