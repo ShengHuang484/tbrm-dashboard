@@ -39,7 +39,7 @@
 
 ## 11/23 真實增量
 
-[實查與守門輸出](incremental_acceptance_20261123.json)為 **BLOCKED**。日曆、官方行情、一般板 ISIN、創新板行情分表、1538 缺價及 1808 減資參考已核對；創新板永久識別、完整事件及依全母體核對的缺價仍待補。可用 `python -m scripts.new_low_session_probe 2026-11-23 checkpoint.json raw-directory/` 重播已保存的原始輸入。檔名為報告 `sources` 內各鍵加 `.raw`，每份位元以其雜湊核對。
+[實查與守門輸出](incremental_acceptance_20261123.json)為 **BLOCKED**。日曆、官方行情、1,088 檔普通股 ISIN、4 筆 TDR 排除、1538 缺價及 1808 減資基準已核對。名冊為同源當日交叉核對，完整事件與 15 筆歷史起日差仍須覆核。可用 `python -m scripts.new_low_session_probe 2026-11-23 checkpoint.json raw-directory/ --identity-retrieved-on 2026-11-23` 重播已保存的原始輸入。檔名為報告 `sources` 內各鍵加 `.raw`，每份位元以其雜湊核對。
 
 ## 獨立還原日線存取
 

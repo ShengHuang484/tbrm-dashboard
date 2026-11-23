@@ -7,12 +7,17 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 from scripts.corporate_action_audit import positive
+from scripts.historical_roster_check import check as check_roster
 from scripts.new_low_incremental import QUOTE_URL, advance, digest, parse_closes
 from scripts.new_low_baseline_import import security_code
+from scripts.new_low_listing import listing_windows, listings_on
 from scripts.twse_corporate_action_parser import roc_date
 from scripts.twse_stock_day_gaps import capture, replay_evidence, source_url
 
 ISIN_URL = "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2"
+TIB_ISIN_URL = ("https://isin.twse.com.tw/isin/class_main.jsp?"
+                "owncode=&stockname=&isincode=&market=C&issuetype=C&industry_code=&Page=1&chklike=Y")
+TDR_ISIN_URL = "https://isin.twse.com.tw/isin/class_main.jsp?chklike=Y&issuetype=J&market=1"
 
 
 class Rows(HTMLParser):
@@ -75,7 +80,29 @@ def ordinary_isin_prefix(raw, day):
     return identities
 
 
-def evidence_report(day, checkpoint, inputs):
+def scoped_isins(raw, market, kind, cfi_prefix):
+    parser = Rows()
+    parser.feed(raw.decode("cp950"))
+    identifiers = {}
+    header = ["頁面編號", "國際證券編碼", "有價證券代號", "有價證券名稱", "市場別", "有價證券別",
+              "產業別", "公開發行/上市(櫃)/發行日", "CFICode", "備註"]
+    if not parser.rows or parser.rows[0] != header:
+        raise ValueError("unexpected scoped ISIN report schema")
+    for number, row in enumerate(parser.rows[1:], start=1):
+        index, isin, code, _, actual_market, actual_kind, _, listed_on, cfi, _ = row
+        if (index != str(number) or (market, kind) != (actual_market, actual_kind)
+                or not cfi.startswith(cfi_prefix) or not re.fullmatch(r"[1-9][0-9]{3,5}", code)
+                or not re.fullmatch(r"[A-Z]{2}[A-Z0-9]{9}[0-9]", isin)
+                or code in identifiers):
+            raise ValueError(f"invalid scoped ISIN row for {code}")
+        identifiers[code] = dict(security_id=isin, listed_from=date.fromisoformat(
+            listed_on.replace("/", "-")).isoformat())
+    if not identifiers or len({row["security_id"] for row in identifiers.values()}) != len(identifiers):
+        raise ValueError("empty or duplicated scoped ISIN identities")
+    return identifiers
+
+
+def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
     historical = json.loads(checkpoint)
     history = historical["history"]
     previous = max(history)
@@ -135,14 +162,6 @@ def evidence_report(day, checkpoint, inputs):
                 as_of=day, sources={
                     "calendar": dict(source_url=calendar_url, sha256=digest(normalized_calendar)),
                     "quotes": dict(source_url=QUOTE_URL + day_compact, sha256=digest(inputs["quotes"]))})
-    try:
-        advance(checkpoint, plan, {"calendar": normalized_calendar, "quotes": inputs["quotes"]}.__getitem__)
-    except ValueError as exc:
-        if str(exc) != "open session requires all five source files":
-            raise
-        blocked = str(exc)
-    else:
-        raise ValueError("partial source probe unexpectedly advanced checkpoint")
     sources = {
         "quotes": QUOTE_URL + day_compact,
         "calendar": calendar_url,
@@ -152,6 +171,63 @@ def evidence_report(day, checkpoint, inputs):
         "ex_right": f"https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate={day_compact}&endDate={day_compact}",
         "stock_1538": source_url("1538", day[:7]),
     }
+    normalized = {"calendar": normalized_calendar, "quotes": inputs["quotes"]}
+    scoped_evidence = {}
+    blockers = ["complete dated ordinary-share roster with Innovation Board security identifiers and scope exclusions",
+                "complete reviewed corporate-action coverage", "gap status reconciled against the complete roster"]
+    expected_error = "open session requires all five source files"
+    if {"tib_isin", "tdr_isin"} & inputs.keys():
+        if identity_retrieved_on != day or not {"tib_isin", "tdr_isin"} <= inputs.keys():
+            raise ValueError("scoped ISIN evidence requires both reports and same-day capture")
+        tib_ids = scoped_isins(inputs["tib_isin"], "上市臺灣創新板", "創新板", "ES")
+        tdr_ids = scoped_isins(inputs["tdr_isin"], "上市", "臺灣存託憑證(TDR)", "ED")
+        exclusions = quotes.keys() - roster.keys() - tib.keys()
+        ids = roster | tib_ids
+        windows = listing_windows(historical["listing_intervals"])
+        active = listings_on(windows, day)
+        if (tib_ids.keys() != tib.keys() or len({r["security_id"] for r in ids.values()}) != len(ids)
+                or exclusions != {code for code in tdr_ids if security_code(code)}
+                or ids.keys() != active.keys() or any(row["listed_from"] > day for row in ids.values())):
+            raise ValueError("scoped ISIN evidence and the checkpoint's session membership disagree")
+        reasons = {"1538": gap["1538", day]}
+        if {code for code in ids if not quotes.get(code)} != reasons.keys():
+            raise ValueError("complete ordinary scope has unresolved missing closes")
+        roster_csv = ("date,code,security_id\n" + "".join(
+            f"{day},{code},{ids[code]['security_id']}\n" for code in sorted(ids))).encode()
+        membership = check_roster(dict(market_dates=[day], listing_intervals=historical["listing_intervals"]),
+                                  dict(origin="twse", retrieved_on=identity_retrieved_on, covered_dates=[day],
+                                       source_url=ISIN_URL, sha256=digest(roster_csv)), roster_csv)
+        scoped_evidence = dict(
+            identity_retrieved_on=identity_retrieved_on, same_source_ordinary_member_count=len(ids),
+            roster_check=dict(delivery_coverage_status=membership["delivery_coverage_status"],
+                              sessions_with_membership_differences=membership["sessions_with_membership_differences"],
+                              normalized_roster_sha256=digest(roster_csv)),
+            innovation_board_isins={code: row["security_id"] for code, row in tib_ids.items()},
+            tdr_exclusions={code: tdr_ids[code]["security_id"] for code in sorted(exclusions)},
+            listing_start_differences=[dict(code=code, archived=active[code][0], isin=ids[code]["listed_from"])
+                                       for code in sorted(ids) if active[code][0] != ids[code]["listed_from"]],
+            independent_membership_verified=False)
+        normalized.update({
+            "listings": json.dumps(dict(date=day, intervals=historical["listing_intervals"],
+                                        excluded_codes=sorted(exclusions))).encode(),
+            "gaps": json.dumps(dict(date=day, reasons=reasons)).encode(),
+            "actions": json.dumps(dict(date=day, coverage_reviewed=False, events=[])).encode(),
+        })
+        for kind, url in (("listings", ISIN_URL), ("gaps", sources["stock_1538"]), ("actions", sources["reduction"])):
+            plan["sources"][kind] = dict(source_url=url, sha256=digest(normalized[kind]))
+        sources.update(tib_isin=TIB_ISIN_URL, tdr_isin=TDR_ISIN_URL)
+        expected_error = "session action evidence is incomplete"
+        blockers = ["complete reviewed corporate-action coverage"]
+        if scoped_evidence["listing_start_differences"]:
+            blockers.append("resolve the observed listing-start differences before updating historical intervals")
+    try:
+        advance(checkpoint, plan, normalized.__getitem__)
+    except ValueError as exc:
+        if str(exc) != expected_error:
+            raise
+        blocked = str(exc)
+    else:
+        raise ValueError("partial source probe unexpectedly advanced checkpoint")
     return dict(status="BLOCKED", session=day, calendar=decisions,
                 checkpoint_sha256=digest(checkpoint), seed_input_sha256=historical["seed_input_sha256"],
                 official_quote_codes=len(quotes), valid_close_codes=sum(v is not None for v in quotes.values()),
@@ -161,9 +237,8 @@ def evidence_report(day, checkpoint, inputs):
                 quoted_codes_outside_observed_boards=sorted(quotes.keys() - roster.keys() - tib.keys()),
                 reduction_observations=events, ex_right_response=ex_right["stat"],
                 confirmed_gap_reasons={"1538": gap["1538", day]}, gap_evidence=gap_evidence, replay_error=blocked,
-                blocked_inputs=["complete dated ordinary-share roster with Innovation Board security identifiers and scope exclusions",
-                                "complete reviewed corporate-action coverage",
-                                "gap status reconciled against the complete roster"],
+                blocked_inputs=blockers, scoped_identity_evidence=scoped_evidence,
+                replay_input_sha256={key: digest(value) for key, value in normalized.items()},
                 sources={k: dict(url=sources[k], sha256=digest(value), bytes=len(value),
                                 body_scope="downloaded_prefix" if k == "isin_prefix" else "full")
                          for k, value in inputs.items()},
@@ -175,8 +250,12 @@ if __name__ == "__main__":
     parser.add_argument("session")
     parser.add_argument("checkpoint", type=Path)
     parser.add_argument("evidence", type=Path)
+    parser.add_argument("--identity-retrieved-on")
     args = parser.parse_args()
     inputs = {key: (args.evidence / (key + ".raw")).read_bytes() for key in
               ("quotes", "calendar", "isin_prefix", "tib", "reduction", "ex_right", "stock_1538")}
-    report = evidence_report(args.session, args.checkpoint.read_bytes(), inputs)
+    if args.identity_retrieved_on:
+        inputs.update({key: (args.evidence / (key + ".raw")).read_bytes() for key in ("tib_isin", "tdr_isin")})
+    report = evidence_report(args.session, args.checkpoint.read_bytes(), inputs,
+                             identity_retrieved_on=args.identity_retrieved_on)
     print(json.dumps(report, ensure_ascii=False, indent=2))

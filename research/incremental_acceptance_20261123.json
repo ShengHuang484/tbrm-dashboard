@@ -119,12 +119,144 @@
     ],
     "evidence_sha256": "9ab8133ea912c77d3914de0e7bbb276f59c668cb8057f94bb5769da9c8ba362f"
   },
-  "replay_error": "open session requires all five source files",
+  "replay_error": "session action evidence is incomplete",
   "blocked_inputs": [
-    "complete dated ordinary-share roster with Innovation Board security identifiers and scope exclusions",
     "complete reviewed corporate-action coverage",
-    "gap status reconciled against the complete roster"
+    "resolve the observed listing-start differences before updating historical intervals"
   ],
+  "scoped_identity_evidence": {
+    "identity_retrieved_on": "2026-11-23",
+    "same_source_ordinary_member_count": 1088,
+    "roster_check": {
+      "delivery_coverage_status": "PASS",
+      "sessions_with_membership_differences": 0,
+      "normalized_roster_sha256": "95cb0191fb6fae15f9941378e480367dfac23f7b5ca64cbf9434672a1361a8d7"
+    },
+    "innovation_board_isins": {
+      "2237": "TW0002237005",
+      "2254": "TW0002254000",
+      "2258": "TW0002258001",
+      "2432": "TW0002432002",
+      "3150": "TW0003150009",
+      "4195": "TW0004195003",
+      "4582": "TW0004582002",
+      "4590": "TW0004590005",
+      "6534": "TW0006534001",
+      "6645": "TW0006645005",
+      "6771": "TW0006771009",
+      "6854": "KYG7148D1025",
+      "6908": "TW0006908007",
+      "6921": "TW0006921000",
+      "6924": "KYG2954S1030",
+      "6949": "TW0006949001",
+      "6951": "TW0006951007",
+      "6955": "TW0006955008",
+      "6969": "TW0006969009",
+      "6988": "TW0006988009",
+      "7610": "TW0007610B14",
+      "7631": "TW0007631B19",
+      "7730": "TW0007730004",
+      "7740": "TW0007740003",
+      "7803": "TW0007803009",
+      "7812": "TW0007812000",
+      "7823": "KYG2668C1050",
+      "7827": "KYG4277B1068",
+      "7835": "TW0007835001",
+      "8162": "TW0008162009",
+      "8487": "TW0008487000"
+    },
+    "tdr_exclusions": {
+      "9103": "TW0009103002",
+      "9105": "TW0009105007",
+      "9110": "TW0009110007",
+      "9136": "TW0009136002"
+    },
+    "listing_start_differences": [
+      {
+        "code": "1303",
+        "archived": "1967-11-15",
+        "isin": "1967-11-05"
+      },
+      {
+        "code": "1337",
+        "archived": "2011-08-17",
+        "isin": "2011-07-01"
+      },
+      {
+        "code": "1340",
+        "archived": "2014-01-14",
+        "isin": "2013-12-06"
+      },
+      {
+        "code": "1449",
+        "archived": "1992-05-06",
+        "isin": "1992-03-12"
+      },
+      {
+        "code": "2491",
+        "archived": "2001-09-19",
+        "isin": "2001-09-17"
+      },
+      {
+        "code": "3054",
+        "archived": "2002-11-18",
+        "isin": "2026-09-01"
+      },
+      {
+        "code": "3717",
+        "archived": "2025-08-15",
+        "isin": "2018-05-09"
+      },
+      {
+        "code": "4934",
+        "archived": "2011-08-16",
+        "isin": "2010-03-10"
+      },
+      {
+        "code": "5292",
+        "archived": "2023-11-21",
+        "isin": "2020-01-07"
+      },
+      {
+        "code": "6133",
+        "archived": "2003-08-25",
+        "isin": "2003-08-15"
+      },
+      {
+        "code": "6757",
+        "archived": "2023-08-15",
+        "isin": "2024-11-29"
+      },
+      {
+        "code": "6794",
+        "archived": "2024-05-21",
+        "isin": "2025-10-16"
+      },
+      {
+        "code": "6869",
+        "archived": "2023-03-14",
+        "isin": "2024-06-19"
+      },
+      {
+        "code": "6902",
+        "archived": "2023-07-13",
+        "isin": "2025-05-16"
+      },
+      {
+        "code": "7780",
+        "archived": "2025-09-09",
+        "isin": "2026-01-19"
+      }
+    ],
+    "independent_membership_verified": false
+  },
+  "replay_input_sha256": {
+    "calendar": "a83db645df2e2335caf175edb52cde31f0b4316c25b3fa725151a83477e51dbf",
+    "quotes": "c29cb3f92f7853f13662acd4cbfb9835ba04f643c89fe3779b90505ebdd144db",
+    "listings": "1415555b42c79b77efc3d3572af28610251e896d4ff1df5c9d80e6e8e93b1e71",
+    "gaps": "785de54e29f2d6bdc5612ee74a7c9939e05accffe7f82f96328fec402f897c39",
+    "actions": "897cd8847aa912db3ae7c01fd1e41fb22e19effc2ef2aaa3d2b2984e54ac1775"
+  },
   "sources": {
     "quotes": {
       "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261123",
@@ -166,6 +298,18 @@
       "url": "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY?response=json&date=20261101&stockNo=1538",
       "sha256": "0e8f64a728d9804364de3040893a6c5753476e1404d72d3513a1109a92431fbe",
       "bytes": 1870,
+      "body_scope": "full"
+    },
+    "tib_isin": {
+      "url": "https://isin.twse.com.tw/isin/class_main.jsp?owncode=&stockname=&isincode=&market=C&issuetype=C&industry_code=&Page=1&chklike=Y",
+      "sha256": "550dc2c054b280b5efe21d8e4c1cbac7d712e02975b181bd56d7469477fa7750",
+      "bytes": 16082,
+      "body_scope": "full"
+    },
+    "tdr_isin": {
+      "url": "https://isin.twse.com.tw/isin/class_main.jsp?chklike=Y&issuetype=J&market=1",
+      "sha256": "b01d87b09f276c90a0b4fc1817e4042201b2297d8eda15a7885fd12a89d9af0d",
+      "bytes": 5719,
       "body_scope": "full"
     }
   },
