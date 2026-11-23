@@ -1,0 +1,34 @@
+[
+  {
+    "code": "2305",
+    "reference_date": "2026-10-15",
+    "kind": "listed_survivor_treasury_share_cancellation",
+    "price_basis_status": "no_holder_exchange_documented",
+    "sources": [
+      "https://www.nstock.tw/news/article_m?id=557439",
+      "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=f4de9b34-8494-4337-98c0-a87de518bb68"
+    ]
+  },
+  {
+    "code": "2887",
+    "reference_date": "2026-08-12",
+    "kind": "subsidiary_merger_announcement",
+    "price_basis_status": "exchange_applies_to_subsidiary",
+    "sources": [
+      "https://news.cnyes.com/news/print/6573843",
+      "https://web.taishinbank.com.tw/TSB/personal/common/news/TSBankNews-008090/"
+    ]
+  },
+  {
+    "code": "2867",
+    "reference_date": "2026-09-01",
+    "kind": "listed_share_exchange",
+    "price_basis_status": "cross_security_exchange",
+    "successor": "2884",
+    "new_shares_per_old_share": "0.2596",
+    "sources": [
+      "https://news.cnyes.com/news/print/6548591",
+      "https://www.cna.com.tw/news/afe/202607130297.aspx"
+    ]
+  }
+]
