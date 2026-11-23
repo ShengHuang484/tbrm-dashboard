@@ -87,6 +87,8 @@ jobs:
             historical-listing.json research/endpoint_gap_results.json \
             research/endpoint_gap_evidence.json --official-evidence research/twse_stock_day_gap_evidence.json \
             > missing-close-full.json
+          python -m scripts.new_low_incremental seed data/history/new_low_closes.json \
+            strict-gap-source.json missing-close-full.json > research-checkpoint.json
       - uses: actions/upload-artifact@v4
         with:
           name: new-low-missing-close-review
