@@ -25,7 +25,6 @@ FILE_DATES = {
     "margin_maintenance": (None, "date"),
     "twse_dated_margin": ("latest", "date"),
     "taifex_putcall": ("latest", "Date"),
-    "taifex_futures": ("latest", "Date"),
     "tpex_index": ("latest", "Date"),
     "breadth_history": ("latest", "date"),
     "futures_history": ("latest", "date"),
@@ -145,6 +144,8 @@ def validate_core(staging, target, close):
 
 def source_warnings(staging, manifest, target):
     warnings = {key: str(value)[:240] for key, value in manifest.get("errors", {}).items()}
+    if manifest["sources"].get("futures_history", {}).get("status") == "ok":
+        warnings.pop("taifex_futures", None)
     for key, (shape, field) in FILE_DATES.items():
         try:
             rows = read(staging / (key + ".json"))
@@ -156,6 +157,8 @@ def source_warnings(staging, manifest, target):
             warnings.setdefault(key, "尚未取得有效資料日期")
     for key, value in manifest["sources"].items():
         if value.get("status") == "partial":
+            if key == "twse_dated_margin" and target in value.get("errors", {}):
+                warnings[key] = str(value["errors"][target])[:240]
             warnings.setdefault(key, f"歷史資料缺漏 {', '.join(value.get('missing', []))}")
     return warnings
 
@@ -216,11 +219,24 @@ def refresh(data_dir, now, *, fetch=update_snapshot.fetch, update=update_snapsho
                                   download_status="rejected_regression")
                     return status
             copytree(staging, data_dir, dirs_exist_ok=True)
-        status.update(status="PARTIAL" if warnings else "FRESH", date_valid=True,
+        status.update(status="PARTIAL" if warnings else "VALID", date_valid=True,
                       last_valid_session=target, warnings=status["warnings"] | warnings,
                       download_status="partial" if warnings else "complete")
     except (OSError, ValueError, KeyError, TypeError, SystemExit) as exc:
         status["warnings"]["market_refresh"] = str(exc)[:350]
+        if target == previous and target is not None:
+            # A transport failure does not invalidate a close already verified for this session.
+            try:
+                published = read(data_dir / "market_update_status.json")
+                if not published["date_valid"] or published["last_valid_session"] != target:
+                    raise ValueError("there is no previously verified close for this session")
+                close = read(data_dir / "index_history.json")["rows"][-1]["close"]
+                manifest = validate_core(data_dir, target, close)
+                pending = source_warnings(data_dir, manifest, target)
+                status.update(status="PARTIAL" if pending else "VALID", date_valid=True,
+                              download_status="retained_verified", warnings=status["warnings"] | pending)
+            except (OSError, ValueError, KeyError, TypeError, IndexError):
+                pass
     return status
 
 

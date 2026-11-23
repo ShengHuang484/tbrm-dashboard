@@ -6,6 +6,7 @@ on:
     - cron: '7 7 * * 1-5' # 15:07 Taiwan time, backup
     - cron: '37 8 * * 1-5' # 16:37 Taiwan time, backup
     - cron: '15 9 * * 1-5' # 17:15 Taiwan time, weekdays
+    - cron: '43 12 * * 1-5' # 20:43 Taiwan time, after margin publication window
     - cron: '15 15 * * 1-5' # 23:15 Taiwan time, weekdays
 permissions:
   contents: read
@@ -45,8 +46,16 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
           status = json.loads(Path("data/market_update_status.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### 市場資料核對\n")
+              for field in ("status", "expected_session", "last_valid_session", "download_status"):
+                  summary.write(f"- {field}: {status.get(field)}\n")
+              for source, warning in status["warnings"].items():
+                  warning = str(warning).replace("\n", " ")[:240]
+                  summary.write(f"- {source}: {warning}\n")
           if not status["date_valid"]:
               print("::error::Expected market close is unavailable. Last valid snapshot was retained.")
               raise SystemExit(1)

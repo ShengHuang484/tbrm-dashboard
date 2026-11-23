@@ -309,11 +309,13 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
   info.push('櫃買資料已核對');
  }catch(e){label('櫃買指數','未採用：'+e.message)}
  try{
-  const a=normalized(await read('taifex_putcall'));
+  const meta=(await read('manifest')).sources?.taifex_putcall;
+  const a=normalized(await read('taifex_putcall')).filter(x=>x.date!==date||meta?.status!=='failed');
   const eligible=a.filter(x=>x.date<=date);
   const latest=latestDate(eligible);
   if(!latest)throw Error('沒有不晚於加權指數 '+date+' 的有效日期資料');
   const same=eligible.filter(x=>x.date===latest);
+  if(same.length!==1)throw Error('Put/Call 日期資料列不唯一');
   // Multiple rows can be returned; prefer the first valid volume ratio.
   let pct=null;
   for(const {row:x} of same){
@@ -373,15 +375,22 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
    label('ADR 改善',prior+' → '+date+'；單日廣度代理');
   }catch(e){label('ADR 改善',e.message)}
   try{
-   const rows=await read('futures_history');const c=num(rows.find(r=>r.date===date)?.net),b=num(rows.find(r=>r.date===prior)?.net);
-   if(c===null||b===null)throw Error('缺相鄰交易日期貨部位');
+   const rows=await read('futures_history');
+   const currentRows=rows.filter(r=>r.date===date),previousRows=rows.filter(r=>r.date===prior);
+   if(currentRows.length!==1||previousRows.length!==1||
+      !Number.isInteger(currentRows[0].net)||!Number.isInteger(previousRows[0].net))
+    throw Error('缺唯一且有效的相鄰交易日期貨部位');
+   const c=currentRows[0].net,b=previousRows[0].net;
    const delta=Math.max(0,-b)-Math.max(0,-c);
    updateItem(confirm,'外資期貨淨空單改善',delta,delta>=5000?5:delta>=2000?3:delta>0?1:0,delta.toLocaleString()+' 口（淨空單減少量）');
    label('外資期貨改善',prior+' → '+date);
   }catch(e){label('外資期貨改善',e.message)}
   try{
    const rows=await read('twse_dated_margin');const days=tradingDates.slice(-21);
-   const vals=days.map(d=>num(rows.find(r=>r.date===d)?.balance_1000_twd));
+   const vals=days.map(d=>{
+    const matches=rows.filter(r=>r.date===d);
+    return matches.length===1?num(matches[0].balance_1000_twd):null;
+   });
    if(days.length!==21||vals.some(v=>v===null||v<=0))throw Error('缺完整21個交易日融資餘額');
    const pct=(vals[20]/vals[0]-1)*100;
    updateItem(warning,'20 日融資餘額變化',pct,pct<=-20?7:pct<=-10?5:pct<=-5?3:0,pct.toFixed(2)+'%（21筆連續交易日）');
@@ -415,23 +424,14 @@ async function loadOfficialSnapshots(date,taiexPct,tradingDates){
   label('外資現貨',`${sourceDate}，${billions.toFixed(2)} 億元${sourceDate===date?'（同日，僅市場概況）':'（非同日，僅市場概況）'}`);
   info.push('外資現貨已顯示');
  }catch(e){label('外資現貨','未顯示：'+e.message)}
- // 外資期貨：只讀「臺股期貨」契約的外資淨未平倉，不混入其他契約。
+ // The same dated TX foreign position used by the scoring history drives the tile.
  try{
-  const rows=await read('taifex_futures');
-  if(!Array.isArray(rows)||!rows.length)throw Error('來源為空');
-  const keys=Object.keys(rows[0]);
-  const contractKey=keys.find(k=>/^(ContractCode|Contract|商品|契約)$/.test(k));
-  const itemKey=keys.find(k=>/^(Item|Investor|InvestorType|身份別|身分別|法人別)$/.test(k));
-  const netKey=keys.find(k=>/^OpenInterest\(Net\)$|^OpenInterestNet$|^未平倉餘額\(淨額\)$|^未平倉淨額$/.test(k));
-  if(!contractKey||!itemKey||!netKey)throw Error('欄位待確認：'+keys.join('、'));
-  const candidates=rows.map(row=>({row,date:dateOf(row)})).filter(x=>x.date<=date&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&/^(TX|臺股期貨|台股期貨)$/.test(String(x.row[contractKey]).trim())&&/外資及陸資|外資/.test(String(x.row[itemKey])));
-  const latest=latestDate(candidates);
-  const same=candidates.filter(x=>x.date===latest);
-  if(same.length!==1)throw Error('臺股期貨外資資料列不唯一或不存在（'+same.length+' 筆）');
-  const value=num(same[0].row[netKey]);
-  if(value===null||!Number.isInteger(value))throw Error('淨未平倉口數無效');
+  const rows=await read('futures_history');
+  const same=rows.filter(r=>r.date===date);
+  if(same.length!==1||!Number.isInteger(same[0].net))throw Error('缺當日臺股期貨外資淨未平倉');
+  const value=same[0].net;
   document.getElementById('foreignFutures').textContent=(value>0?'+':'')+value.toLocaleString('en-US');
-  label('外資期貨',`${latest}，臺股期貨外資淨未平倉 ${value.toLocaleString('en-US')} 口（僅市場概況）`);
+  label('外資期貨',`${date}，臺股期貨外資淨未平倉 ${value.toLocaleString('en-US')} 口`);
   info.push('外資期貨已顯示');
  }catch(e){label('外資期貨','未顯示：'+e.message)}
  // 漲跌停必須使用官方收盤價及漲跌停價欄位，不能用 -10% 粗估。
