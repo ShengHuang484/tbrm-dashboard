@@ -32,8 +32,25 @@ def compare(report, baseline):
             raise ValueError(f"invalid baseline close: {day}")
 
     external_listings = listing_windows(baseline['listings']) if 'listings' in baseline else None
+    daily_coverage = []
+    if external_listings is not None:
+        for day in dates:
+            active = listings_on(external_listings, day)
+            quoted = adjusted.get(day, {})
+            daily_coverage.append({
+                "date": day, "active_listings": len(active), "quoted_active": len(active.keys() & quoted.keys()),
+                "missing_active_codes": sorted(active.keys() - quoted.keys()),
+                "quotes_outside_listings": sorted(quoted.keys() - active.keys()),
+            })
     results = []
     positions = {day: i for i, day in enumerate(dates)}
+    lookback = report["lookback"]
+    if not isinstance(lookback, int) or not 1 <= lookback < len(dates):
+        raise ValueError("invalid research lookback")
+    evaluated = [r["date"] for r in report["sessions"]]
+    if len(set(evaluated)) != len(evaluated) or set(evaluated) - set(dates[lookback:]):
+        raise ValueError("invalid or duplicate research session")
+    missing_sessions = sorted(set(dates[lookback:]) - set(evaluated))
     for row in report["sessions"]:
         day = row["date"]
         i = positions[day]
@@ -41,6 +58,8 @@ def compare(report, baseline):
         if len(window) != report["lookback"]:
             raise ValueError("baseline lacks the complete lookback")
         local_lows = set(row["adjusted_low_codes"])
+        if not local_lows <= set(row["eligible_codes"]):
+            raise ValueError("local low outside research cohort")
         comparable, missing, external_lows = set(), set(), set()
         local_eligible = set(row["eligible_codes"])
         full_window = [*window, day]
@@ -53,7 +72,19 @@ def compare(report, baseline):
                 if start <= window[0] and all(code in adjusted.get(d, {}) for d in full_window)
             }
             candidates = external_eligible & local_eligible
+            exclusions = {}
+            for code in sorted((local_eligible | active.keys()) - external_eligible):
+                if code not in active:
+                    reason = "outside_external_listing"
+                elif active[code][0] > window[0]:
+                    reason = "insufficient_continuous_listing"
+                elif code not in adjusted.get(day, {}):
+                    reason = "missing_current_quote"
+                else:
+                    reason = "missing_prior_quote"
+                exclusions[code] = reason
             coverage = {
+                "external_exclusion_reason_by_code": exclusions,
                 "external_eligible_count": len(external_eligible),
                 "external_only_eligible_codes": sorted(external_eligible - local_eligible),
                 "local_only_eligible_codes": sorted(local_eligible - external_eligible),
@@ -86,11 +117,13 @@ def compare(report, baseline):
         "source_url": baseline["source_url"],
         "adjustment_method": baseline["adjustment_method"],
         "sessions": results,
-        "complete_agreement_on_research_cohort": bool(results) and all(
+        "unevaluated_research_dates": missing_sessions,
+        "complete_agreement_on_research_cohort": bool(results) and not missing_sessions and all(
             row["comparable"] and not any(row[k] for k in (
                 "missing_external_codes", "external_only_low_codes", "local_only_low_codes"))
             and not row.get("local_only_eligible_codes")
             for row in results),
+        "external_daily_listing_coverage": daily_coverage,
         "external_listing_intervals_supplied": external_listings is not None,
         "export_provenance": {key: baseline[key] for key in ("data_origin", "usage_basis", "sha256")
                               if key in baseline},

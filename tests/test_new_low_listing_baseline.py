@@ -51,3 +51,34 @@ class ListingAndBaselineTests(unittest.TestCase):
         self.assertFalse(result["score_eligible"])
         with self.assertRaisesRegex(ValueError, "calendar differs"):
             compare(report, dict(baseline, market_dates=self.days[1:]))
+
+    def test_coverage_includes_unquoted_external_listings_and_stray_quotes(self):
+        report = audit_adjusted_lows(self.history, [], 2)
+        external = {day: dict(values) for day, values in self.history.items()}
+        del external[self.days[2]]["1101"]
+        baseline = dict(provider="fixture", source_url="https://example.com",
+                        adjustment_method="fixture", market_dates=self.days,
+                        adjusted_closes=external, listings=self.listings)
+        result = compare(report, baseline)
+        last = result["sessions"][-1]
+        self.assertEqual(last["external_exclusion_reason_by_code"], {
+            "1101": "missing_prior_quote", "1102": "insufficient_continuous_listing",
+            "1103": "outside_external_listing", "1104": "missing_current_quote",
+        })
+        daily = result["external_daily_listing_coverage"][-1]
+        self.assertEqual(daily["missing_active_codes"], ["1104"])
+        self.assertEqual(daily["quotes_outside_listings"], ["1103"])
+        self.assertEqual(daily["quoted_active"], 2)
+        self.assertFalse(result["market_baseline_verified"])
+
+    def test_research_report_missing_a_day_cannot_report_complete_agreement(self):
+        report = audit_adjusted_lows(self.history, [], 2)
+        baseline = dict(provider="fixture", source_url="https://example.com",
+                        adjustment_method="fixture", market_dates=self.days,
+                        adjusted_closes=self.history)
+        reduced = dict(report, sessions=report["sessions"][:1])
+        result = compare(reduced, baseline)
+        self.assertEqual(result["unevaluated_research_dates"], self.days[-1:])
+        self.assertFalse(result["complete_agreement_on_research_cohort"])
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            compare(dict(report, sessions=reduced["sessions"] * 2), baseline)
