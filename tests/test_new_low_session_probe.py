@@ -1,6 +1,8 @@
 import json
 import unittest
 
+from scripts.historical_roster_check import check
+from scripts.new_low_incremental import digest
 from scripts.new_low_session_probe import check_full_isin, evidence_report, ordinary_isin_prefix, scoped_isins
 
 
@@ -86,6 +88,19 @@ class SessionProbeTest(unittest.TestCase):
         self.assertEqual(result["replay_error"], "session action evidence is incomplete")
         self.assertIn("listing-start", result["blocked_inputs"][1])
         self.assertFalse(scoped["independent_membership_verified"])
+        export = evidence_report(self.day, checkpoint, sources, identity_retrieved_on=self.day,
+                                 include_roster_reference=True)["roster_reference"]
+        self.assertEqual(export["market_dates"], [self.day])
+        self.assertEqual(len(export["listing_intervals"]), 2)
+        candidate = (f"date,code,security_id\n{self.day},1538,TW0001538007\n"
+                     f"{self.day},1808,TW0001808005\n").encode()
+        manifest = dict(origin="external", source_url="https://example.test/synthetic",
+                        covered_dates=[self.day], retrieved_on=self.day, sha256=digest(candidate),
+                        usage_basis="synthetic regression test", upstream_source="synthetic")
+        comparison = check(export, manifest, candidate)
+        self.assertEqual(comparison["sessions"][0]["identity_mismatches"][0]["code"], "1808")
+        self.assertEqual(comparison["coverage"]["external_candidate_sessions"], 1)
+        self.assertFalse(comparison["independent_universe_verified"])
         with self.assertRaisesRegex(ValueError, "same-day capture"):
             evidence_report(self.day, checkpoint, sources, identity_retrieved_on="2026-11-20")
         with self.assertRaisesRegex(ValueError, "invalid scoped ISIN"):

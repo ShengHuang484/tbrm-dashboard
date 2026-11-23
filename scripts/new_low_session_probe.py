@@ -176,7 +176,7 @@ def compare_action_windows(day, inputs, reduction_rows):
     return summaries, sources
 
 
-def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
+def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None, include_roster_reference=False):
     historical = json.loads(checkpoint)
     history = historical["history"]
     previous = max(history)
@@ -250,6 +250,7 @@ def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
     sources.update(action_sources)
     normalized = {"calendar": normalized_calendar, "quotes": inputs["quotes"]}
     scoped_evidence = {}
+    roster_reference = None
     blockers = ["complete dated ordinary-share roster with Innovation Board security identifiers and scope exclusions",
                 "complete reviewed corporate-action coverage", "gap status reconciled against the complete roster"]
     expected_error = "open session requires all five source files"
@@ -297,6 +298,16 @@ def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
             scoped_evidence["full_isin_crosscheck"] = check_full_isin(
                 inputs["isin_full"], day, roster, tib_ids, tdr_ids)
             sources["isin_full"] = ISIN_URL
+        if include_roster_reference:
+            roster_reference = dict(
+                market_dates=[day],
+                listing_intervals=[
+                    dict(code=code, listed_from=active[code][0], delisted_on=active[code][1],
+                         security_id=ids[code]["security_id"])
+                    for code in sorted(ids)],
+                reference_scope="same_source_twse_one_session_membership_only",
+                normalized_roster_sha256=digest(roster_csv),
+            )
         expected_error = "session action evidence is incomplete"
         blockers = ["complete reviewed corporate-action coverage"]
         if scoped_evidence["listing_start_differences"]:
@@ -309,6 +320,8 @@ def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
         blocked = str(exc)
     else:
         raise ValueError("partial source probe unexpectedly advanced checkpoint")
+    if include_roster_reference and roster_reference is None:
+        raise ValueError("roster reference requires both scoped ISIN reports")
     return dict(status="BLOCKED", session=day, calendar=decisions,
                 checkpoint_sha256=digest(checkpoint), seed_input_sha256=historical["seed_input_sha256"],
                 official_quote_codes=len(quotes), valid_close_codes=sum(v is not None for v in quotes.values()),
@@ -324,7 +337,8 @@ def evidence_report(day, checkpoint, inputs, *, identity_retrieved_on=None):
                 sources={k: dict(url=sources[k], sha256=digest(value), bytes=len(value),
                                 body_scope="downloaded_prefix" if k == "isin_prefix" else "full")
                          for k, value in inputs.items()},
-                score_eligible=False)
+                score_eligible=False,
+                **({"roster_reference": roster_reference} if include_roster_reference else {}))
 
 
 if __name__ == "__main__":
@@ -333,6 +347,8 @@ if __name__ == "__main__":
     parser.add_argument("checkpoint", type=Path)
     parser.add_argument("evidence", type=Path)
     parser.add_argument("--identity-retrieved-on")
+    parser.add_argument("--roster-reference-output", type=Path,
+                        help="write a separate same-source benchmark for this session only")
     args = parser.parse_args()
     inputs = {key: (args.evidence / (key + ".raw")).read_bytes() for key in
               ("quotes", "calendar", "isin_prefix", "tib", "reduction", "ex_right", "stock_1538")}
@@ -346,5 +362,13 @@ if __name__ == "__main__":
         if raw.exists():
             inputs[key] = raw.read_bytes()
     report = evidence_report(args.session, args.checkpoint.read_bytes(), inputs,
-                             identity_retrieved_on=args.identity_retrieved_on)
+                             identity_retrieved_on=args.identity_retrieved_on,
+                             include_roster_reference=args.roster_reference_output is not None)
+    if args.roster_reference_output is not None:
+        reference = report.pop("roster_reference")
+        reference["sources"] = {key: report["sources"][key]
+                                for key in ("isin_prefix", "tib_isin", "tdr_isin", "isin_full")
+                                if key in report["sources"]}
+        args.roster_reference_output.write_text(json.dumps(reference, ensure_ascii=False, indent=2) + "\n",
+                                                encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
