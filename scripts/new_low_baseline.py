@@ -4,6 +4,8 @@ import json
 from decimal import Decimal
 from pathlib import Path
 
+from scripts.new_low_listing import listing_windows, listings_on
+
 
 def compare(report, baseline):
     for field in ("provider", "source_url", "adjustment_method"):
@@ -26,6 +28,7 @@ def compare(report, baseline):
         if any(not price.is_finite() or price <= 0 for price in adjusted[day].values()):
             raise ValueError(f"invalid baseline close: {day}")
 
+    external_listings = listing_windows(baseline['listings']) if 'listings' in baseline else None
     results = []
     positions = {day: i for i, day in enumerate(dates)}
     for row in report["sessions"]:
@@ -36,10 +39,31 @@ def compare(report, baseline):
             raise ValueError("baseline lacks the complete lookback")
         local_lows = set(row["adjusted_low_codes"])
         comparable, missing, external_lows = set(), set(), set()
-        for code in row["eligible_codes"]:
-            values = [adjusted.get(session, {}).get(code) for session in [*window, day]]
+        local_eligible = set(row["eligible_codes"])
+        full_window = [*window, day]
+        coverage = {}
+        candidates = local_eligible
+        if external_listings is not None:
+            active = listings_on(external_listings, day)
+            external_eligible = {
+                code for code, (start, _) in active.items()
+                if start <= window[0] and all(code in adjusted.get(d, {}) for d in full_window)
+            }
+            candidates = external_eligible & local_eligible
+            coverage = {
+                "external_eligible_count": len(external_eligible),
+                "external_only_eligible_codes": sorted(external_eligible - local_eligible),
+                "local_only_eligible_codes": sorted(local_eligible - external_eligible),
+                "external_low_count": sum(
+                    adjusted[day][code] < min(adjusted[d][code] for d in window)
+                    for code in external_eligible),
+            }
+        for code in local_eligible:
+            values = [adjusted.get(session, {}).get(code) for session in full_window]
             if None in values:
                 missing.add(code)
+                continue
+            if code not in candidates:
                 continue
             comparable.add(code)
             if values[-1] < min(values[:-1]):
@@ -52,6 +76,7 @@ def compare(report, baseline):
             "local_low_count_on_comparable": len(local_lows & comparable),
             "external_only_low_codes": sorted(external_lows - local_lows),
             "local_only_low_codes": sorted((local_lows & comparable) - external_lows),
+            **coverage,
         })
     return {
         "provider": baseline["provider"],
@@ -61,7 +86,11 @@ def compare(report, baseline):
         "complete_agreement_on_research_cohort": bool(results) and all(
             row["comparable"] and not any(row[k] for k in (
                 "missing_external_codes", "external_only_low_codes", "local_only_low_codes"))
+            and not row.get("local_only_eligible_codes")
             for row in results),
+        "external_listing_intervals_supplied": external_listings is not None,
+        "export_provenance": {key: baseline[key] for key in ("data_origin", "usage_basis", "sha256")
+                              if key in baseline},
         "market_baseline_verified": False,
         "score_eligible": False,
     }

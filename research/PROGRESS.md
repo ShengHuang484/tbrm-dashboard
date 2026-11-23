@@ -127,3 +127,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 新找到 2305 全友在 2026-10-15 與全資子公司簡易合併，隨後辦理子公司持有的庫藏股註銷。公告說明未發新股或支付現金作為合併對價。這是已知 990 筆價格事件外的公司行動證據，未給一般股東持股套用減資因子。2887 的銀行子公司合併所述換股適用銀行子公司，不能套到上市母公司。
 - 複核 2867 於 2026-09-01 終止上市，最後行情 08-19。換股比例 0.2596 是每股舊證券獲得的 2884 股數，兩段行情不串接。生效日仍有舊代號行情時須列為衝突。
 - 五次有限範圍 MOPS 歷史公告查詢在工作區逾時，改核對證交所終止上市公告、發行人重大訊息公開轉載及銀行官網。金管會資本變動開放資料為家次／金額統計，不能逐筆核證。全期間普通股反分割、存續公司切片仍未取得完整清冊。71 項本地測試通過，研究旗標維持關閉。
+
+## 2026-11-23 外部日線匯入與市場母體雙向差異
+
+- 新增 `python -m scripts.new_low_baseline_import metadata.json quotes.csv calendar.csv --listings listings.csv > baseline.json`，再執行 `python -m scripts.new_low_baseline local-report.json baseline.json`。輸入欄位分別為 `date,code,adjusted_close`、`date`、`code,listed_from,delisted_on`。metadata 需包含 provider、source_url、adjustment_method、data_origin（provider_adjusted_close）及 usage_basis。程式拒絕重複、非交易日、無效價格及自行還原來源聲明，並記錄輸入雜湊。
+- 如提供外部上市期間，逐日獨立算出外部嚴格合格母體、新低檔數、本地獨有／外部獨有的合格股票，及兩邊交集內逐檔新低判定差異。即使數值一致，仍保留對資料供應來源、授權、歷史條件及全市場完整性的人工覆核。
+- 新增 [Goodinfo 6669 還原日收](https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=6669) 個案，9/01 與 9/02 分別為 2,614.99 及 2,610，精確吻合該事件的回調價格基準。8422 仍未取得同一外部還原序列兩端。未找到免費市場級完整匯出，維持關閉；73 項本地測試通過。
