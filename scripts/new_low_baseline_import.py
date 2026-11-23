@@ -4,7 +4,7 @@ import csv
 import hashlib
 import io
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 
@@ -77,6 +77,15 @@ def normalize(metadata, quotes, calendar, listings=None, *, expected_dates=None)
         if columns == IDENTIFIED_LISTING_COLUMNS and any(
                 not row["security_id"] or row["security_id"] != row["security_id"].strip() for row in intervals):
             raise ValueError("listing security_id must be nonempty and trimmed")
+        if columns == IDENTIFIED_LISTING_COLUMNS:
+            by_security = defaultdict(list)
+            for row in intervals:
+                by_security[row["security_id"]].append(row)
+            for security, records in by_security.items():
+                ordered = sorted(records, key=lambda r: r["listed_from"])
+                for previous, current in zip(ordered, ordered[1:]):
+                    if previous["delisted_on"] is None or previous["delisted_on"] > current["listed_from"]:
+                        raise ValueError(f"overlapping listing codes for security_id: {security}")
         if columns == LISTING_COLUMNS:
             repeated = sorted(code for code, total in Counter(row["code"] for row in intervals).items() if total > 1)
             if repeated:

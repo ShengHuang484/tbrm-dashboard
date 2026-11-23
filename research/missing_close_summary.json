@@ -1,279 +1,6 @@
 {
   "unknown_priority_queue": [
     {
-      "code": "1341",
-      "first": "2026-08-21",
-      "last": "2026-08-24",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "1435",
-      "first": "2026-04-09",
-      "last": "2026-04-10",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "1472",
-      "first": "2026-09-11",
-      "last": "2026-09-14",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "2321",
-      "first": "2026-05-20",
-      "last": "2026-05-21",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "2910",
-      "first": "2025-12-23",
-      "last": "2025-12-24",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "6655",
-      "first": "2026-03-26",
-      "last": "2026-03-27",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "6671",
-      "first": "2025-12-19",
-      "last": "2025-12-22",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "6955",
-      "first": "2026-05-19",
-      "last": "2026-05-20",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "7631",
-      "first": "2025-12-04",
-      "last": "2025-12-05",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "8101",
-      "first": "2026-01-29",
-      "last": "2026-01-30",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "8488",
-      "first": "2025-12-24",
-      "last": "2025-12-26",
-      "pairs": 2,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "1213",
-      "first": "2025-11-10",
-      "last": "2025-11-10",
-      "pairs": 1,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
-      "code": "1213",
-      "first": "2025-11-28",
-      "last": "2025-11-28",
-      "pairs": 1,
-      "impacted_study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": [],
-      "priority": "high",
-      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
-    },
-    {
       "code": "1213",
       "first": "2025-12-22",
       "last": "2025-12-22",
@@ -359,8 +86,8 @@
     },
     {
       "code": "1213",
-      "first": "2026-06-04",
-      "last": "2026-06-04",
+      "first": "2026-09-14",
+      "last": "2026-09-14",
       "pairs": 1,
       "impacted_study_dates": [
         "2026-11-09",
@@ -379,9 +106,9 @@
       "verification_needed": "dated primary-source listing, trade-status or quote evidence"
     },
     {
-      "code": "1213",
-      "first": "2026-06-15",
-      "last": "2026-06-15",
+      "code": "1341",
+      "first": "2025-12-29",
+      "last": "2025-12-29",
       "pairs": 1,
       "impacted_study_dates": [
         "2026-11-09",
@@ -400,9 +127,282 @@
       "verification_needed": "dated primary-source listing, trade-status or quote evidence"
     },
     {
-      "code": "1213",
-      "first": "2026-08-21",
-      "last": "2026-08-21",
+      "code": "1410",
+      "first": "2025-12-17",
+      "last": "2025-12-17",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1413",
+      "first": "2025-11-27",
+      "last": "2025-11-27",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1413",
+      "first": "2026-04-27",
+      "last": "2026-04-27",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1413",
+      "first": "2026-11-03",
+      "last": "2026-11-03",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1423",
+      "first": "2026-01-23",
+      "last": "2026-01-23",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1423",
+      "first": "2026-02-05",
+      "last": "2026-02-05",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1423",
+      "first": "2026-10-14",
+      "last": "2026-10-14",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1423",
+      "first": "2026-11-03",
+      "last": "2026-11-03",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1435",
+      "first": "2026-03-27",
+      "last": "2026-03-27",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1435",
+      "first": "2026-09-16",
+      "last": "2026-09-16",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1435",
+      "first": "2026-10-12",
+      "last": "2026-10-12",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1439",
+      "first": "2026-03-24",
+      "last": "2026-03-24",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1439",
+      "first": "2026-05-05",
+      "last": "2026-05-05",
+      "pairs": 1,
+      "impacted_study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": [],
+      "priority": "high",
+      "verification_needed": "dated primary-source listing, trade-status or quote evidence"
+    },
+    {
+      "code": "1439",
+      "first": "2026-10-07",
+      "last": "2026-10-07",
       "pairs": 1,
       "impacted_study_dates": [
         "2026-11-09",
@@ -421,18 +421,18 @@
       "verification_needed": "dated primary-source listing, trade-status or quote evidence"
     }
   ],
-  "unknown_group_count": 243,
-  "unknown_pairs": 256,
+  "unknown_group_count": 146,
+  "unknown_pairs": 147,
   "possible_action_stops": [],
   "official_quote_diagnostics": {
-    "activity_without_close": 153,
+    "activity_without_close": 233,
     "official_row_absent": 13,
-    "zero_reported_activity": 96
+    "zero_reported_activity": 125
   },
   "classification": {
     "activity_without_close": {
-      "stocks": 34,
-      "pairs": 230,
+      "stocks": 53,
+      "pairs": 310,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",
@@ -479,8 +479,8 @@
       ]
     },
     "unknown": {
-      "stocks": 60,
-      "pairs": 256,
+      "stocks": 53,
+      "pairs": 147,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",
@@ -495,8 +495,8 @@
       ]
     },
     "zero_reported_activity": {
-      "stocks": 28,
-      "pairs": 101,
+      "stocks": 37,
+      "pairs": 130,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",
@@ -516,7 +516,7 @@
       "date": "2026-11-09",
       "excluded_with_missing_close": 111,
       "known_lows": 51,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 39,
       "past_exit": 4
@@ -525,7 +525,7 @@
       "date": "2026-11-10",
       "excluded_with_missing_close": 112,
       "known_lows": 77,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 39,
       "past_exit": 4
@@ -534,7 +534,7 @@
       "date": "2026-11-11",
       "excluded_with_missing_close": 112,
       "known_lows": 71,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 39,
       "past_exit": 4
@@ -543,7 +543,7 @@
       "date": "2026-11-12",
       "excluded_with_missing_close": 112,
       "known_lows": 70,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 38,
       "past_exit": 4
@@ -552,7 +552,7 @@
       "date": "2026-11-13",
       "excluded_with_missing_close": 111,
       "known_lows": 24,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 38,
       "past_exit": 4
@@ -561,7 +561,7 @@
       "date": "2026-11-16",
       "excluded_with_missing_close": 111,
       "known_lows": 136,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 38,
       "past_exit": 4
@@ -570,7 +570,7 @@
       "date": "2026-11-17",
       "excluded_with_missing_close": 111,
       "known_lows": 152,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 38,
       "past_exit": 4
@@ -579,7 +579,7 @@
       "date": "2026-11-18",
       "excluded_with_missing_close": 109,
       "known_lows": 87,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 38,
       "past_exit": 5
@@ -588,7 +588,7 @@
       "date": "2026-11-19",
       "excluded_with_missing_close": 109,
       "known_lows": 267,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 37,
       "past_exit": 5
@@ -597,7 +597,7 @@
       "date": "2026-11-20",
       "excluded_with_missing_close": 107,
       "known_lows": 425,
-      "unknown_only_exclusions": 36,
+      "unknown_only_exclusions": 17,
       "potential_quote_recovery_codes": [],
       "insufficient_listing_age": 37,
       "past_exit": 5
@@ -612,16 +612,116 @@
     "lifecycle": "1581d3830b5e0dd05a6ab6f646d2a83f4d6059affb73f84824a51938827515ad",
     "activity": "3cc6331a55c3a70aceed18ca14ca6ada7719ec12495955baf707eca1f62da8a6",
     "sources": "e0efeb441441173c35769b710ab9ff7c3632c23a9d784ef119d3d4d119cd03c6",
-    "official_evidence": "be05138976ef4811423cb35f00ec7d2ee08816bbbfd84d7329340040a598f771"
+    "official_evidence": "a3fc895aa0075ddc37e9d9d825331418d9457c31bc66a613822fedf3c122f9f6"
   },
-  "group_count": 514,
+  "group_count": 516,
   "highest_priority_unknowns": [
+    {
+      "code": "1213",
+      "reason": "unknown",
+      "first": "2025-12-22",
+      "last": "2025-12-22",
+      "pairs": 1,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": []
+    },
+    {
+      "code": "1213",
+      "reason": "unknown",
+      "first": "2026-02-09",
+      "last": "2026-02-09",
+      "pairs": 1,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": []
+    },
+    {
+      "code": "1213",
+      "reason": "unknown",
+      "first": "2026-03-11",
+      "last": "2026-03-11",
+      "pairs": 1,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": []
+    },
+    {
+      "code": "1213",
+      "reason": "unknown",
+      "first": "2026-04-13",
+      "last": "2026-04-13",
+      "pairs": 1,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": []
+    },
+    {
+      "code": "1213",
+      "reason": "unknown",
+      "first": "2026-09-14",
+      "last": "2026-09-14",
+      "pairs": 1,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ],
+      "sole_gap_study_dates": []
+    },
     {
       "code": "1341",
       "reason": "unknown",
-      "first": "2026-08-21",
-      "last": "2026-08-24",
-      "pairs": 2,
+      "first": "2025-12-29",
+      "last": "2025-12-29",
+      "pairs": 1,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",
@@ -637,11 +737,11 @@
       "sole_gap_study_dates": []
     },
     {
-      "code": "1435",
+      "code": "1410",
       "reason": "unknown",
-      "first": "2026-04-09",
-      "last": "2026-04-10",
-      "pairs": 2,
+      "first": "2025-12-17",
+      "last": "2025-12-17",
+      "pairs": 1,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",
@@ -657,11 +757,11 @@
       "sole_gap_study_dates": []
     },
     {
-      "code": "1472",
+      "code": "1413",
       "reason": "unknown",
-      "first": "2026-09-11",
-      "last": "2026-09-14",
-      "pairs": 2,
+      "first": "2025-11-27",
+      "last": "2025-11-27",
+      "pairs": 1,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",
@@ -677,11 +777,11 @@
       "sole_gap_study_dates": []
     },
     {
-      "code": "2321",
+      "code": "1413",
       "reason": "unknown",
-      "first": "2026-05-20",
-      "last": "2026-05-21",
-      "pairs": 2,
+      "first": "2026-04-27",
+      "last": "2026-04-27",
+      "pairs": 1,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",
@@ -697,111 +797,11 @@
       "sole_gap_study_dates": []
     },
     {
-      "code": "2910",
+      "code": "1413",
       "reason": "unknown",
-      "first": "2025-12-23",
-      "last": "2025-12-24",
-      "pairs": 2,
-      "study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": []
-    },
-    {
-      "code": "6655",
-      "reason": "unknown",
-      "first": "2026-03-26",
-      "last": "2026-03-27",
-      "pairs": 2,
-      "study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": []
-    },
-    {
-      "code": "6671",
-      "reason": "unknown",
-      "first": "2025-12-19",
-      "last": "2025-12-22",
-      "pairs": 2,
-      "study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": []
-    },
-    {
-      "code": "6955",
-      "reason": "unknown",
-      "first": "2026-05-19",
-      "last": "2026-05-20",
-      "pairs": 2,
-      "study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": []
-    },
-    {
-      "code": "7631",
-      "reason": "unknown",
-      "first": "2025-12-04",
-      "last": "2025-12-05",
-      "pairs": 2,
-      "study_dates": [
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-        "2026-11-16",
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20"
-      ],
-      "sole_gap_study_dates": []
-    },
-    {
-      "code": "8101",
-      "reason": "unknown",
-      "first": "2026-01-29",
-      "last": "2026-01-30",
-      "pairs": 2,
+      "first": "2026-11-03",
+      "last": "2026-11-03",
+      "pairs": 1,
       "study_dates": [
         "2026-11-09",
         "2026-11-10",

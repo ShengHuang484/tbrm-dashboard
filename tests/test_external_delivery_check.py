@@ -81,3 +81,15 @@ class ExternalDeliveryTests(unittest.TestCase):
         self.assertEqual(result["price_movement_checks"][0]["compared"], 0)
         self.assertEqual([r["security_id"] for r in result["vendor_repeated_listing_codes"]["1101"]],
                          ["issuer-original", "issuer-reused"])
+
+    def test_persistent_identity_surfaces_code_changes_and_rejects_overlaps(self):
+        quotes, calendar, _ = self.csv
+        listings = (b"code,listed_from,delisted_on,security_id\n"
+                    b"1102,2000-01-01,2026-11-19,security-original\n"
+                    b"1101,2026-11-19,,security-original\n")
+        result = inspect(self.report, self.metadata, quotes, calendar, listings)
+        transition = result["vendor_security_code_transitions"]["security-original"]
+        self.assertEqual([row["code"] for row in transition], ["1102", "1101"])
+        with self.assertRaisesRegex(ValueError, "overlapping listing codes for security_id"):
+            inspect(self.report, self.metadata, quotes, calendar,
+                    listings.replace(b"2000-01-01,2026-11-19", b"2000-01-01,2026-11-20"))

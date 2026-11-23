@@ -155,13 +155,20 @@ def inspect(report, metadata, quotes, calendar, listings, *,
                 reasons.setdefault(code, []).append(label)
         row["disagreement_by_code"] = reasons
     identities = {}
+    security_codes = {}
     for row in baseline["listings"]:
         identities.setdefault(row["code"], []).append(row)
+        if "security_id" in row:
+            security_codes.setdefault(row["security_id"], []).append(row)
     reused_codes = {code: sorted(intervals, key=lambda r: r["listed_from"])
                     for code, intervals in identities.items() if len(intervals) > 1}
+    code_transitions = {security: sorted(intervals, key=lambda r: r["listed_from"])
+                        for security, intervals in security_codes.items()
+                        if len({r["code"] for r in intervals}) > 1}
     return dict(delivery_metadata=metadata, listing_disagreement=coverage,
                 comparison=comparison, alternative_basis_diagnostic=alternatives,
                 vendor_repeated_listing_codes=reused_codes,
+                vendor_security_code_transitions=code_transitions,
                 price_movement_checks=price_movement_differences(history, report, baseline, local, external, digits)
                 if history is not None else [],
                 alternative_price_movement_checks=price_movement_differences(
