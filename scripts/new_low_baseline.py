@@ -21,7 +21,9 @@ def compare(report, baseline):
         raise ValueError("baseline market dates must be sorted and unique")
     dates = report["market_dates"]
     if all_dates != dates:
-        raise ValueError("baseline market calendar differs from research calendar")
+        missing = sorted(set(dates) - set(all_dates))
+        extra = sorted(set(all_dates) - set(dates))
+        raise ValueError(f"baseline market calendar differs: missing={missing}, extra={extra}")
     observations = baseline["adjusted_closes"]
     if observations.keys() - set(dates):
         raise ValueError("baseline observations outside market calendar")

@@ -5,6 +5,7 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
+from scripts.corporate_action_external_validation import compare_transition
 from scripts.new_low_baseline import compare
 from scripts.new_low_baseline_import import normalize
 from scripts.new_low_listing import listing_windows, listings_on
@@ -14,7 +15,35 @@ RULES = ("cash_dividend", "stock_dividend", "rights_issue", "capital_reduction",
          "split", "reverse_split", "merger")
 
 
-def inspect(report, metadata, quotes, calendar, listings):
+def check_event_samples(history, report, baseline, cases, digits):
+    events = {(r["code"], r["ex_date"]): r for r in report["applied_events"]}
+    results = []
+    for case in cases:
+        kind = case["action"]
+        code, before, after = (case[k] for k in ("code", "before_date", "effective_date"))
+        if kind not in RULES or not case["evidence_url"].startswith("https://"):
+            raise ValueError("event comparison requires documented event semantics")
+        event = events.get((code, after))
+        if event is None:
+            raise ValueError(f"no reference-price event for {code} on {after}")
+        prices = baseline["adjusted_closes"]
+        left, right = (prices.get(day, {}).get(code) for day in (before, after))
+        row = dict(action=kind, code=code, effective_date=after,
+                   evidence_url=case["evidence_url"])
+        if None in (left, right):
+            results.append(dict(row, status="missing_vendor_transition_quote"))
+            continue
+        sample = dict(case, source_url=baseline["source_url"], external_before=left,
+                      external_after=right, reference=event["reference_price"],
+                      display_step=str(Decimal(1).scaleb(-digits)))
+        checked = compare_transition(history, sample)
+        status = "within_display_precision" if checked["agrees_with_display_precision"] else "price_basis_difference"
+        results.append(dict(row, status=status, comparison=checked))
+    return results
+
+
+def inspect(report, metadata, quotes, calendar, listings, *,
+            alternative=None, history=None, event_cases=()):
     if metadata.get("currency") != "TWD" or metadata.get("timezone") != "Asia/Taipei":
         raise ValueError("delivery must declare TWD and Asia/Taipei")
     exported = metadata.get("exported_on", "")
@@ -30,13 +59,31 @@ def inspect(report, metadata, quotes, calendar, listings):
     if any(not isinstance(rules.get(key), str) or not rules[key].strip() for key in RULES):
         raise ValueError("delivery must document all corporate action rules")
 
-    baseline = normalize(metadata, quotes, calendar, listings)
+    baseline = normalize(metadata, quotes, calendar, listings, expected_dates=report["market_dates"])
     for day, prices in baseline["adjusted_closes"].items():
         for code, raw in prices.items():
             digits_in_value = -Decimal(raw).as_tuple().exponent
             if digits_in_value > digits:
                 raise ValueError(f"quote precision exceeds delivery declaration: {day} {code}")
     comparison = compare(report, baseline)
+    alternatives = {}
+    if alternative is not None:
+        other_basis = ZERO_RIGHTS if basis == TWSE_REFERENCE else TWSE_REFERENCE
+        if (alternative.get("rights_basis") != other_basis
+                or alternative["lookback"] != report["lookback"]
+                or alternative["listing_intervals"] != report["listing_intervals"]):
+            raise ValueError("alternative must use the other rights basis and identical listing scope")
+        for a, b in zip(report["sessions"], alternative["sessions"], strict=True):
+            if (a["date"] != b["date"] or set(a["eligible_codes"]) != set(b["eligible_codes"])
+                    or (set(a["adjusted_low_codes"]) ^ set(b["adjusted_low_codes"])) - {"1312"}):
+                raise ValueError("alternative changes more than the documented 1312 decision")
+        alternatives = compare(alternative, baseline)
+    if event_cases and history is None:
+        raise ValueError("event samples require archived raw closes")
+    price_checks = check_event_samples(history, report, baseline, event_cases, digits) if event_cases else []
+    alternative_price_checks = (
+        check_event_samples(history, alternative, baseline, event_cases, digits)
+        if event_cases and alternative is not None else [])
     local = listing_windows(report["listing_intervals"])
     external = listing_windows(baseline["listings"])
     coverage = []
@@ -62,14 +109,25 @@ def inspect(report, metadata, quotes, calendar, listings):
                 reasons.setdefault(code, []).append(label)
         row["disagreement_by_code"] = reasons
     return dict(delivery_metadata=metadata, listing_disagreement=coverage,
-                comparison=comparison, score_eligible=False, market_baseline_verified=False)
+                comparison=comparison, alternative_basis_diagnostic=alternatives,
+                event_price_checks=price_checks, alternative_event_price_checks=alternative_price_checks,
+                event_types_without_sample=sorted(set(RULES) - {r["action"] for r in price_checks
+                    if r["status"] != "missing_vendor_transition_quote"}),
+                score_eligible=False, market_baseline_verified=False)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("report", "metadata", "quotes", "calendar", "listings"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--alternative-report", type=Path)
+    parser.add_argument("--raw-history", type=Path)
+    parser.add_argument("--event-cases", type=Path)
     args = parser.parse_args()
+    def read(path):
+        return json.loads(path.read_text()) if path else None
     print(json.dumps(inspect(json.loads(args.report.read_text()), json.loads(args.metadata.read_text()),
-                             *(p.read_bytes() for p in (args.quotes, args.calendar, args.listings))),
+                             *(p.read_bytes() for p in (args.quotes, args.calendar, args.listings)),
+                             alternative=read(args.alternative_report), history=read(args.raw_history),
+                             event_cases=read(args.event_cases) or []),
                      ensure_ascii=False, indent=2))

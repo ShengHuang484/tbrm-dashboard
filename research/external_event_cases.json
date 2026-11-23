@@ -1,0 +1,37 @@
+[
+  {
+    "code": "1312",
+    "before_date": "2026-06-10",
+    "effective_date": "2026-06-11",
+    "action": "rights_issue",
+    "evidence_url": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260601&endDate=20260630"
+  },
+  {
+    "code": "2330",
+    "before_date": "2026-09-15",
+    "effective_date": "2026-09-16",
+    "action": "cash_dividend",
+    "evidence_url": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260901&endDate=20260930"
+  },
+  {
+    "code": "6949",
+    "before_date": "2026-08-26",
+    "effective_date": "2026-09-07",
+    "action": "split",
+    "evidence_url": "https://tw.stock.yahoo.com/news/%E5%85%AC%E5%91%8A-%E6%B2%9B%E7%88%BE%E7%94%9F%E9%86%AB-%E5%89%B5%E8%82%A1%E7%A5%A8%E9%9D%A2%E9%A1%8D%E7%94%B1-%E6%96%B0%E5%8F%B0%E5%B9%A310%E5%85%83-%E8%AE%8A%E6%9B%B4%E7%82%BA-001919688.html"
+  },
+  {
+    "code": "1414",
+    "before_date": "2025-12-30",
+    "effective_date": "2026-01-12",
+    "action": "capital_reduction",
+    "evidence_url": "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405"
+  },
+  {
+    "code": "6669",
+    "before_date": "2026-09-01",
+    "effective_date": "2026-09-02",
+    "action": "stock_dividend",
+    "evidence_url": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260901&endDate=20260930"
+  }
+]

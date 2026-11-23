@@ -4,6 +4,7 @@ import csv
 import hashlib
 import io
 import json
+from collections import Counter
 from datetime import date
 from pathlib import Path
 
@@ -29,7 +30,7 @@ def security_code(code):
     return len(code) == 4 and code.isascii() and code.isdigit() and not code.startswith("0")
 
 
-def normalize(metadata, quotes, calendar, listings=None):
+def normalize(metadata, quotes, calendar, listings=None, *, expected_dates=None):
     for field in ("provider", "source_url", "adjustment_method", "data_origin", "usage_basis"):
         if not isinstance(metadata.get(field), str) or not metadata[field].strip():
             raise ValueError(f"missing export provenance: {field}")
@@ -38,14 +39,21 @@ def normalize(metadata, quotes, calendar, listings=None):
     if metadata["data_origin"] != "provider_adjusted_close":
         raise ValueError("export must contain provider-adjusted closes")
     dates = [row["date"] for row in rows(calendar, CALENDAR_COLUMNS)]
-    if (not dates or dates != sorted(set(dates))
+    duplicated = sorted(d for d, n in Counter(dates).items() if n > 1)
+    if duplicated:
+        raise ValueError("duplicate calendar dates: " + ", ".join(duplicated))
+    if (not dates or dates != sorted(dates)
             or any(date.fromisoformat(day).isoformat() != day for day in dates)):
         raise ValueError("calendar must contain ordered unique ISO sessions")
+    if expected_dates is not None and dates != expected_dates:
+        missing = sorted(set(expected_dates) - set(dates))
+        extra = sorted(set(dates) - set(expected_dates))
+        raise ValueError(f"baseline market calendar differs: missing={missing}, extra={extra}")
     prices = {day: {} for day in dates}
     for row in rows(quotes, QUOTE_COLUMNS):
         day, code, price = row["date"], row["code"], row["adjusted_close"]
         if day not in prices or not security_code(code):
-            raise ValueError("quote outside market calendar or ordinary stock code format")
+            raise ValueError(f"quote outside market calendar or ordinary stock code format: {day} {code}")
         if code in prices[day]:
             raise ValueError(f"duplicate adjusted close: {day} {code}")
         prices[day][code] = str(positive(price))
