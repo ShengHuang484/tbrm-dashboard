@@ -8,8 +8,19 @@ from scripts.twse_event_extract import extract_candidates
 
 
 def load_months(paths, market_dates):
+    reports, hashes = load_month_reports(paths, market_dates)
+    records = []
+    for month, (payload, source) in reports.items():
+        candidates = extract_candidates(payload, source)
+        if any(not row["ex_date"].startswith(month + "-") for row in candidates):
+            raise ValueError(f"candidate outside archive month: {month}")
+        records.extend(candidates)
+    return records, hashes
+
+
+def load_month_reports(paths, market_dates):
     expected = {day[:7] for day in market_dates}
-    records, hashes = [], {}
+    reports, hashes = {}, {}
     for path in paths:
         with ZipFile(path) as archive:
             manifest = json.loads(archive.read("manifest.json"))
@@ -23,14 +34,11 @@ def load_months(paths, market_dates):
                 digest = hashlib.sha256(raw).hexdigest()
                 if digest != entry["sha256"]:
                     raise ValueError(f"archive digest mismatch: {month}")
-                candidates = extract_candidates(json.loads(raw), entry["source_url"])
-                if any(not row["ex_date"].startswith(month + "-") for row in candidates):
-                    raise ValueError(f"candidate outside archive month: {month}")
-                records.extend(candidates)
+                reports[month] = (json.loads(raw), entry["source_url"])
                 hashes[month] = digest
     if hashes.keys() != expected:
         raise ValueError("archives omit required market months")
-    return records, hashes
+    return reports, hashes
 
 
 def reconcile_months(history, records, ex_right, existing):

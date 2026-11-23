@@ -74,6 +74,10 @@ jobs:
             research/issuer_master_20261122.csv research/historical_listing_evidence.json \
             --strict-report > strict-gap-source.json
           python -m scripts.historical_roster_check strict-gap-source.json > daily-roster.json
+          python -m scripts.corporate_action_basis_scan data/history/new_low_closes.json \
+            strict-gap-source.json research/1312_rights_basis.json first-month.zip subsequent-months.zip \
+            > rights-basis-scan.json
+          diff -u research/rights_basis_scan.json rights-basis-scan.json
           python -m scripts.missing_close_audit data/history/new_low_closes.json strict-gap-source.json \
             historical-listing.json research/endpoint_gap_results.json \
             research/endpoint_gap_evidence.json --official-evidence research/twse_stock_day_gap_evidence.json \
@@ -89,4 +93,5 @@ jobs:
           path: |
             missing-close-full.json
             daily-roster.json
+            rights-basis-scan.json
           retention-days: 30
