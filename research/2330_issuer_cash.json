@@ -1,0 +1,22 @@
+{
+  "code": "2330",
+  "source_url": "https://investor.tsmc.com/chinese/dividends",
+  "cash_only_distributions": [
+    {
+      "ex_date": "2025-12-11",
+      "cash_per_common_share_twd": "5.00001118"
+    },
+    {
+      "ex_date": "2026-03-17",
+      "cash_per_common_share_twd": "6.00003573"
+    },
+    {
+      "ex_date": "2026-06-11",
+      "cash_per_common_share_twd": "6.00003573"
+    },
+    {
+      "ex_date": "2026-09-16",
+      "cash_per_common_share_twd": "7.00000137"
+    }
+  ]
+}

@@ -171,3 +171,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 新增 `python -m scripts.new_low_sample_window history.json action-report.json baseline.json 2330 2026-11-20 --display-step 0.01`。使用嚴格合格個股，以同一基準日消除整體縮放，逐日考慮顯示精度、跨過的實際係數及缺價。部分窗口若只見到比當日高的價格，仍輸出未知；若有相等或更低的歷史顯示價則可排除顯示價口徑的新低。
 - Stock Analysis 標註資料供應者 S&P Global Market Intelligence。2330 公開表在目標窗口提供 123/253 日，130 日缺資料。對齊 11/20，42 日的相對價超出雙端各 0.005 元的捨入範圍。例：9/15 外部還原價 2,378.00，該次官方除息參考價為 2,377.99。未據此推定哪一方有誤，亦未放寬精度。外部樣本無法決定期末新低；本地判為非新低。全日期缺口、差異日、報表網址及正規化樣本雜湊見 2330_external_window.json。公開頁隨時間滾動。
 - 外部資料規格沿用 CSV 日曆、報價及上市區間；需另有價格顯示精度、幣別、股利和資本變動調整定義，以及可用於研究的授權依據。全套 84 項測試通過，正式維持 45/50。
+
+## 2026-11-23 發行人現金股利精度對照
+
+- 逐期核對台積電「PER COMMON SHARE」台幣現金股利與除息交易日，四期各與封存事件對上。例：2026-09-16 的每股股利為 7.00000137 元，2,385 減去該金額為 2,377.99999863，TWSE 月報參考價列 2,377.99。
+- 新增 `python -m scripts.issuer_cash_scenario history.json action-report.json baseline.json research/2330_issuer_cash.json 2026-11-20 --display-step 0.01`。僅在個案情境替換有發行人現金股利證據的因子，保留原始報表和正式研究口徑。123 筆樣本在相同日期、相同錨點和相同精度下，超出精度的日期由 42 降為 0。這可解釋本樣本的差異，並未證明供應商採用的完整算法。130 筆缺價及全市場缺口仍在。
+- 結果與規格見 2330_cash_basis_result.json、2330_issuer_cash.json。86 項測試通過。後續市場匯入應區分交易所參考價法和未取位現金股利法。
