@@ -111,6 +111,47 @@ def screen_discontinuities(history, events, boundary, threshold="0.30", max_gap=
     return candidates
 
 
+def classify_latest_lookback_gaps(history, events, lookback):
+    """Attribute missing quote intervals without imputing or certifying a halt."""
+    days = sorted(history)
+    if not 1 <= lookback < len(days):
+        raise ValueError("insufficient sessions for gap audit")
+    positions = {day: index for index, day in enumerate(days)}
+    action_types = {"capital_reduction", "split", "reverse_split"}
+    bounded = set()
+    for event in events:
+        if event["event_type"] not in action_types:
+            continue
+        code = event["code"]
+        stop = positions[event["ex_date"]]
+        prior = next((i for i in range(stop - 1, -1, -1) if code in history[days[i]]), None)
+        if prior is not None:
+            bounded.update((code, day) for day in days[prior + 1:stop])
+
+    scope = days[-lookback - 1:-1]
+    bounded_count, other_count = 0, 0
+    affected, unexplained = set(), set()
+    for code in history[days[-1]]:
+        for day in scope:
+            if code in history[day]:
+                continue
+            if (code, day) in bounded:
+                bounded_count += 1
+                affected.add(code)
+            else:
+                other_count += 1
+                unexplained.add(code)
+    return {
+        "date": days[-1],
+        "action_bounded_missing_pairs": bounded_count,
+        "other_missing_pairs": other_count,
+        "codes_with_action_bounded_gaps": len(affected),
+        "codes_with_other_gaps": len(unexplained),
+        "codes_missing_prior_quotes": len(affected | unexplained),
+        "verified_halt_dates": False,
+    }
+
+
 def audit(history, ex_right, crosscheck, face_actions, reduction_boundary, *, monthly_archives=()):
     events, boundary = assemble(history, ex_right, crosscheck, face_actions, reduction_boundary)
     excluded, hashes = [], {}
@@ -125,6 +166,7 @@ def audit(history, ex_right, crosscheck, face_actions, reduction_boundary, *, mo
         "monthly_exclusions": excluded,
         "applied_events": events,
         "boundary_events": boundary,
+        "latest_lookback_gaps": classify_latest_lookback_gaps(history, events, result["lookback"]),
         "unexplained_discontinuities": screen_discontinuities(history, events, boundary),
     })
     return result

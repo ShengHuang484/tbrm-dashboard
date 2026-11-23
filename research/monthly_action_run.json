@@ -682,5 +682,14 @@
         "9941"
       ]
     }
-  ]
+  ],
+  "latest_lookback_gaps": {
+    "date": "2026-11-20",
+    "action_bounded_missing_pairs": 147,
+    "other_missing_pairs": 4683,
+    "codes_with_action_bounded_gaps": 22,
+    "codes_with_other_gaps": 126,
+    "codes_missing_prior_quotes": 144,
+    "verified_halt_dates": false
+  }
 }

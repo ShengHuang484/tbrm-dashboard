@@ -3,7 +3,7 @@ import unittest
 from fractions import Fraction
 from pathlib import Path
 
-from scripts.action_completeness import audit, assemble
+from scripts.action_completeness import audit, assemble, classify_latest_lookback_gaps
 from scripts.corporate_action_audit import event_factors
 
 
@@ -39,3 +39,16 @@ class ActionCompletenessTest(unittest.TestCase):
         changed = [dict(face_actions[0], new_face_value="2"), *face_actions[1:]]
         with self.assertRaisesRegex(ValueError, "face-value reference mismatch"):
             assemble(self.history, ex_right, crosscheck, changed, boundary)
+
+    def test_action_bounded_does_not_include_other_gaps_in_same_stock(self):
+        data = {
+            "2026-01-05": {"1101": 10}, "2026-01-06": {},
+            "2026-01-07": {"1101": 5}, "2026-01-08": {},
+            "2026-01-09": {"1101": 6},
+        }
+        event = {"code": "1101", "ex_date": "2026-01-07", "event_type": "split"}
+        result = classify_latest_lookback_gaps(data, [event], 4)
+        self.assertEqual(result["action_bounded_missing_pairs"], 1)
+        self.assertEqual(result["other_missing_pairs"], 1)
+        self.assertEqual(result["codes_missing_prior_quotes"], 1)
+        self.assertFalse(result["verified_halt_dates"])
