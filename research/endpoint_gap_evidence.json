@@ -1,0 +1,16 @@
+{
+  "quote_code": "1538",
+  "quote_source": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPrice&data_id=1538&start_date=2025-10-22&end_date=2026-11-20",
+  "halt_notice": {
+    "code": "1808",
+    "stop_from": "2026-11-12",
+    "resumption_date": "2026-11-23",
+    "last_pre_stop_date": "2026-11-11",
+    "pre_stop_close": "31.00",
+    "resumption_reference": "36.25",
+    "sources": [
+      "https://stockchannelnew.sinotrade.com.tw/z/zf/zfz/zfz_543AD7FC-D66E-4CCF-BA3F-C26381C36057.djhtm",
+      "https://www.twse.com.tw/exchangeReport/TWTAUU?response=html&startDate=20261123&endDate=20261123"
+    ]
+  }
+}
