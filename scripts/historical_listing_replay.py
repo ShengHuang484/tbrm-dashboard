@@ -2,11 +2,37 @@
 import argparse
 import csv
 import json
+from datetime import date
 from pathlib import Path
 
 from scripts.new_low_adjusted_audit import audit_adjusted_lows
 from scripts.new_low_listing import listing_windows, listings_on
 from scripts.new_low_replay_check import membership_digest
+
+
+def audit_stops(history, windows, stops):
+    results = []
+    for stop in stops:
+        code, start, end = (stop[k] for k in ("code", "start", "end"))
+        if (any(date.fromisoformat(d).isoformat() != d for d in (start, end))
+                or start >= end or not stop["sources"]
+                or any(not url.startswith("https://") for url in stop["sources"])):
+            raise ValueError("invalid trading stop evidence")
+        active = listings_on(windows, start).get(code)
+        disposition = stop["disposition"]
+        if active is None or disposition not in ("resume", "delist"):
+            raise ValueError("stop requires an active listing and known disposition")
+        if disposition == "delist" and active[1] != end:
+            raise ValueError("stop does not end at the documented delisting")
+        if disposition == "resume" and listings_on(windows, end).get(code) != active:
+            raise ValueError("resumption crosses listing identity")
+        sessions = sorted(day for day in history if start <= day < end)
+        conflicts = [d for d in sessions if code in history[d]]
+        if disposition == "resume" and end in history and code not in history[end]:
+            conflicts.append(end)
+        results.append(dict(code=code, disposition=disposition, affected_sessions=sessions,
+                            conflicting_sessions=conflicts))
+    return results
 
 
 def replay(history, adjusted, roster, evidence, *, strict_report=False):
@@ -32,10 +58,13 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False):
         outside = sorted(quotes.keys() - listings_on(windows, day).keys())
         if outside:
             conflicts[day] = outside
-    if conflicts:
+    stops = audit_stops(ordinary, windows, evidence.get("trading_stops", []))
+    stop_conflicts = any(row["conflicting_sessions"] for row in stops)
+    if conflicts or stop_conflicts:
         if strict_report:
-            raise ValueError(f"quotes outside reconstructed listing intervals: {conflicts}")
-        return dict(outside_listing_quotes=conflicts, listing_universe_verified=False,
+            raise ValueError(f"quotes outside reconstructed listing or trading intervals: {conflicts}, {stops}")
+        return dict(outside_listing_quotes=conflicts, trading_stop_checks=stops,
+                    listing_universe_verified=False,
                     score_eligible=False)
     result = audit_adjusted_lows(ordinary, events, adjusted["lookback"], listings=listings)
     if strict_report:
@@ -44,7 +73,7 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False):
         return result
     return dict(snapshot_date=evidence["snapshot_date"], market_sessions=len(dates),
                 historical_exit_codes=sorted({row["code"] for row in exits}),
-                factor_count=result["factor_count"], outside_listing_quotes={},
+                factor_count=result["factor_count"], outside_listing_quotes={}, trading_stop_checks=stops,
                 sessions=[dict(date=row["date"], eligible=row["strict_eligible"],
                                lows=row["adjusted_low_count"], active=row["active_listings"],
                                unquoted_current=row["unquoted_current_listings"],

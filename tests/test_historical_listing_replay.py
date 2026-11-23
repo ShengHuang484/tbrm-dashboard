@@ -25,3 +25,14 @@ class HistoricalListingReplayTest(unittest.TestCase):
         self.assertEqual(result["outside_listing_quotes"], {a: ["1101"]})
         with self.assertRaisesRegex(ValueError, "outside reconstructed"):
             replay(history, dict(applied_events=[], lookback=1), roster, evidence, strict_report=True)
+
+    def test_announced_halt_rejects_a_close_during_stop_or_missing_restart(self):
+        a, b, c = "2026-01-02", "2026-01-05", "2026-01-06"
+        history = {a: {"6806": 5}, b: {"6806": 5}, c: {}}
+        roster = [dict(code="6806", listed_from=a, industry="01")]
+        stop = dict(code="6806", start=b, end=c, disposition="resume",
+                    sources=["https://example.com/halt"])
+        evidence = dict(snapshot_date=c, historical_exits=[], trading_stops=[stop])
+        result = replay(history, dict(applied_events=[], lookback=1), roster, evidence)
+        [check] = result["trading_stop_checks"]
+        self.assertEqual(check["conflicting_sessions"], [b, c])

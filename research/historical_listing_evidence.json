@@ -36,5 +36,35 @@
       "listing_source": "https://wwwc.twse.com.tw/pdf/ch/1589_ch.pdf",
       "exit_source": "https://investoredu.twse.com.tw/FileSystem/FileUpload/d0048d9a-e912-42ee-9c32-7a5bbff1d010.pdf"
     }
+  ],
+  "trading_stops": [
+    {
+      "code": "6806",
+      "start": "2026-05-13",
+      "end": "2026-05-14",
+      "disposition": "resume",
+      "sources": [
+        "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019e1ba7d87501a5.pdf",
+        "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019e20e13bbb01ed.pdf"
+      ]
+    },
+    {
+      "code": "3454",
+      "start": "2026-03-19",
+      "end": "2026-03-27",
+      "disposition": "delist",
+      "sources": [
+        "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69c37647f019c89fca2900063.pdf"
+      ]
+    },
+    {
+      "code": "2867",
+      "start": "2026-08-20",
+      "end": "2026-09-01",
+      "disposition": "delist",
+      "sources": [
+        "https://wealth.firstbank.com.tw/investment-tips/trend-insight/news/news-detail?id=%7B651E6D67-1261-4C85-815D-9F660BACA1A8%7D"
+      ]
+    }
   ]
 }

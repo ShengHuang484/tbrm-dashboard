@@ -10,6 +10,44 @@
   ],
   "factor_count": 988,
   "outside_listing_quotes": {},
+  "trading_stop_checks": [
+    {
+      "code": "6806",
+      "disposition": "resume",
+      "affected_sessions": [
+        "2026-05-13"
+      ],
+      "conflicting_sessions": []
+    },
+    {
+      "code": "3454",
+      "disposition": "delist",
+      "affected_sessions": [
+        "2026-03-19",
+        "2026-03-20",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-25",
+        "2026-03-26"
+      ],
+      "conflicting_sessions": []
+    },
+    {
+      "code": "2867",
+      "disposition": "delist",
+      "affected_sessions": [
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-08-31"
+      ],
+      "conflicting_sessions": []
+    }
+  ],
   "sessions": [
     {
       "date": "2026-11-09",
