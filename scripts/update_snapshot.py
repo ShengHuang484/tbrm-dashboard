@@ -4,8 +4,11 @@ import os
 import urllib.request
 import re
 from datetime import datetime, timezone
+from decimal import Decimal
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.error import HTTPError
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 ENDPOINTS = {
@@ -118,21 +121,74 @@ def fetch_dated_limit_down(data_dir, target=None):
 
 
 
-def dated_margin_report(day):
-    """Require verified report date on either official TWSE route."""
-    errors = []
+class MarginReportError(ValueError):
+    def __init__(self, attempts):
+        self.attempts = attempts
+        super().__init__("TWSE dated margin unavailable: " + "; ".join(
+            f"{a['route']}: {a['status']} ({a['message']})" for a in attempts))
+
+
+def margin_report_date(raw):
+    digits = str(raw.get("date", "")).strip()
+    if re.fullmatch(r"[0-9]{3}/[0-9]{2}/[0-9]{2}", digits):
+        digits = str(int(digits[:3]) + 1911) + digits[3:].replace("/", "")
+    elif re.fullmatch(r"[0-9]{4}(?:-[0-9]{2}-|/[0-9]{2}/)[0-9]{2}", digits):
+        digits = digits.replace("-", "").replace("/", "")
+    if not re.fullmatch(r"[0-9]{8}", digits):
+        raise ValueError("missing or unrecognized TWSE margin report date")
+    return datetime.strptime(digits, "%Y%m%d").date().isoformat()
+
+
+class MarginRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        target = urlsplit(newurl)
+        if (target.scheme != "https" or target.netloc not in ("www.twse.com.tw", "twse.com.tw")
+                or target.path not in ("/exchangeReport/MI_MARGN", "/rwd/zh/marginTrading/MI_MARGN")):
+            raise HTTPError(req.full_url, code, "redirect outside TWSE margin report routes", headers, fp)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def download_margin_report(url):
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "TBRM-research-dashboard/1.9", "Accept": "application/json"})
+    with urllib.request.build_opener(MarginRedirectHandler()).open(request, timeout=30) as response:
+        return json.load(response), response.geturl()
+
+
+def dated_margin_report(day, download=download_margin_report):
+    """Try both official routes when a response cannot verify the requested balance."""
+    attempts = []
     for route in ("exchangeReport", "rwd/zh/marginTrading"):
         url = f"https://www.twse.com.tw/{route}/MI_MARGN?response=json&selectType=ALL&date={day.replace('-', '')}"
+        attempt = {"route": route, "url": url}
+        attempts.append(attempt)
         try:
-            raw = fetch(url)
+            raw, final_url = download(url)
+            attempt["response_url"] = final_url
+            attempt["status"] = "schema_error"
+            if not isinstance(raw, dict):
+                raise ValueError("expected a TWSE JSON object")
+            attempt["official_status"] = str(raw.get("stat", ""))[:160]
             if raw.get("stat") != "OK":
-                raise ValueError(str(raw.get("stat")))
-            if str(raw.get("date", "")) != day.replace("-", ""):
-                raise ValueError("margin report date mismatch")
-            return raw, url
-        except (OSError, ValueError, TypeError) as exc:
-            errors.append(f"{route}: {exc}")
-    raise ValueError("TWSE dated margin unavailable: " + "; ".join(errors))
+                if "沒有符合條件的資料" in attempt["official_status"]:
+                    attempt["status"] = "no_report"
+                raise ValueError(attempt["official_status"] or "TWSE status missing")
+            actual_day = margin_report_date(raw)
+            if actual_day != day:
+                attempt["status"] = "date_mismatch"
+                raise ValueError(f"expected {day}, received {actual_day}")
+            margin_total(raw)
+            return raw, final_url
+        except HTTPError as exc:
+            attempt.update(status="http_redirect" if 300 <= exc.code < 400 else "http_error",
+                           http_code=exc.code, message=str(exc)[:160])
+            exc.close()
+        except OSError as exc:
+            attempt.update(status="network_error", message=str(exc)[:160])
+        except (ValueError, TypeError, KeyError, IndexError, ArithmeticError) as exc:
+            attempt.setdefault("status", "schema_error")
+            attempt["message"] = str(exc)[:160]
+    raise MarginReportError(attempts)
 
 
 def margin_tables(raw):
@@ -142,22 +198,27 @@ def margin_tables(raw):
             tables.append({"fields": raw.get("fields" + key[4:], []), "data": rows})
     seen = set()
     for table in tables:
+        if (not isinstance(table, dict) or not isinstance(table.get("fields"), list)
+                or not isinstance(table.get("data"), list)):
+            raise ValueError("invalid TWSE margin table structure")
         signature = json.dumps([table.get("fields"), table.get("data")], ensure_ascii=False)
         if signature not in seen:
             seen.add(signature)
             yield table
 
 
+def clean_margin_cell(value):
+    return re.sub(r"<[^>]*>|\s", "", str(value)).translate(str.maketrans("（）", "()"))
+
+
 def margin_total(raw):
-    from decimal import Decimal
     amounts = []
     for table in margin_tables(raw):
-        fields = [str(f).strip() for f in table.get("fields", [])]
+        fields = [clean_margin_cell(f) for f in table["fields"]]
         if "項目" not in fields or "今日餘額" not in fields:
             continue
         for row in table["data"]:
-            label = re.sub(r"<[^>]*>|\s", "", str(row[fields.index("項目")])).translate(
-                str.maketrans("（）", "()"))
+            label = clean_margin_cell(row[fields.index("項目")])
             if label == "融資金額(仟元)":
                 amounts.append(Decimal(str(row[fields.index("今日餘額")]).replace(",", "")))
     if len(amounts) != 1 or not amounts[0].is_finite() or amounts[0] <= 0:
@@ -181,25 +242,28 @@ def fetch_dated_margin(data_dir, sessions, loader=dated_margin_report):
             continue
         try:
             raw, url = loader(day)
-            if raw.get("stat") != "OK" or str(raw.get("date")) != day.replace("-", ""):
+            if raw.get("stat") != "OK" or margin_report_date(raw) != day:
                 raise ValueError("margin report date not verified")
             amount = margin_total(raw)
             archive_daily(data_dir, "twse_dated_margin", [
                 {"date": day, "balance_1000_twd": amount, "source_url": url}])
             if day == sessions[-1]:
                 latest_report = raw, url
-            diagnostics.append({"date": day, "status": "ok"})
+            diagnostics.append({"date": day, "status": "ok", "url": url})
         except (OSError, ValueError, KeyError, TypeError, IndexError, ArithmeticError) as exc:
             errors[day] = str(exc)[:240]
             diagnostics.append({"date": day, "status": "failed", "message": errors[day]})
+            if isinstance(exc, MarginReportError):
+                diagnostics[-1]["routes"] = exc.attempts
     current = json.loads(path.read_text()) if path.exists() else []
     present = {r["date"] for r in current if 0 < r["balance_1000_twd"] < float("inf")}
     missing = [day for day in sessions if day not in present]
     (data_dir / "twse_dated_margin_diagnostic.json").write_text(json.dumps(
-        {"latest_index_date": sessions[-1], "attempts": diagnostics, "valid_days": len(current)},
+        {"latest_index_date": sessions[-1], "attempts": diagnostics,
+         "valid_days": len(sessions) - len(missing), "required_days": len(sessions), "missing": missing},
         ensure_ascii=False, indent=2), encoding="utf-8")
     return dict(status="partial" if missing else "ok", missing=missing, required=21,
-                date=max(present, default=None), errors=errors), latest_report
+                date=max(present.intersection(sessions), default=None), errors=errors), latest_report
 
 
 def archive_daily(data_dir, name, rows):
@@ -287,30 +351,25 @@ def dated_maintenance_prices(day):
     return list(prices.values())
 
 def maintenance(raw, stocks, day, stocks_backup=None):
-    from decimal import Decimal
     def n(v):return Decimal(str(v).replace(',','').strip())
-    def clean(v):return re.sub(r'<[^>]*>|\s','',str(v))
-    if raw.get('stat')!='OK' or str(raw.get('date',''))!=day.replace('-',''):raise ValueError('margin date not verified')
+    if raw.get('stat')!='OK' or margin_report_date(raw)!=day:raise ValueError('margin date not verified')
     tables=margin_tables(raw)
     amounts=[]; totals=[]; balances={}
-    seen=set(); schema=[]; labels=[]
+    schema=[]; labels=[]
     for t in tables:
-        signature=json.dumps([t.get('fields',[]),t.get('data',[])],ensure_ascii=False)
-        if signature in seen:continue
-        seen.add(signature)
         schema.append({'fields':t.get('fields',[]),'rows':len(t.get('data',[]))})
-        f=[clean(x) for x in t.get('fields',[])]; rows=t.get('data',[])
+        f=[clean_margin_cell(x) for x in t['fields']]; rows=t['data']
         if '項目' in f and '今日餘額' in f:
             j=f.index('今日餘額')
             for r in rows:
-                label=clean(r[0]).replace('（','(').replace('）',')')
+                label=clean_margin_cell(r[f.index('項目')])
                 if '股票代號' not in f:labels.append([label,str(r[j])])
                 if label=='融資金額(仟元)':amounts.append(n(r[j]))
                 if label=='融資(交易單位)':totals.append(n(r[j]))
         if ('股票代號' in f or '代號' in f) and '今日餘額' in f:
             j=f.index('今日餘額'); k=f.index('股票代號' if '股票代號' in f else '代號')
             for r in rows:
-                code=clean(r[k]); val=n(r[j])
+                code=clean_margin_cell(r[k]); val=n(r[j])
                 if code in balances or not val.is_finite() or val<0:raise ValueError('invalid margin balance')
                 balances[code]=val
     print('maintenance diagnostics',json.dumps({'schema':schema,'summary_rows':labels[:10],'amounts':[str(x) for x in amounts],'totals':[str(x) for x in totals],'security_count':len(balances),'sum_lots':str(sum(balances.values()))},ensure_ascii=False))

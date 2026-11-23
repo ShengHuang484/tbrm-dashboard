@@ -1,13 +1,21 @@
+import io
 import json
 import tempfile
 import unittest
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
+from urllib.error import HTTPError
+from urllib.request import Request
 
 from scripts.market_refresh import (
-    DAILY_FIELDS, DAILY_STOCK_REPORT, MARKET_REPORT, dated_stock_snapshot, check_report, expected_session, refresh, stock_session,
+    DAILY_FIELDS, DAILY_STOCK_REPORT, MARKET_REPORT, dated_stock_snapshot, check_report, expected_session, refresh,
+    source_warnings, stock_session,
 )
-from scripts.update_snapshot import archive_daily
+from scripts.update_snapshot import (
+    MarginRedirectHandler, MarginReportError, archive_daily, dated_margin_report,
+    fetch_dated_margin, maintenance, margin_total,
+)
 
 NOW = datetime(2026, 11, 23, 8, 11, tzinfo=timezone.utc)
 OLD = "2026-11-20"
@@ -160,7 +168,6 @@ class DatedMarginTests(unittest.TestCase):
         ]}
 
     def test_backfill_uses_verified_sessions_only_and_reuses_history(self):
-        from scripts.update_snapshot import fetch_dated_margin
         weekdays = [date(2026, 10, 22) + timedelta(days=n) for n in range(33)]
         sessions = [str(d) for d in weekdays if d.weekday() < 5 and str(d) != "2026-10-26"][-21:]
         calls = []
@@ -168,22 +175,28 @@ class DatedMarginTests(unittest.TestCase):
         def loader(day):
             calls.append(day)
             if day == NEW and calls.count(NEW) == 1:
-                return self.report(OLD), "https://example.org"
+                return dated_margin_report(day, lambda url: ({"stat": "很抱歉，沒有符合條件的資料"}, url))
             return self.report(day), "https://example.org"
 
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
+            archive_daily(folder, "twse_dated_margin", [{"date": "2026-10-21", "balance_1000_twd": 1}])
             partial, raw = fetch_dated_margin(folder, sessions, loader)
             self.assertEqual(partial["missing"], [NEW])
             self.assertIsNone(raw)
+            diagnostic = json.loads((folder / "twse_dated_margin_diagnostic.json").read_text())
+            self.assertEqual(diagnostic["valid_days"], 20)
+            self.assertEqual([route["status"] for route in diagnostic["attempts"][0]["routes"]],
+                             ["no_report", "no_report"])
+            self.assertIn("no_report", source_warnings(folder, {"sources": {"twse_dated_margin": partial}},
+                                                       NEW)["twse_dated_margin"])
             valid, raw = fetch_dated_margin(folder, sessions, loader)
             self.assertEqual(valid["missing"], [])
             self.assertEqual(calls[-1], NEW)
             self.assertEqual(len(calls), 22)
-            self.assertEqual(len(json.loads((folder / "twse_dated_margin.json").read_text())), 21)
+            self.assertEqual(len(json.loads((folder / "twse_dated_margin.json").read_text())), 22)
 
     def test_report_requires_named_amount_column_and_finite_value(self):
-        from scripts.update_snapshot import margin_total
         self.assertEqual(margin_total(self.report(NEW)), 100000)
         for value in ("NaN", "Infinity", "0"):
             with self.assertRaises(ValueError):
@@ -192,3 +205,65 @@ class DatedMarginTests(unittest.TestCase):
         raw["tables"][0]["fields"][1] = "前日餘額"
         with self.assertRaises(ValueError):
             margin_total(raw)
+
+    def test_route_falls_back_after_malformed_report_to_legacy_table(self):
+        legacy = {"stat": "OK", "date": "115/11/23", "fields1": ["今日餘額", "項目"],
+                  "data1": [["100,000", "融資金額（仟元）"]]}
+
+        def download(url):
+            if "/exchangeReport/" in url:
+                return {"stat": "OK", "date": NEW, "tables": [None]}, url
+            return legacy, url
+
+        report, url = dated_margin_report(NEW, download)
+        self.assertEqual(margin_total(report), 100000)
+        self.assertIn("/rwd/", url)
+
+    def test_redirected_payload_must_have_requested_date(self):
+        def download(url):
+            return self.report(OLD), url.replace("/exchangeReport/", "/rwd/zh/marginTrading/")
+
+        with self.assertRaises(MarginReportError) as error:
+            dated_margin_report(NEW, download)
+        for attempt in error.exception.attempts:
+            self.assertEqual(attempt["status"], "date_mismatch")
+            self.assertIn(OLD, attempt["message"])
+            self.assertIn("/rwd/", attempt["response_url"])
+
+    def test_http_307_can_follow_twse_report_route_and_rejects_other_targets(self):
+        original = "https://www.twse.com.tw/exchangeReport/MI_MARGN"
+        official = "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
+        handler = MarginRedirectHandler()
+        response = io.BytesIO()
+        request = handler.redirect_request(Request(original), response, 307, "Temporary Redirect", {}, official)
+        self.assertEqual(request.full_url, official)
+        for target in ("https://www.twse.com.tw/", "http://www.twse.com.tw/exchangeReport/MI_MARGN",
+                       "https://example.org/exchangeReport/MI_MARGN"):
+            with self.subTest(target=target), self.assertRaises(HTTPError):
+                handler.redirect_request(Request(original), response, 307, "Temporary Redirect", {}, target)
+
+        def download(url):
+            handler.redirect_request(Request(url), io.BytesIO(), 307, "Temporary Redirect", {},
+                                     "https://www.twse.com.tw/")
+
+        with self.assertRaises(MarginReportError) as error:
+            dated_margin_report(NEW, download)
+        self.assertEqual([a["status"] for a in error.exception.attempts], ["http_redirect", "http_redirect"])
+
+    def test_maintenance_requires_same_day_reconciled_balances_and_reliable_prices(self):
+        raw = self.report(NEW, "100")
+        raw["tables"][0]["data"].append(["融資(交易單位)", "10"])
+        raw["tables"].append({"fields": ["代號", "今日餘額"], "data": [["2330", "10"]]})
+        quotes = [{"Code": "2330", "ClosingPrice": "15", "Date": "1151123"}]
+        result = maintenance(raw, quotes, NEW)
+        self.assertEqual(result["ratio"], 150)
+        self.assertTrue(result["price_basis_verified"])
+        with self.assertRaisesRegex(ValueError, "margin date not verified"):
+            maintenance(raw, quotes, OLD)
+        old_quotes = [dict(quotes[0], Date="1151120")]
+        with patch("scripts.update_snapshot.dated_maintenance_prices", return_value=old_quotes):
+            with self.assertRaisesRegex(ValueError, "historical price share exceeds 0.1%"):
+                maintenance(raw, old_quotes, NEW)
+        raw["tables"][-1]["data"][0][1] = "9"
+        with self.assertRaisesRegex(ValueError, "totals do not reconcile"):
+            maintenance(raw, quotes, NEW)

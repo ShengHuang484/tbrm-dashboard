@@ -157,6 +157,8 @@ def source_warnings(staging, manifest, target):
             warnings.setdefault(key, "尚未取得有效資料日期")
     for key, value in manifest["sources"].items():
         if value.get("status") == "partial":
+            if key == "twse_dated_margin" and target in value.get("errors", {}):
+                warnings[key] = str(value["errors"][target])[:240]
             warnings.setdefault(key, f"歷史資料缺漏 {', '.join(value.get('missing', []))}")
     return warnings
 
