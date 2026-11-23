@@ -65,3 +65,8 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 原始價格敏感度比較中，允許向前找最近 252 筆有效報價，期末分母從 946 增至 1,040，原始新低從 483 增至 520。這項對照允許拉長回看日曆跨度，不插補價格，也不變更嚴格研究預設。正式採用前仍需用獨立上市及停牌紀錄驗證選樣影響。
 - 終止上市五檔的原因已查齊。6423 轉櫃、3454 為現金股份轉換、6806 為負淨值、2867 與玉山金換股、1589 為財報未補正。2867 的原始行情於 8/19 結束，也與[公司對外說明](https://www.cna.com.tw/news/afe/202607130297.aspx)吻合。6423、6806 的原因見[轉櫃公告](https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69a3d6cf9019bc625f80f075e.pdf)及[負淨值公告](https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019e212d55f901ef.pdf)。五筆原因的核對尚不能證明所有合併及存續方公司行動已涵蓋。
 - 仍欠 10 筆異常的可重現正式生效日、減資清冊第二來源、普通股分割／反分割／合併全期間清冊，以及同口徑外部市場基準。維持 `score_eligible=false` 與 45/50。
+
+## 2026-11-23 復市日官方逐檔查詢
+
+- 以既有封存檔建立 10 筆逐檔輸入，保留原日期、復市候選日、前收、官方參考價及開盤競價基準。新增研究 Actions 查兩個復市日的 TWSE MI_INDEX 與單日 TWT49U，保留原始 JSON 與 SHA-256。交易日及報表範圍有獨立檢查。依[證交所每日收盤行情說明](https://www.twse.com.tw/zh/trading/historical/mi-index.html)，無比價有多種原因，程式保留觀察值供核對。
+- 本地測試 57 項通過。復市日的正式資料擷取結果待 Actions。研究輸出維持 `score_eligible=false`。

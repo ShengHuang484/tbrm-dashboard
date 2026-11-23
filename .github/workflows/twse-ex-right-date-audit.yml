@@ -1,0 +1,32 @@
+name: TWSE ex-right effective dates (research only)
+
+on:
+  push:
+    branches:
+      - research/new-low-quality-gates-20261123
+    paths:
+      - '.github/workflows/twse-ex-right-date-audit.yml'
+      - 'scripts/twse_ex_right_date_audit.py'
+      - 'research/ex_right_date_cases.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dated-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Query official historical evidence
+        run: python -m scripts.twse_ex_right_date_audit research/ex_right_date_cases.json dated-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dated-ex-right-evidence
+          path: dated-evidence/
+          retention-days: 30

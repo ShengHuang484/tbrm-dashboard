@@ -1,0 +1,102 @@
+[
+  {
+    "code": "2008",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "29.85",
+    "reference": "28.85",
+    "auction_base": "28.85",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "2610",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "21.40",
+    "reference": "20.58",
+    "auction_base": "20.60",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "2891",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "69.90",
+    "reference": "67.39",
+    "auction_base": "67.40",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "3034",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "542.00",
+    "reference": "519.00",
+    "auction_base": "519.00",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "3055",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "158.00",
+    "reference": "157.50",
+    "auction_base": "157.50",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "4968",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "111.50",
+    "reference": "109.90",
+    "auction_base": "110.00",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "5519",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "34.45",
+    "reference": "29.66",
+    "auction_base": "29.65",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "6477",
+    "reported_date": "2026-07-10",
+    "candidate_date": "2026-07-13",
+    "prior_date": "2026-07-09",
+    "prior_close": "39.85",
+    "reference": "39.50",
+    "auction_base": "39.50",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20260701&endDate=20260731"
+  },
+  {
+    "code": "2028",
+    "reported_date": "2026-10-23",
+    "candidate_date": "2026-10-27",
+    "prior_date": "2026-10-22",
+    "prior_close": "16.55",
+    "reference": "16.35",
+    "auction_base": "16.35",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20261001&endDate=20261031"
+  },
+  {
+    "code": "6931",
+    "reported_date": "2026-10-23",
+    "candidate_date": "2026-10-27",
+    "prior_date": "2026-10-22",
+    "prior_close": "37.50",
+    "reference": "37.38",
+    "auction_base": "37.40",
+    "original_report": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20261001&endDate=20261031"
+  }
+]
