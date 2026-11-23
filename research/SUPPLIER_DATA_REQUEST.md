@@ -20,3 +20,11 @@
 若交付附有檔案校驗碼，請在來源 JSON 的 `file_sha256` 填入 `quotes`、`calendar`、`listings` 三個原始 CSV 的小寫 SHA-256。驗收工具會逐檔比對，並另外記錄收到的來源 JSON 雜湊。
 
 [欄位範例](examples/external_delivery) · [跨事件驗收樣本](external_event_cases.json) · [啟用及驗收命令](ACTIVATION_CHECKLIST.md)
+
+### 全套驗收交付
+
+必備的六個 CSV 為 quotes、calendar、listings、roster、trading_status、events。逐日清冊使用 `date,code,security_id`，同一交易日的身分必須與四欄 `listings.csv` 一致。交易狀態使用 `date,code,reason,source_url`，只針對應在上市母體但沒有收盤的列。可用原因為 `announced_stop`、`company_action_stop`、`activity_without_close`、`zero_reported_activity`、`source_missing`、`unconfirmed`。事件使用 `date,code,event_type,successor_code,source_url`，僅合併與股份轉換填接續代號；同日多種事件分列。
+
+來源 JSON 另附 `origin=external`、`upstream_source`、`usage_basis`、`usage_limits`、`adjustment_anchor_date` 與六檔原始 `bundle_sha256`。方法需明列 `face_value_change` 和 `share_conversion`，並覆蓋既有七類調整。若只能交付部分日期或部分證券，請標明限制。資料使用與來源獨立性須以授權及取樣文件人工確認。
+
+以 `python -m scripts.external_delivery_bundle strict.json alternative.json raw-history.json event-cases.json local-gaps-full.json metadata.json supplier-directory/` 執行全套驗收。調整價倍數可能隨基準日整體縮放，逐日使用收盤比值和原始精度比較，保留個股跨上市區間及缺價原因供人工覆核。
