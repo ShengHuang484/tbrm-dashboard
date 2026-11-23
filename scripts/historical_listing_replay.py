@@ -96,7 +96,7 @@ def replay(history, adjusted, roster, evidence, *, strict_report=False, listings
         coverage["archived_starts_without_reconstruction"] = sorted(reported - expected)
     result = audit_adjusted_lows(ordinary, events, adjusted["lookback"], listings=listings)
     if strict_report:
-        result.update(applied_events=events, rights_basis=rights_basis,
+        result.update(applied_events=events, rights_basis=rights_basis, listing_intervals=listings,
                       issuer_snapshot_date=evidence["snapshot_date"],
                       historical_exit_codes=sorted({row["code"] for row in exits}))
         return result
