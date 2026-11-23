@@ -1,6 +1,8 @@
+import json
 import unittest
 
 from scripts.missing_close_audit import audit, summarize
+from scripts.twse_stock_day_gaps import capture
 
 
 class MissingCloseAuditTests(unittest.TestCase):
@@ -75,3 +77,31 @@ class MissingCloseAuditTests(unittest.TestCase):
         self.lifecycle["coverage"]["missing_close_pairs"] = 1
         with self.assertRaisesRegex(ValueError, "denominator"):
             audit(self.history, self.report, self.lifecycle, self.activity, "https://example.com")
+
+    def test_official_rows_distinguish_zero_activity_and_archival_price_gap(self):
+        raw = dict(stat="OK", date="20260101", title="115年01月 1101 Test",
+                   fields=["日期", "成交股數", "成交筆數", "收盤價"],
+                   data=[["115/01/08", "100", "5", "22"], ["115/01/09", "0", "0", "--"]])
+        evidence = capture("1101", "2026-01", [self.a, self.b], json.dumps(raw).encode())
+        result = audit(self.history, self.report, self.lifecycle, self.activity,
+                       "https://example.com", [evidence])
+        self.assertEqual(result["classification"]["official_close_missing_from_archive"]["pairs"], 1)
+        self.assertEqual(result["classification"]["zero_reported_activity"]["pairs"], 1)
+        self.assertFalse(result["study_day_impact"][0]["potential_quote_recovery_codes"])
+        self.assertEqual(self.history[self.a], {})
+        evidence["raw_rows"][1][-1] = "22"
+        with self.assertRaisesRegex(ValueError, "digest"):
+            audit(self.history, self.report, self.lifecycle, self.activity, "https://example.com", [evidence])
+
+    def test_official_row_absence_never_implies_suspension(self):
+        raw = dict(stat="OK", date="20260101", title="115年01月 1101 Test",
+                   fields=["日期", "成交股數", "成交筆數", "收盤價"],
+                   data=[["115/01/12", "100", "5", "20"]])
+        evidence = capture("1101", "2026-01", [self.a], json.dumps(raw).encode())
+        result = audit(self.history, self.report, self.lifecycle, self.activity,
+                       "https://example.com", [evidence])
+        self.assertEqual(result["official_quote_diagnostics"], {"official_row_absent": 1})
+        self.assertEqual(result["unknown_pairs"], 2)
+        raw["data"].append(raw["data"][0])
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            capture("1101", "2026-01", [self.a], json.dumps(raw).encode())

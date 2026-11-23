@@ -491,6 +491,70 @@
         "evidence_kind": "published_stop_dates"
       },
       "normalized_evidence_sha256": "5e77520e17e939a5913fa0e7aebcb97cde03cc6759efb0267ebe7ff573ca6c71"
+    },
+    {
+      "code": "8105",
+      "start": "2026-08-19",
+      "end": "2026-08-27",
+      "disposition": "resume",
+      "sources": [
+        "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=cd8ae97c-aaa9-4fad-914b-2a1615bc5181",
+        "https://www.twse.com.tw/pdf/ch/8105_ch.pdf",
+        "https://news.cnyes.com/news/print/6586644"
+      ],
+      "published_evidence": {
+        "code": "8105",
+        "start": "2026-08-19",
+        "end": "2026-08-27",
+        "source_url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=cd8ae97c-aaa9-4fad-914b-2a1615bc5181",
+        "notice_date": "2026-08-17",
+        "resumption_notice_date": "2026-08-25",
+        "reason": "第二季財務報告逾期後補行申報，證交所恢復交易"
+      },
+      "normalized_evidence_sha256": "19c9d146ac24c090f128e78a8c2d8c57f8657c0aaf9f8965535bec53ac941dc7"
+    },
+    {
+      "code": "2832",
+      "start": "2025-10-22",
+      "end": "2025-11-03",
+      "disposition": "resume",
+      "sources": [
+        "https://accessibility.twse.com.tw/zh/announcement/announcement/detail.html?id=C76257119FFC11F0AC832D9568472C08"
+      ],
+      "published_evidence": {
+        "code": "2832",
+        "start": "2025-10-22",
+        "end": "2025-11-03",
+        "source_url": "https://accessibility.twse.com.tw/zh/announcement/announcement/detail.html?id=C76257119FFC11F0AC832D9568472C08",
+        "notice_date": "2025-10-03",
+        "reason": "現金減資每股退還 3 元，每千股換發 700 股，舊股停買至 10/31，新股 11/03 上市。"
+      },
+      "normalized_evidence_sha256": "34973021639078c75428b606898565f0902dc2360dd10f8bfc44a56e9451c7dc",
+      "event_type": "capital_reduction"
+    },
+    {
+      "code": "1435",
+      "start": "2026-04-29",
+      "end": "2026-06-18",
+      "disposition": "resume",
+      "sources": [
+        "https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019dce84a6e70031.pdf",
+        "https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69e6379f4019ecfcd2cc10244.pdf"
+      ],
+      "published_evidence": {
+        "code": "1435",
+        "start": "2026-04-29",
+        "end": "2026-06-18",
+        "source_url": "https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019dce84a6e70031.pdf",
+        "notice_date": "2026-04-27",
+        "reason": "年度財報逾期未重編；補行公告申報後恢復交易。",
+        "resumption_notice_date": "2026-06-16",
+        "raw_notice_sha256": {
+          "https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019dce84a6e70031.pdf": "1c3310fd12fae3ad36ba934ecfbc4e26d231946ab64ecca0eddf97a8dcae30d0",
+          "https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69e6379f4019ecfcd2cc10244.pdf": "8f25b770ee0f0cf12398e14d7a5850e859f00de901f934c8784529e634f6c8e6"
+        }
+      },
+      "normalized_evidence_sha256": "26aeb5fbc39d1472b7e2b001bd107279b7819326402b1f62c130096b5cdbe74b"
     }
   ]
 }

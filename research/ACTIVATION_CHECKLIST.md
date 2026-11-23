@@ -64,3 +64,7 @@ python -m scripts.external_delivery_check research/examples/external_delivery/{r
 |
 
 內部重播、外部個案核對與全市場獨立驗證為不同層級；不得以內部 111 項歷史測試通過代替本次提交 CI，亦不得將外部個案驗證視為全市場驗證。正式維持 45/50，`score_eligible=false`。
+
+## 停復牌與缺價續查
+
+已有 31 段公告停買區間，合計 377 個配對。TWSE 個股日表補證 36 個配對，連同既有交易活動證據共 118 個。剩餘 469 個未知。官方終止上市封存與五個重建退出邊界逐筆相符，涵蓋本案日期窗的該份清冊。完整逐日證券身分、承繼關係與獨立行情仍待交付，狀態為 PARTIAL／BLOCKED。

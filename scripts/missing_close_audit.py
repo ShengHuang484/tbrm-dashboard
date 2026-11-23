@@ -6,12 +6,13 @@ from collections import defaultdict
 from pathlib import Path
 
 from scripts.new_low_listing import listing_windows, listings_on
+from scripts.twse_stock_day_gaps import replay_evidence
 
 COMPANY_ACTION_STOPS = {"1808", "8422", "7780", "6949"}
 QUOTE_ACTIVITY = {"activity_without_close", "zero_reported_activity"}
 
 
-def audit(history, report, lifecycle, activity, activity_source):
+def audit(history, report, lifecycle, activity, activity_source, official_batches=()):
     dates = report["market_dates"]
     if dates != sorted(history):
         raise ValueError("research calendar does not match archived quotes")
@@ -45,6 +46,18 @@ def audit(history, report, lifecycle, activity, activity_source):
         if key not in missing or key in classified or reason not in QUOTE_ACTIVITY:
             raise ValueError("invalid or overlapping quote activity evidence")
         classified[key] = reason
+    official_diagnostics = defaultdict(int)
+    recoverable = set()
+    for key, reason in replay_evidence(official_batches):
+        if key not in missing:
+            raise ValueError("official quote evidence is outside the archival gap set")
+        official_diagnostics[reason] += 1
+        if reason in QUOTE_ACTIVITY or reason == "official_close_missing_from_archive":
+            if key in classified and classified[key] != reason:
+                raise ValueError("conflicting official quote evidence")
+            classified[key] = reason
+        if reason == "official_close_missing_from_archive":
+            recoverable.add(key)
 
     if len(missing) != lifecycle["coverage"]["missing_close_pairs"]:
         raise ValueError("missing-close denominator differs from historical replay")
@@ -77,9 +90,10 @@ def audit(history, report, lifecycle, activity, activity_source):
     groups = []
     for code, day in sorted(missing):
         reason = classified.get((code, day), "unknown")
-        stats = summary.setdefault(reason, {"codes": set(), "pairs": 0})
+        stats = summary.setdefault(reason, {"codes": set(), "pairs": 0, "study_dates": set()})
         stats["codes"].add(code)
         stats["pairs"] += 1
+        stats["study_dates"].update(candidates[code, day])
         if (not groups or groups[-1]["code"] != code or groups[-1]["reason"] != reason
                 or positions[day] != positions[groups[-1]["last"]] + 1):
             groups.append(dict(code=code, reason=reason, first=day, last=day, pairs=0,
@@ -126,13 +140,17 @@ def audit(history, report, lifecycle, activity, activity_source):
         unknown_group_count=len(unknown_groups),
         unknown_pairs=sum(g["pairs"] for g in unknown_groups),
         possible_action_stops=possible_action_stops,
-        classification={reason: dict(stocks=len(stats["codes"]), pairs=stats["pairs"])
+        official_quote_diagnostics=dict(sorted(official_diagnostics.items())),
+        classification={reason: dict(stocks=len(stats["codes"]), pairs=stats["pairs"],
+                                     study_dates=sorted(stats["study_dates"]))
                         for reason, stats in sorted(summary.items())},
         study_day_impact=[dict(date=row["date"], excluded_with_missing_close=sum(
             target == row["date"] for _, target in blockers), known_lows=row["adjusted_low_count"],
             unknown_only_exclusions=sum(target == row["date"] and
                 all((code, gap) not in classified for gap in gaps)
-                for (code, target), gaps in blockers.items()))
+                for (code, target), gaps in blockers.items()),
+            potential_quote_recovery_codes=sorted(code for (code, target), gaps in blockers.items()
+                if target == row["date"] and all((code, gap) in recoverable for gap in gaps)))
             | excluded_by_listing[row["date"]] for row in report["sessions"]],
         groups=groups, quote_activity_source=activity_source, score_eligible=False)
 
@@ -152,12 +170,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     for arg in ("history", "report", "lifecycle", "activity", "sources"):
         parser.add_argument(arg, type=Path)
+    parser.add_argument("--official-evidence", type=Path)
     parser.add_argument("--summary", action="store_true")
     args = parser.parse_args()
     payloads = {arg: getattr(args, arg).read_bytes()
                 for arg in ("history", "report", "lifecycle", "activity", "sources")}
     history, report, lifecycle, activity, sources = map(json.loads, payloads.values())
-    result = audit(history, report, lifecycle, activity["quote_activity"], sources["quote_source"])
+    official = args.official_evidence.read_bytes() if args.official_evidence else None
+    result = audit(history, report, lifecycle, activity["quote_activity"], sources["quote_source"],
+                   json.loads(official)["batches"] if official else ())
+    if official:
+        payloads["official_evidence"] = official
     result["source_artifact_sha256"] = activity["raw_sha256"]
     result["input_sha256"] = {k: hashlib.sha256(v).hexdigest() for k, v in payloads.items()}
     if args.summary:
