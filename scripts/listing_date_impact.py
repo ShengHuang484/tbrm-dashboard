@@ -3,9 +3,11 @@
 import argparse
 import hashlib
 import json
+from datetime import date, timedelta
 from pathlib import Path
 
-from scripts.new_low_adjusted_audit import audit_adjusted_lows
+from scripts.new_low_adjusted_audit import STRICT_SESSIONS, audit_adjusted_lows
+from scripts.new_low_listing import listing_windows
 
 
 def audit(checkpoint, review):
@@ -23,26 +25,48 @@ def audit(checkpoint, review):
         for row in listings
     ]
     history, events, lookback = (checkpoint[key] for key in ("history", "applied_events", "lookback"))
-    original = audit_adjusted_lows(history, events, lookback, listings=listings)
-    scenario = audit_adjusted_lows(history, events, lookback, listings=candidate)
-    comparisons = list(zip(original["sessions"], scenario["sessions"], strict=True))
-    fields = ("eligible_codes", "adjusted_low_codes", "raw_low_count", "adjusted_low_count")
-    results = {}
-    for code, case in sorted(cases.items()):
-        results[code] = dict(archived=case["archived"], candidate=case["isin"],
-                             eligibility_changed_sessions=[
-                                 a["date"] for a, b in comparisons
-                                 if (code in a["eligible_codes"]) != (code in b["eligible_codes"])],
-                             adjusted_low_membership_changed_sessions=[
-                                 a["date"] for a, b in comparisons
-                                 if (code in a["adjusted_low_codes"]) != (code in b["adjusted_low_codes"])])
-    return dict(lookback=lookback, quote_policy=original["quote_policy"],
-                earliest_window_session=original["market_dates"][0],
-                first_evaluated_session=comparisons[0][0]["date"],
-                last_evaluated_session=comparisons[-1][0]["date"],
-                evaluated_sessions=len(comparisons), cases=results,
-                changed_market_sessions=[a["date"] for a, b in comparisons
-                                         if any(a[key] != b[key] for key in fields)],
+    dates = sorted(history)
+    if not 1 <= lookback < len(dates):
+        raise ValueError("insufficient market sessions")
+
+    first = date.fromisoformat(dates[0]).isoformat()
+    end = (date.fromisoformat(dates[-1]) + timedelta(days=1)).isoformat()
+
+    def clipped_windows(records, code):
+        return [
+            (max(start, first), min(stop or end, end))
+            for start, stop in records.get(code, ())
+            if max(start, first) < min(stop or end, end)
+        ]
+
+    old_windows = listing_windows(listings)
+    new_windows = listing_windows(candidate)
+    results = {
+        code: dict(archived=case["archived"], candidate=case["isin"],
+                   clamped_intervals_equal=clipped_windows(old_windows, code) == clipped_windows(new_windows, code),
+                   eligibility_changed_sessions=[], adjusted_low_membership_changed_sessions=[])
+        for code, case in sorted(cases.items())
+    }
+    changed = []
+    method = "archive_boundary_proof"
+    if not all(row["clamped_intervals_equal"] for row in results.values()):
+        method = "strict_replay"
+        original = audit_adjusted_lows(history, events, lookback, listings=listings)
+        scenario = audit_adjusted_lows(history, events, lookback, listings=candidate)
+        comparisons = list(zip(original["sessions"], scenario["sessions"], strict=True))
+        fields = ("eligible_codes", "adjusted_low_codes", "raw_low_count", "adjusted_low_count")
+        changed = [a["date"] for a, b in comparisons if any(a[key] != b[key] for key in fields)]
+        for code, result in results.items():
+            for field, output in (("eligible_codes", "eligibility_changed_sessions"),
+                                  ("adjusted_low_codes", "adjusted_low_membership_changed_sessions")):
+                result[output] = [a["date"] for a, b in comparisons
+                                  if (code in a[field]) != (code in b[field])]
+
+    return dict(lookback=lookback, quote_policy=STRICT_SESSIONS, method=method,
+                archive_sessions=len(dates), earliest_window_session=first,
+                first_evaluated_session=dates[lookback], last_evaluated_session=dates[-1],
+                evaluated_sessions=len(dates) - lookback, cases=results,
+                changed_market_sessions=changed,
                 committed_listing_changes=False, score_eligible=False)
 
 

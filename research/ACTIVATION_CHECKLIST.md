@@ -86,3 +86,10 @@ python -m scripts.session_action_coverage checkpoint.json raw-directory/ supplem
 [四筆證據、252 日重播及當日缺件](REMAINING_EVIDENCE_20261124.md)已更新。四組候選日期在測試的 10 日中皆不改變資格或新低家數，日期歸因維持 1303 BLOCKED、1449／2491／6133 PARTIAL。供應商交付準備已通過含錯誤資料的乾淨環境驗收。[台灣供應商試用申請信](SUPPLIER_TRIAL_EMAIL_ZH_TW.md)可直接使用。
 
 本輪未解除正式啟用阻擋。等待授權的 11/23 T48、A24、其餘生效清冊、獨立歷史母體與行情，以及 1312 正式價格口徑決策。
+
+### 外部交付的兩條路徑
+
+- [A．11/23 完整生效清冊](SUPPLIER_DATA_REQUEST.md#a-的重播)仍待授權 T48、A24、其餘六類生效公告及市場／涵蓋範圍聲明。具備完整證據後才可重跑增量。
+- [B．262 日獨立母體及行情](SUPPLIER_DATA_REQUEST.md#b-的驗收)仍待全期交付、永久識別碼及來源獨立審查。小樣可先驗收。B 對既有封存的驗證無須等 A。
+- [兩封獨立申請信](SUPPLIER_TRIAL_EMAIL_ZH_TW.md)可轉寄相應提供方。到件後先核授權、覆蓋及雜湊。1312 正式採 13.40 或 13.20 的決策仍待核准。
+- [四筆起日邊界證明](listing_date_impact_20261123.json)覆蓋整段 262 日封存，全部裁切區間相同，日期證據等級維持既有狀態。

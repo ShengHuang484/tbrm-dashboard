@@ -11,7 +11,7 @@
 | 2491 吉祥全 | 2001/09/19／2001/09/17 | 發行人簡介列 2000/02/21 上櫃、2001/09/19 開始上市，兩者均有明確市場定義。09/17 的 ISIN 日期仍缺事件主證。證交所查價端點拒絕歷史起始日以前的請求。 [發行人簡介](https://www.focl.com.tw/about.php) · [TWSE 個股頁](https://www.twse.com.tw/pdf/ch/2491_ch.pdf) | PARTIAL | 0／0 日 |
 | 6133 金橋 | 2003/08/25／2003/08/15 | 同期 TWSE 年報與 Fact Book 支持 08/25 開始交易，發行人財報也列 08/25。ISIN 與現行 TWSE 個股頁列 08/15。缺可解釋欄位來源的通知。查價端點拒絕歷史起始日以前的請求。 [TWSE 年報](https://www.twse.com.tw/downloads/zh/about/company/Annual/92/025-031.pdf) · [Fact Book](https://www.twse.com.tw/downloads/zh/about/company/factbook_2004.pdf) · [TWSE 個股頁](https://wwwc.twse.com.tw/pdf/ch/6133_ch.pdf) | PARTIAL | 0／0 日 |
 
-實跑封存資料的嚴格 252 交易日規則，將候選日期暫時帶入同一組行情及公司行動，對比 2026/11/09 至 11/20 的 10 個可計算交易日。全市場資格名單、調整後新低名單及原始與調整後家數均一致。最早回看日為 2025/10/22，四組原始與候選日期均在此之前。原始上市區間保留。 [量化輸出及輸入 SHA-256](listing_date_impact_20261123.json) · [原始 ISIN 與身分證據](incremental_listing_start_review_20261123.json)
+邊界證明把原始與候選上市區間裁切到封存的 262 個交易日所覆蓋的日期範圍（2025/10/22 至 2026/11/20），四檔在此範圍的有效區間完全相同。因此任何 252 日窗口的掛牌資格，以及在相同行情與公司行動下的新低名單與家數，均與原封存一致。前 252 日提供回看，後 10 日才可計算。程式遇到區間確實不同時才執行逐日對照。原始上市區間保留。 [邊界證明及輸入 SHA-256](listing_date_impact_20261123.json) · [原始 ISIN 與身分證據](incremental_listing_start_review_20261123.json)
 
 ```bash
 python -m scripts.listing_date_impact checkpoint.json research/incremental_listing_start_review_20261123.json
@@ -19,7 +19,7 @@ python -m scripts.listing_date_impact checkpoint.json research/incremental_listi
 
 ## 11/23 公司行動阻擋清單
 
-[封存來源、逐項 SHA-256 與重播](session_action_coverage_20261123.json)已驗證，增量回傳 `session action evidence is incomplete`。T48、A24 的公開產品頁提供規格與樣本，尚未取得 11/23 可合法留存、重播的實檔。本次沿用已確認的來源限制。
+[封存來源、逐項 SHA-256 與重播](session_action_coverage_20261123.json)已驗證，增量回傳 `session action evidence is incomplete`。T48、A24 的公開產品頁提供規格與樣本，尚未取得 11/23 可合法留存、重播的實檔。本次另查集保公開來源。可取得的集保文件為交割清單媒體格式，未找到能證明 11/23 全部事件的實檔及全量聲明。1808 換發公告只支持單例。 [集保公開格式](https://web.tdcc.com.tw/boWeb/06/attach/115000001902.pdf) · [1808 公告轉載](https://chbfund.moneydj.com/z/zf/zfz/zfzNStkCHB1_543AD7FC-D66E-4CCF-BA3F-C26381C36057.djhtm)
 
 | 類別 | 生效日和證券範圍檢核 | 正控制及剩餘證據 |
 |---|---|---|

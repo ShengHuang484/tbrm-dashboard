@@ -1,5 +1,35 @@
 # 臺灣上市普通股歷史還原行情資料需求
 
+## 兩包可獨立取得的交付
+
+| 資料包 | 提供方與最小可行交付 | 授權與驗收 |
+|---|---|---|
+| A．11/23 公司行動生效清冊 | TWSE 資訊服務或可證明合法轉授權的供應商。2026-11-23 一個生效交易日的 T48、A24 普通股除權息及減資檔，以及面額、分割、反分割、轉換、合併與換發新股的生效公告及全量範圍聲明。見下方各來源欄位。 | 取得研究、留存與重播許可。附原始位元 SHA-256、產製日、版本及可追溯來源。若某類無事件，需由來源方聲明當日、板別及證券類型涵蓋完整。完成原檔及生效範圍審查後依 A 命令重播。 |
+| B．262 日獨立母體及行情 | TEJ 或能證明上游來源的行情供應商。最小試用為 2867／2884 生命週期、1312 雙價格、11/23 名冊三組小樣。正式獨立驗證需 2025-10-22～2026-11-20 全部 262 日的逐日普通股名冊、永久識別碼與還原日線，連同日曆、掛牌、交易狀態及公司行動六檔。 | 書面確認可研究、留存、重播及公布彙總衍生統計的範圍。附原始來源、調整方法、版本及 SHA-256。小樣用一鍵驗收，全期用 B 命令。來源獨立性由人工覆核。 |
+
+### A 的重播
+
+先核對原檔與範圍聲明。至少確認生效日、一般板及創新板普通股、證券代號與 ISIN、事件分類、前收與參考價或換股比例。A24 減資恢復交易以 1808、2026-11-23、36.25 元為正控制。完成核對後，才將已審核事件納入研究用 JSON，並重新計算計畫雜湊。
+
+```bash
+python -m scripts.session_action_coverage checkpoint.json raw-directory/ supplemental-directory/
+python -m scripts.new_low_incremental replay checkpoint.json plan.json normalized-directory/
+```
+
+第一條命令重現既有封存與阻擋清單。第二條使用實檔審核產生的計畫與五檔：calendar、quotes、listings、actions、gaps。每檔以 `.json` 結尾，在 `plan.json` 的 `sources` 登錄 `source_url` 與 `sha256`。計畫還需 `checkpoint_sha256`、`origin=twse`、`mode=append`、`session` 及 `as_of`。僅當八類事件皆完成日期及範圍核證，才可在 `actions.json` 設定 `coverage_reviewed=true`。任何缺件一律保留 BLOCKED。
+
+### B 的驗收
+
+```bash
+python -m scripts.supplier_sample_check /path/to/samples
+python -m scripts.external_delivery_bundle strict.json alternative.json raw-history.json event-cases.json local-gaps-full.json metadata.json supplier-directory/
+```
+
+B 的小樣通過可確認格式與逐檔對照。全期驗收仍需實際 262 日交付及來源獨立性審查。A 可先獨立交付並推進 11/23；B 可用既有封存驗算，無須等 A。
+
+[兩封可分開寄出的資料申請信](SUPPLIER_TRIAL_EMAIL_ZH_TW.md)
+
+
 用途為驗證 52 週新低指標及公開彙總研究結果。請提供 **2025-10-22 至 2026-11-20** 臺灣證券交易所上市普通股（含創新板）的資料。範圍涵蓋期內下市、轉板及重新上市的證券。10 個研究日可各自回看 252 個市場交易日，整體研究日曆共 262 日。
 
 | 檔案 | 必要欄位與定義 |
