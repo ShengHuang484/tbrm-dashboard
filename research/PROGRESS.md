@@ -51,3 +51,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 期末仍有報價的 20 檔減資候選股票中，只有 1 檔進入嚴格 252 日分母。這量化了採該缺價政策的選樣影響。報價原因全分類、放寬政策的敏感度、上市母體獨立核對仍待完成。
 - 舊 [除權息來源封存](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45059710691) 的 10 筆原日期前收全數吻合復市前本地原始收盤。已補上[逐檔價格](effective_date_crosscheck.md)，其中 2610、2891 與券商參考價差 0.01 元，5519 可用現金及股票股利公式重建官方參考價。正式日期改派仍保留待審。原始 TWT49U 封存始自 2025-11，尚需查 2025-10-22 至月底以對齊原始收盤起點。
 - [研究分支 CI](https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965266) 通過。後續仍需涵蓋普通股分割、反分割及合併事件，並取得外部調整後價格或新低檔數作獨立基準。
+
+## 2026-11-23 普通股分割及上市身分核對
+
+- [證交所 TWTB7U](https://www.twse.com.tw/exchangeReport/TWTB7U?date=undefined&response=html&selectType=undefined)列出 6949 沛爾生醫 2026-09-07 以 20 倍股數換發。[發行公司公告](https://goodinfo.tw/tw/StockAnnounceDetail.asp?CLAIM_TIME=2026%2F09%2F02+07%3A00%3A03&STOCK_ID=6949&SUBJECT=%E5%85%AC%E5%91%8A%E6%9C%AC%E5%85%AC%E5%8F%B8%E8%82%A1%E7%A5%A8%E9%9D%A2%E9%A1%8D%E7%94%B1%E3%80%8C%E6%96%B0%E5%8F%B0%E5%B9%A310%E5%85%83%E3%80%8D%E8%AE%8A%E6%9B%B4%E7%82%BA%E3%80%8C%E6%96%B0%E5%8F%B0%E5%B9%A30.5%E5%85%83%E3%80%8D)也明示用 8/26 收盤除以 20。原始前收 1,490，理論參考價 74.50，復市收盤 67.10，係數為 1/20。一筆普通股分割有交易所和發行公司佐證。TWTB7U 是預告表，仍需查歷史涵蓋期間及反分割。
+- 比對[證交所終止上市清單](https://www.twse.com.tw/company/suspendListingCsvAndHtml?lang=zh&type=html)，窗口內列有 6423、3454、6806、2867、1589，五檔原始報價均早於終止上市日結束。3454 [由台達電以現金進行股份轉換](https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69c37647f019c89fca2900063.pdf)，不應把兩證券歷史串接。1589 為[財報一案的終止上市](https://investoredu.twse.com.tw/FileSystem/FileUpload/d0048d9a-e912-42ee-9c32-7a5bbff1d010.pdf)。其餘個案、窗口內新上市和代碼承繼、倖存公司事件仍需獨立核對。
+- 已加上原始行情起始月的 TWT49U 擷取，補查原封存未包含的 2025-10-22 至月底。調整後的整體市場基準仍欠第二份涵蓋同期間且價格定義一致的資料。
