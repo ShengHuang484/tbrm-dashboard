@@ -53,3 +53,11 @@ class SupplierSampleTest(unittest.TestCase):
         self.metadata["permissions"]["replay"] = False
         with self.assertRaisesRegex(ValueError, "replay permissions"):
             verify(self.metadata, self.files, self.reference)
+
+    def test_invalid_manifest_field_types_fail_validation(self):
+        for field, value, message in (
+            ("supplier", 1312, "missing source"),
+            ("permissions", ["replay"], "replay permissions"),
+        ):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, message):
+                verify(dict(self.metadata, **{field: value}), self.files, self.reference)

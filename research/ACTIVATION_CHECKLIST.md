@@ -80,3 +80,9 @@ python -m scripts.session_action_coverage checkpoint.json raw-directory/ supplem
 | 正式計分 | 45/50，`score_eligible=false` | 等待全市場阻擋解除與口徑核准。 |
 
 11/23 公司行動資料的下一次交付可依 [T48、A24 及額外生效公告清單](SUPPLIER_DATA_REQUEST.md#1123-公司行動生效清冊的指定交付) 索取。公開格式已核對，仍需同日實際檔案與涵蓋範圍聲明。
+
+### 四筆起日及外部交付驗收
+
+[四筆證據、252 日重播及當日缺件](REMAINING_EVIDENCE_20261124.md)已更新。四組候選日期在測試的 10 日中皆不改變資格或新低家數，日期歸因維持 1303 BLOCKED、1449／2491／6133 PARTIAL。供應商交付準備已通過含錯誤資料的乾淨環境驗收。[台灣供應商試用申請信](SUPPLIER_TRIAL_EMAIL_ZH_TW.md)可直接使用。
+
+本輪未解除正式啟用阻擋。等待授權的 11/23 T48、A24、其餘生效清冊、獨立歷史母體與行情，以及 1312 正式價格口徑決策。

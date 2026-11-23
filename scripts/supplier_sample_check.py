@@ -102,19 +102,22 @@ def verify(metadata, files, reference):
     if set(files) != set(FILES):
         raise ValueError("sample package must contain all three CSVs")
     hashes = {name: hashlib.sha256(raw).hexdigest() for name, raw in files.items()}
-    if hashes != metadata["sha256"]:
+    if not isinstance(metadata, dict) or hashes != metadata.get("sha256"):
         raise ValueError("one or more source bytes differ from the delivery SHA-256")
-    if (metadata["origin"] not in {"external", "synthetic"}
-            or metadata["adjustment_anchor_date"] != ANCHOR
-            or metadata["market"] != "TWSE" or metadata["currency"] != "TWD"
-            or any(not metadata.get(field, "").strip() for field in (
-                "supplier", "upstream_source", "export_version", "adjustment_method",
-                "license_reference", "usage_basis"))):
+    required_text = ("supplier", "upstream_source", "export_version", "adjustment_method",
+                     "license_reference", "usage_basis", "source_url")
+    if (metadata.get("origin") not in ("external", "synthetic")
+            or metadata.get("adjustment_anchor_date") != ANCHOR
+            or metadata.get("market") != "TWSE" or metadata.get("currency") != "TWD"
+            or any(not isinstance(metadata.get(field), str) or not metadata[field].strip()
+                   for field in required_text)):
         raise ValueError("missing source, anchor, market, method or license information")
     uri = urlsplit(metadata["source_url"])
     if uri.scheme != "https" or not uri.hostname or uri.username or uri.password:
         raise ValueError("supplier source must be a credential-free HTTPS URL")
-    if not all(metadata["permissions"].get(key) is True for key in ("research", "retention", "replay")):
+    permissions = metadata.get("permissions")
+    if not isinstance(permissions, dict) or not all(
+            permissions.get(key) is True for key in ("research", "retention", "replay")):
         raise ValueError("research, retention and replay permissions are required")
     verify_lifecycle(files["lifecycle"])
     verify_rights(files["rights"])

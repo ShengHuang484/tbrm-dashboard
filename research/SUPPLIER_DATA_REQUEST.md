@@ -86,3 +86,5 @@ python -m scripts.supplier_sample_check /path/to/delivery
 | 交易所生效公告及可核對清冊 | 面額變更、分割、反分割、股份轉換、合併及換發新股。請包含代號／ISIN、有效交易日、舊新證券對照、換股條件及公告連結。若該日無某類生效事件，請明列所確認的證券與事件範圍。 |
 
 上列檔案皆需附研究、留存及重播授權。T48 和 A24 的商品說明僅能確認欄位及產品涵蓋種類；仍須取得 11/23 實際檔案與交易所生效清冊。公開 [T48 格式檔](https://eshop.twse.com.tw/uploadFile/upload/000000006e0bbe8d016f3b0984a1038a.docx) SHA-256 為 `114335e5a51e7237cabcbfc1ec275b5193cdc2302fc0517a09f0e4d584b288d8`。
+
+可複製[繁體中文試用申請信](SUPPLIER_TRIAL_EMAIL_ZH_TW.md)。驗收命令可於乾淨 Python 環境從專案根目錄直接執行，無需額外安裝套件。11/23 公司行動實檔另按生效日期、覆蓋聲明及原始位元雜湊核對。
