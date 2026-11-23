@@ -44,3 +44,8 @@ jobs:
           python -m scripts.issuer_universe compare data/history/new_low_closes.json adjusted.json \
             research/issuer_master_20261122.csv 2026-11-22 > issuer-scope.json
           diff -u research/issuer_scope_result.json issuer-scope.json
+      - name: Replay above-market subscription sensitivity
+        run: |
+          python -m scripts.new_low_rights_scenario data/history/new_low_closes.json adjusted.json \
+            research/1312_rights_basis.json > rights-scenario.json
+          diff -u research/1312_rights_scenario.json rights-scenario.json
