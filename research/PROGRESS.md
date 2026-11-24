@@ -453,3 +453,9 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 四筆上市起日改用整段封存邊界證明。兩組上市區間在 262 日封存範圍完全一致，252 日回看資格及 10 個可計算日的新低結果不變。保留 1303 BLOCKED、1449／2491／6133 PARTIAL。程式僅在封存內的有效上市區間真正不同時重播。
 - 11/23 封存重播仍為 BLOCKED。另查集保公開格式及 1808 換發公告，未取得能證明八類事件全量的當日檔案。已知受限端點停止重試。
 - [交付需求](SUPPLIER_DATA_REQUEST.md)及[申請信](SUPPLIER_TRIAL_EMAIL_ZH_TW.md)已拆成 A 公司行動一日清冊、B 262 日獨立母體及行情，分別附最小範圍、授權及驗收命令。A、B 可平行取得。正式啟用阻擋解除 0 項，歷史獨立覆蓋 0／262，正式維持 45/50、`score_eligible=false`。
+
+### 2026-11-24 每日原始資料封存與外部採購前評估
+
+- 基準 d4c381b 的完整研究測試及三項 Actions 通過。新增獨立於 checkpoint 的[手動原始資料封存](DAILY_RAW_ARCHIVE.md)。以 11/23 已保存的官方位元及來源雜湊實驗，9/11 個來源保存並通過校驗、普通股 1,088 檔、缺收盤 1538 核得活動。後續日收檔可獨立進行，11/23 增量仍 BLOCKED。
+- [公開產品、授權與成本表](EXTERNAL_DATA_ACQUISITION.md)列出 TWSE、TEJ、FinMind、CMoney。A、B 等待合法資料，既有 API 限制已記錄。未執行購買或遞交申請。
+- 啟動每日排程仍待核准保存地點及書面使用權。正式啟用阻擋解除 0 項，外部歷史母體 0／262，正式 45/50，`score_eligible=false`。

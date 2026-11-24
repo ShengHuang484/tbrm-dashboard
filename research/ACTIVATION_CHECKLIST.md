@@ -93,3 +93,9 @@ python -m scripts.session_action_coverage checkpoint.json raw-directory/ supplem
 - [B．262 日獨立母體及行情](SUPPLIER_DATA_REQUEST.md#b-的驗收)仍待全期交付、永久識別碼及來源獨立審查。小樣可先驗收。B 對既有封存的驗證無須等 A。
 - [兩封獨立申請信](SUPPLIER_TRIAL_EMAIL_ZH_TW.md)可轉寄相應提供方。到件後先核授權、覆蓋及雜湊。1312 正式採 13.40 或 13.20 的決策仍待核准。
 - [四筆起日邊界證明](listing_date_impact_20261123.json)覆蓋整段 262 日封存，全部裁切區間相同，日期證據等級維持既有狀態。
+
+### 每日原始封存與外部等待
+
+- [手動封存](DAILY_RAW_ARCHIVE.md)已用官方 11/23 既有位元驗收。封存與增量互不相依，沒有啟用排程。待核准私有保存位置、授權期限與盤後執行方式。
+- **A WAITING_FOR_EXTERNAL_DATA**。等待 11/23 T48、A24、其他生效清冊及八類市場全量聲明。收到後依權利及範圍核對、正控制，再重播第一個未結 11/23。
+- **B WAITING_FOR_EXTERNAL_DATA**。等待具獨立上游的六檔全期資料及永久識別碼。先檢查小樣，再做全市場歷史比對與 1312 口徑核准。 [產品與最低成本順序](EXTERNAL_DATA_ACQUISITION.md)
