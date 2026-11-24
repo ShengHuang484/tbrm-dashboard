@@ -1,0 +1,168 @@
+{
+  "session": "2026-11-23",
+  "checked_on": "2026-11-24",
+  "status": "BLOCKED",
+  "replay_error": "session action evidence is incomplete",
+  "checkpoint_sha256": "8a586b78cadf6a219b1e18f7033bf2c569b104508a592e50ce0177a27ccf1299",
+  "replay_input_sha256": {
+    "calendar": "a83db645df2e2335caf175edb52cde31f0b4316c25b3fa725151a83477e51dbf",
+    "quotes": "c29cb3f92f7853f13662acd4cbfb9835ba04f643c89fe3779b90505ebdd144db",
+    "listings": "1415555b42c79b77efc3d3572af28610251e896d4ff1df5c9d80e6e8e93b1e71",
+    "gaps": "785de54e29f2d6bdc5612ee74a7c9939e05accffe7f82f96328fec402f897c39",
+    "actions": "897cd8847aa912db3ae7c01fd1e41fb22e19effc2ef2aaa3d2b2984e54ac1775"
+  },
+  "score_eligible": false,
+  "action_window_observations": {
+    "ex_window": {
+      "start": "20261120",
+      "end": "20261124",
+      "observed_codes_by_date": {
+        "2026-11-20": [
+          "0051",
+          "0055",
+          "00771",
+          "00850",
+          "4562"
+        ],
+        "2026-11-24": [
+          "00901",
+          "00930",
+          "6655"
+        ]
+      },
+      "target_rows": 0,
+      "coverage_reviewed": false
+    },
+    "reduction_window": {
+      "start": "20261120",
+      "end": "20261124",
+      "observed_codes_by_date": {
+        "2026-11-23": [
+          "1808"
+        ]
+      },
+      "target_rows": 1,
+      "coverage_reviewed": false
+    }
+  },
+  "reduction_observations": [
+    {
+      "code": "1808",
+      "old_session": "2026-11-11",
+      "old_close": "31.00",
+      "exchange_reference": "36.25",
+      "official_close": "34.85"
+    }
+  ],
+  "reduction_reference_crosscheck": {
+    "code": "1808",
+    "refund_per_old_share": "2.00",
+    "new_shares_per_old_share": "0.8",
+    "issuer_notice_mirror": "https://tcfhcsec.moneydj.com/z/zf/zfz/zfz_543AD7FC-D66E-4CCF-BA3F-C26381C36057.djhtm",
+    "formula": "(31.00 - 2.00) / 0.8 = 36.25"
+  },
+  "sources": {
+    "ex_window": {
+      "url": "https://www.twse.com.tw/rwd/zh/exRight/TWT49U?response=json&startDate=20261120&endDate=20261124",
+      "http": 200,
+      "sha256": "795e73fc7e194fd159dfdea9c6f6c3c245e1a2f58cfefba57ba2565a18dd42d2",
+      "bytes": 3380,
+      "representation": "response"
+    },
+    "reduction_window": {
+      "url": "https://www.twse.com.tw/exchangeReport/TWTAUU?response=json&startDate=20261120&endDate=20261124",
+      "http": 200,
+      "sha256": "2b6afed5e240ef8510e3813a819649b85b19571b6fefc24b3d22427a931b49bb",
+      "bytes": 1226,
+      "representation": "response"
+    },
+    "par_value_rwd": {
+      "url": "https://www.twse.com.tw/rwd/zh/announcement/change/TWTB7U?response=json&startDate=20261120&endDate=20261124",
+      "http": 200,
+      "sha256": "a2b4cf27aef44aa3db9d84fed30ba13b024385cce4fe571c7518ee047b8fb56f",
+      "bytes": 752,
+      "representation": "response"
+    },
+    "par_value_old": {
+      "url": "https://www.twse.com.tw/exchangeReport/TWTB7U?response=json",
+      "http": 200,
+      "sha256": "6b1a2ed56dd7006aa93aec3551820093df64b9576a00970c53d1dbdd63c35b21",
+      "bytes": 651,
+      "representation": "response"
+    },
+    "newlisting": {
+      "url": "https://www.twse.com.tw/rwd/zh/company/newlisting?response=json&yy=115",
+      "http": 200,
+      "sha256": "6b1f1a966afd297e564df926102b228832965f59b535bc6b278c8fdbedd671af",
+      "bytes": 97977,
+      "representation": "response"
+    },
+    "par_rwd_change": {
+      "url": "https://www.twse.com.tw/rwd/zh/change/TWTB7U?response=json&startDate=20261120&endDate=20261124",
+      "bytes": 695,
+      "sha256": "79a75c9bc70d703128280f60d8022d6d3c9246549b88e9e64009e3634c3e042a",
+      "http": 200,
+      "stat": "OK",
+      "title": "變更股票面額預告表",
+      "params": {
+        "response": "json",
+        "startDate": "20261120",
+        "endDate": "20261124",
+        "controller": "change",
+        "action": "TWTB7U",
+        "lang": "zh"
+      },
+      "data": [
+        [
+          "115/08/27",
+          "6949",
+          "沛爾生醫-創",
+          "115/09/07",
+          "20.00000000",
+          "10.00",
+          "0.50",
+          "6949  ,20260826",
+          "6949  ,20260827,20260907",
+          ",10.00,0.50"
+        ]
+      ]
+    },
+    "par_legacy_range": {
+      "url": "https://www.twse.com.tw/exchangeReport/TWTB7U?response=json&startDate=20261120&endDate=20261124",
+      "bytes": 695,
+      "sha256": "79a75c9bc70d703128280f60d8022d6d3c9246549b88e9e64009e3634c3e042a",
+      "http": 200,
+      "stat": "OK",
+      "title": "變更股票面額預告表",
+      "params": {
+        "response": "json",
+        "startDate": "20261120",
+        "endDate": "20261124",
+        "controller": "change",
+        "action": "TWTB7U",
+        "lang": "zh"
+      },
+      "data": [
+        [
+          "115/08/27",
+          "6949",
+          "沛爾生醫-創",
+          "115/09/07",
+          "20.00000000",
+          "10.00",
+          "0.50",
+          "6949  ,20260826",
+          "6949  ,20260827,20260907",
+          ",10.00,0.50"
+        ]
+      ]
+    }
+  },
+  "remaining_coverage_gaps": {
+    "ex_dividend_stock_dividend_and_rights": "TWSE date range agrees with target-date response, and supplies adjacent positive controls. No target rows observed. Completeness across all securities and cash subscriptions remains unproven.",
+    "reductions": "One 1808 result reconciled to both reports and the issuer notice. The observed row is verified individually.",
+    "par_value_splits_reverse_splits": "The valid RWD route and legacy date-range route both echo the requested November bounds but return the same 6949 August/September preannouncement. Endpoint does not demonstrate a date-filtered published effective-event archive. Need date-scoped full event coverage.",
+    "first_listings_transfers_mergers_and_share_exchanges": "Recent listing table has 797 application records and no first-trade date matching the target. It does not cover all new shares and continuing-issuer changes. Need stamped market-effective notices covering listings, successors and continuing securities.",
+    "security_history": "Four listing-start explanations unresolved and one exact emerging date requires an official record; no history changed."
+  }
+}

@@ -1,0 +1,5 @@
+date,code,security_id,status,raw_close,adjusted_close,successor_code,exchange_ratio
+2026-08-19,2867,TW0002867009,last_trade,9.70,9.7000,,
+2026-08-20,2867,TW0002867009,suspended,,,,
+2026-09-01,2867,TW0002867009,delisted,,,2884,0.2596
+2026-09-01,2884,TW0002884004,successor_trading,39.90,39.9000,,

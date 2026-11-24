@@ -1,0 +1,39 @@
+{
+  "external_transition": {
+    "official_reference": {
+      "code": "1312",
+      "effective_date": "2026-06-11",
+      "expected_ratio": "257/268",
+      "external_ratio_interval": [
+        "51/53",
+        "257/263"
+      ],
+      "agrees_with_display_precision": false
+    },
+    "zero_rights_value": {
+      "code": "1312",
+      "effective_date": "2026-06-11",
+      "expected_ratio": "257/264",
+      "external_ratio_interval": [
+        "51/53",
+        "257/263"
+      ],
+      "agrees_with_display_precision": true
+    }
+  },
+  "code": "1312",
+  "effective_date": "2026-06-11",
+  "sessions": 10,
+  "changed_sessions": [
+    {
+      "date": "2026-11-20",
+      "original": 425,
+      "scenario": 424,
+      "removed": [
+        "1312"
+      ],
+      "added": []
+    }
+  ],
+  "score_eligible": false
+}

@@ -1,0 +1,12 @@
+{
+  "rights_basis": "twse-reference",
+  "market_dates": ["2026-11-19", "2026-11-20"],
+  "lookback": 1,
+  "listing_intervals": [
+    {"code": "1101", "listed_from": "2000-01-01", "delisted_on": null},
+    {"code": "1102", "listed_from": "2000-01-01", "delisted_on": "2026-11-20"}
+  ],
+  "sessions": [
+    {"date": "2026-11-20", "eligible_codes": ["1101"], "adjusted_low_codes": []}
+  ]
+}

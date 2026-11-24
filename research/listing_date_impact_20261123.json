@@ -1,0 +1,45 @@
+{
+  "lookback": 252,
+  "quote_policy": "strict_market_sessions",
+  "method": "archive_boundary_proof",
+  "archive_sessions": 262,
+  "earliest_window_session": "2025-10-22",
+  "first_evaluated_session": "2026-11-09",
+  "last_evaluated_session": "2026-11-20",
+  "evaluated_sessions": 10,
+  "cases": {
+    "1303": {
+      "archived": "1967-11-15",
+      "candidate": "1967-11-05",
+      "clamped_intervals_equal": true,
+      "eligibility_changed_sessions": [],
+      "adjusted_low_membership_changed_sessions": []
+    },
+    "1449": {
+      "archived": "1992-05-06",
+      "candidate": "1992-03-12",
+      "clamped_intervals_equal": true,
+      "eligibility_changed_sessions": [],
+      "adjusted_low_membership_changed_sessions": []
+    },
+    "2491": {
+      "archived": "2001-09-19",
+      "candidate": "2001-09-17",
+      "clamped_intervals_equal": true,
+      "eligibility_changed_sessions": [],
+      "adjusted_low_membership_changed_sessions": []
+    },
+    "6133": {
+      "archived": "2003-08-25",
+      "candidate": "2003-08-15",
+      "clamped_intervals_equal": true,
+      "eligibility_changed_sessions": [],
+      "adjusted_low_membership_changed_sessions": []
+    }
+  },
+  "changed_market_sessions": [],
+  "committed_listing_changes": false,
+  "score_eligible": false,
+  "checkpoint_sha256": "8a586b78cadf6a219b1e18f7033bf2c569b104508a592e50ce0177a27ccf1299",
+  "review_sha256": "8466f08b890429ca3fc796147581c893f8fdf83e9e31a536a31520c0f18393fa"
+}

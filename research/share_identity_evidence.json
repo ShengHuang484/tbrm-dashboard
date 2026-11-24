@@ -1,0 +1,75 @@
+[
+  {
+    "code": "2305",
+    "reference_date": "2026-10-15",
+    "kind": "listed_survivor_treasury_share_cancellation",
+    "price_basis_status": "no_holder_exchange_documented",
+    "sources": [
+      "https://www.nstock.tw/news/article_m?id=557439",
+      "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=f4de9b34-8494-4337-98c0-a87de518bb68"
+    ]
+  },
+  {
+    "code": "2887",
+    "reference_date": "2026-08-12",
+    "kind": "subsidiary_merger_announcement",
+    "price_basis_status": "exchange_applies_to_subsidiary",
+    "sources": [
+      "https://news.cnyes.com/news/print/6573843",
+      "https://web.taishinbank.com.tw/TSB/personal/common/news/TSBankNews-008090/"
+    ]
+  },
+  {
+    "code": "2867",
+    "reference_date": "2026-09-01",
+    "kind": "listed_share_exchange",
+    "price_basis_status": "cross_security_exchange",
+    "successor": "2884",
+    "new_shares_per_old_share": "0.2596",
+    "sources": [
+      "https://news.cnyes.com/news/print/6548591",
+      "https://www.cna.com.tw/news/afe/202607130297.aspx"
+    ]
+  },
+  {
+    "code": "3010",
+    "reference_date": "2026-08-19",
+    "kind": "deferred_subsidiary_merger",
+    "price_basis_status": "pending_effective_date",
+    "withdrawn_planned_date": "2026-07-10",
+    "effective_date": null,
+    "survivor_entity": "恆源新能股份有限公司",
+    "absorbed_entity": "詠恆新能股份有限公司",
+    "sources": [
+      "https://anuenews.cnyes.com/news/id/6488891",
+      "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=958c27d0-9e94-425e-b552-7248c5dd1ed0"
+    ]
+  },
+  {
+    "code": "3454",
+    "reference_date": "2026-03-27",
+    "kind": "listed_cash_exchange",
+    "price_basis_status": "cash_exit",
+    "successor": "2308",
+    "cash_twd_per_old_share": "100",
+    "trading_stops_on": "2026-03-19",
+    "sources": [
+      "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69c37647f019c89fca2900063.pdf",
+      "https://filecenter.deltaww.com/ir/download/calendar/2026%20Annual%20General%20Shareholders%20Meeting%20Handbook_Chi.pdf"
+    ]
+  },
+  {
+    "code": "1103",
+    "reference_date": "2026-07-03",
+    "kind": "listed_acquirer_issues_exchange_shares",
+    "price_basis_status": "consideration_to_acquired_company_holders",
+    "target_entity": "嘉新國際股份有限公司",
+    "shares_issued": 42627094,
+    "target_shares_acquired": 35584852,
+    "sources": [
+      "https://news.cnyes.com/news/id/6514259",
+      "https://tw.stock.yahoo.com/news/%E5%98%89%E6%B3%A5%E5%A2%9E%E8%B3%87%E5%8F%97%E8%AE%93%E5%98%89%E6%96%B0%E5%9C%8B%E9%9A%9B%E4%B9%8B%E7%99%BC%E8%A1%8C%E6%96%B0%E8%82%A1%E8%A8%827-3%E8%B5%B7%E7%99%BC%E6%94%BE%E4%B8%A6%E4%B8%8A%E5%B8%82%E8%B2%B7%E8%B3%A3-015000613.html",
+      "https://wealth.firstbank.com.tw/investment-tips/trend-insight/news/news-detail?id=%7BC34F1396-8280-4236-8498-A229DC8D9C44%7D"
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+{
+  "as_of": "2026-11-23",
+  "status": "BLOCKED",
+  "requested_history_sessions": 262,
+  "verified_market_sessions": 0,
+  "market_baseline_verified": false,
+  "score_eligible": false,
+  "probes": {
+    "finmind_adjusted": {
+      "url": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPriceAdj&data_id=2867&start_date=2025-10-22&end_date=2026-11-20",
+      "status": 400,
+      "sha256": "7fec29f0c2cfbbe1fb3b5df7bf4169a5688258260d60f6f4a6863f5483f938b8",
+      "bytes": 160,
+      "message": "Your level is free. Please update your user level. Detail information:https://finmindtrade.com/analysis/#/Sponsor/sponsor",
+      "authorized_price_rows": 0,
+      "control_ticker": "2867",
+      "requested_window": [
+        "2025-10-22",
+        "2026-11-20"
+      ],
+      "status_reason": "membership_required",
+      "documentation": "https://finmind.github.io/tutor/TaiwanMarket/Technical/",
+      "licensing_reference": "https://finmind.github.io/Disclaimer/"
+    },
+    "tej_adjusted": {
+      "url": "https://api.tej.com.tw/api/datatables/TWN/APRCD1.json?coid=2867&mdate.gte=2025-10-22&mdate.lte=2026-11-20",
+      "status": 400,
+      "sha256": "bfe550167174b14ff30b6ce08ce5b8b3508996156ae1935376efad736d4d361f",
+      "bytes": 81,
+      "message": "請輸入您的api_key",
+      "authorized_price_rows": 0,
+      "control_ticker": "2867",
+      "requested_window": [
+        "2025-10-22",
+        "2026-11-20"
+      ],
+      "status_reason": "api_key_required",
+      "response_code": "AAA001",
+      "documentation": "https://api.tej.com.tw/documents.html"
+    }
+  }
+}

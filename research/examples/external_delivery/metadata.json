@@ -1,0 +1,21 @@
+{
+  "provider": "Synthetic sample",
+  "source_url": "https://example.com/adjusted-close",
+  "adjustment_method": "Synthetic values for importer demonstration",
+  "data_origin": "provider_adjusted_close",
+  "usage_basis": "Synthetic sample only",
+  "currency": "TWD",
+  "timezone": "Asia/Taipei",
+  "price_decimal_places": 2,
+  "exported_on": "2026-11-23",
+  "rights_basis": "twse-reference",
+  "corporate_action_rules": {
+    "cash_dividend": "Example: document cash amount, source and rounding",
+    "stock_dividend": "Example: document conversion ratio",
+    "rights_issue": "Example: document handling of a subscription above prior close",
+    "capital_reduction": "Example: document refund and exchange ratio",
+    "split": "Example: document split ratio and date",
+    "reverse_split": "Example: document reverse split ratio and date",
+    "merger": "Example: document successor and security identity treatment"
+  }
+}

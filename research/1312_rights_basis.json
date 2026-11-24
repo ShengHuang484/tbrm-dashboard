@@ -1,0 +1,29 @@
+{
+  "code": "1312",
+  "effective_date": "2026-06-11",
+  "prior_close": "13.20",
+  "official_reference": "13.40",
+  "dividend_only_reference": "13.20",
+  "auction_basis": "13.20",
+  "subscription_price": "14.00",
+  "twse_archive_run": "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45059710691",
+  "subscription_source": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1220586",
+  "external_sample": {
+    "source": "https://goodinfo.tw/tw/ShowK_Chart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=1312",
+    "accessed_on": "2026-11-23",
+    "prior_date": "2026-05-27",
+    "prior_displayed_close": "9.98",
+    "target_date": "2026-11-20",
+    "target_displayed_close": "10",
+    "window_observations": 240,
+    "required_observations": 253
+  },
+  "official_method_source": "https://www.twse.com.tw/zh/announcement/ex-right/twt49u.html",
+  "external_transition": {
+    "before_date": "2026-06-10",
+    "external_before": "13.2",
+    "external_after": "12.8",
+    "display_step": "0.10",
+    "source_url": "https://goodinfo.tw/tw/ShowK_Chart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=1312"
+  }
+}

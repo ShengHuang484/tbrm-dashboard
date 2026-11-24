@@ -1,0 +1,78 @@
+{
+  "transitions": [
+    {
+      "code": "7780",
+      "before_date": "2026-01-08",
+      "effective_date": "2026-01-19",
+      "reference": "18.50",
+      "external_before": "17.51",
+      "external_after": "19.26",
+      "display_step": "0.01",
+      "source_url": "https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=7780"
+    },
+    {
+      "code": "6949",
+      "before_date": "2026-08-26",
+      "effective_date": "2026-09-07",
+      "reference": "74.50",
+      "external_before": "74.50",
+      "external_after": "67.10",
+      "display_step": "0.01",
+      "source_url": "https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=6949"
+    },
+    {
+      "code": "6669",
+      "before_date": "2026-09-01",
+      "effective_date": "2026-09-02",
+      "reference": "2614.99",
+      "external_before": "2614.99",
+      "external_after": "2610",
+      "display_step": "0.01",
+      "source_url": "https://goodinfo.tw/tw/ShowBuySaleChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=6669"
+    },
+    {
+      "code": "8422",
+      "before_date": "2025-11-05",
+      "effective_date": "2025-11-17",
+      "reference": "25.00",
+      "external_before": "23.94",
+      "external_after": "23.65",
+      "display_step": "0.01",
+      "source_url": "https://goodinfo.tw/tw/ShowMarginChart.asp?CHT_CAT=DATE&PRICE_ADJ=T&STOCK_ID=8422"
+    }
+  ],
+  "delistings": [
+    {
+      "code": "6423",
+      "delisted_on": "2026-01-22",
+      "kind": "transfer_to_TPEx",
+      "source_url": "https://wwwc.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69a3d6cf9019bc625f80f075e.pdf"
+    },
+    {
+      "code": "3454",
+      "delisted_on": "2026-03-27",
+      "kind": "cash_share_exchange",
+      "successor": "2308",
+      "source_url": "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69c37647f019c89fca2900063.pdf"
+    },
+    {
+      "code": "6806",
+      "delisted_on": "2026-06-23",
+      "kind": "negative_equity",
+      "source_url": "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d69dbea9fd019e212d55f901ef.pdf"
+    },
+    {
+      "code": "2867",
+      "delisted_on": "2026-09-01",
+      "kind": "share_exchange",
+      "successor": "2884",
+      "source_url": "https://www.cna.com.tw/news/afe/202607130297.aspx"
+    },
+    {
+      "code": "1589",
+      "delisted_on": "2026-11-18",
+      "kind": "financial_reporting",
+      "source_url": "https://investoredu.twse.com.tw/FileSystem/FileUpload/d0048d9a-e912-42ee-9c32-7a5bbff1d010.pdf"
+    }
+  ]
+}

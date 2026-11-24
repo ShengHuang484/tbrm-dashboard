@@ -1,0 +1,77 @@
+{
+  "code": "2330",
+  "date": "2026-11-20",
+  "issuer_source": "https://investor.tsmc.com/chinese/dividends",
+  "provider_source": "https://stockanalysis.com/quote/tpe/2330/history/",
+  "references": [
+    {
+      "ex_date": "2025-12-11",
+      "official_reference": "1499.99",
+      "issuer_cash_reference": "1499.99998882"
+    },
+    {
+      "ex_date": "2026-03-17",
+      "official_reference": "1838.99",
+      "issuer_cash_reference": "1838.99996427"
+    },
+    {
+      "ex_date": "2026-06-11",
+      "official_reference": "2248.99",
+      "issuer_cash_reference": "2248.99996427"
+    },
+    {
+      "ex_date": "2026-09-16",
+      "official_reference": "2377.99",
+      "issuer_cash_reference": "2377.99999863"
+    }
+  ],
+  "compared_observations": 123,
+  "official_basis_mismatch_dates": [
+    "2026-05-25",
+    "2026-05-26",
+    "2026-05-27",
+    "2026-05-28",
+    "2026-05-29",
+    "2026-06-01",
+    "2026-06-02",
+    "2026-06-03",
+    "2026-06-04",
+    "2026-06-05",
+    "2026-06-08",
+    "2026-06-09",
+    "2026-06-10",
+    "2026-06-11",
+    "2026-06-16",
+    "2026-06-18",
+    "2026-06-24",
+    "2026-06-25",
+    "2026-06-30",
+    "2026-07-01",
+    "2026-07-02",
+    "2026-07-07",
+    "2026-07-08",
+    "2026-07-13",
+    "2026-07-14",
+    "2026-07-15",
+    "2026-07-17",
+    "2026-07-21",
+    "2026-07-22",
+    "2026-07-28",
+    "2026-07-30",
+    "2026-08-06",
+    "2026-08-17",
+    "2026-08-21",
+    "2026-08-25",
+    "2026-08-27",
+    "2026-08-28",
+    "2026-09-01",
+    "2026-09-03",
+    "2026-09-04",
+    "2026-09-09",
+    "2026-09-11"
+  ],
+  "issuer_cash_basis_mismatch_dates": [],
+  "missing_observations": 130,
+  "market_baseline_verified": false,
+  "score_eligible": false
+}

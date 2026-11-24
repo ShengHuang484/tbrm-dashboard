@@ -1,0 +1,10 @@
+{
+  "session": "2026-11-23",
+  "members": 1088,
+  "market": "TWSE ordinary shares on the main and innovation boards",
+  "canonical_roster_sha256": "95cb0191fb6fae15f9941378e480367dfac23f7b5ca64cbf9434672a1361a8d7",
+  "roster_provenance": "../../incremental_acceptance_20261123.json",
+  "price_provenance": "../../1312_rights_basis.json",
+  "lifecycle_provenance": "../../share_identity_evidence.json",
+  "score_eligible": false
+}

@@ -1,0 +1,183 @@
+{
+  "unknown_priority_queue": [],
+  "unknown_group_count": 0,
+  "unknown_pairs": 0,
+  "possible_action_stops": [],
+  "official_quote_diagnostics": {
+    "activity_without_close": 331,
+    "official_row_absent": 13,
+    "zero_reported_activity": 174
+  },
+  "classification": {
+    "activity_without_close": {
+      "stocks": 72,
+      "pairs": 408,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ]
+    },
+    "announced_stop": {
+      "stocks": 6,
+      "pairs": 209,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ]
+    },
+    "company_action_stop": {
+      "stocks": 24,
+      "pairs": 168,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ]
+    },
+    "zero_reported_activity": {
+      "stocks": 52,
+      "pairs": 179,
+      "study_dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
+      ]
+    }
+  },
+  "study_day_impact": [
+    {
+      "date": "2026-11-09",
+      "excluded_with_missing_close": 111,
+      "known_lows": 51,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 39,
+      "past_exit": 4
+    },
+    {
+      "date": "2026-11-10",
+      "excluded_with_missing_close": 112,
+      "known_lows": 77,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 39,
+      "past_exit": 4
+    },
+    {
+      "date": "2026-11-11",
+      "excluded_with_missing_close": 112,
+      "known_lows": 71,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 39,
+      "past_exit": 4
+    },
+    {
+      "date": "2026-11-12",
+      "excluded_with_missing_close": 112,
+      "known_lows": 70,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 38,
+      "past_exit": 4
+    },
+    {
+      "date": "2026-11-13",
+      "excluded_with_missing_close": 111,
+      "known_lows": 24,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 38,
+      "past_exit": 4
+    },
+    {
+      "date": "2026-11-16",
+      "excluded_with_missing_close": 111,
+      "known_lows": 136,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 38,
+      "past_exit": 4
+    },
+    {
+      "date": "2026-11-17",
+      "excluded_with_missing_close": 111,
+      "known_lows": 152,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 38,
+      "past_exit": 4
+    },
+    {
+      "date": "2026-11-18",
+      "excluded_with_missing_close": 109,
+      "known_lows": 87,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 38,
+      "past_exit": 5
+    },
+    {
+      "date": "2026-11-19",
+      "excluded_with_missing_close": 109,
+      "known_lows": 267,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 37,
+      "past_exit": 5
+    },
+    {
+      "date": "2026-11-20",
+      "excluded_with_missing_close": 107,
+      "known_lows": 425,
+      "unknown_only_exclusions": 0,
+      "potential_quote_recovery_codes": [],
+      "insufficient_listing_age": 37,
+      "past_exit": 5
+    }
+  ],
+  "quote_activity_source": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPrice&data_id=1538&start_date=2025-10-22&end_date=2026-11-20",
+  "score_eligible": false,
+  "source_artifact_sha256": "cd5688feab770dac7db52d93a57bb2ea8d66b3d5d7330d09657645a192516e9f",
+  "input_sha256": {
+    "history": "9c63b0534fc9db94f4069662c055b1014e76e329f8fa0ce67ce7967152e547e8",
+    "report": "1177755c1f201b365ddccfa9b3134fa5db39c3557bf4351138b6615b849ab090",
+    "lifecycle": "1581d3830b5e0dd05a6ab6f646d2a83f4d6059affb73f84824a51938827515ad",
+    "activity": "3cc6331a55c3a70aceed18ca14ca6ada7719ec12495955baf707eca1f62da8a6",
+    "sources": "e0efeb441441173c35769b710ab9ff7c3632c23a9d784ef119d3d4d119cd03c6",
+    "official_evidence": "067395247a713312c43aa83d59764ee61cf1f8bd5f511dbec476ba4b6ba9b7d6"
+  },
+  "group_count": 516,
+  "highest_priority_unknowns": [],
+  "priority_queue_truncated": false
+}

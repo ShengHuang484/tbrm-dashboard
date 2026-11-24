@@ -1,0 +1,219 @@
+{
+  "actions_run": "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45102469956",
+  "source_hashes": {
+    "delistings.html": "40eab1afebb77f8223d1ed5f4b0209f184b1009ef255585e51758fdcf0e72c05",
+    "face-value-detail.html": "8f014e2ed054267a5fd37a0bf3a07f388cf21acf41ad2e03415aef77279f3722",
+    "face-value-notices.json": "6b1a2ed56dd7006aa93aec3551820093df64b9576a00970c53d1dbdd63c35b21",
+    "2832-pre-window.json": "02fe2c8f03b66029e0c42f9f6108e1411187ca8a55aee0a977908492b9e25703",
+    "new-listings.json": "1ee289ddb134a0f44335f1c21d50cd56a1c5f5fa646b2d354f4423197c2ce7b3"
+  },
+  "date_window": [
+    "2025-10-22",
+    "2026-11-20"
+  ],
+  "new_listing_observations": [
+    {
+      "code": "7791",
+      "listed_from": "2025-10-28",
+      "first_raw_close_date": "2025-10-28"
+    },
+    {
+      "code": "7730",
+      "listed_from": "2025-11-04",
+      "first_raw_close_date": "2025-11-04"
+    },
+    {
+      "code": "7786",
+      "listed_from": "2025-11-18",
+      "first_raw_close_date": "2025-11-18"
+    },
+    {
+      "code": "7711",
+      "listed_from": "2025-11-19",
+      "first_raw_close_date": "2025-11-19"
+    },
+    {
+      "code": "6614",
+      "listed_from": "2025-11-25",
+      "first_raw_close_date": "2025-11-25"
+    },
+    {
+      "code": "6831",
+      "listed_from": "2025-11-25",
+      "first_raw_close_date": "2025-11-25"
+    },
+    {
+      "code": "7769",
+      "listed_from": "2025-11-27",
+      "first_raw_close_date": "2025-11-27"
+    },
+    {
+      "code": "6272",
+      "listed_from": "2025-12-22",
+      "first_raw_close_date": "2025-12-22"
+    },
+    {
+      "code": "6921",
+      "listed_from": "2025-12-23",
+      "first_raw_close_date": "2025-12-23"
+    },
+    {
+      "code": "6722",
+      "listed_from": "2026-01-16",
+      "first_raw_close_date": "2026-01-16"
+    },
+    {
+      "code": "7795",
+      "listed_from": "2026-01-16",
+      "first_raw_close_date": "2026-01-16"
+    },
+    {
+      "code": "1623",
+      "listed_from": "2026-01-22",
+      "first_raw_close_date": "2026-01-22"
+    },
+    {
+      "code": "4590",
+      "listed_from": "2026-01-29",
+      "first_raw_close_date": "2026-01-29"
+    },
+    {
+      "code": "6934",
+      "listed_from": "2026-02-02",
+      "first_raw_close_date": "2026-02-02"
+    },
+    {
+      "code": "7823",
+      "listed_from": "2026-02-05",
+      "first_raw_close_date": "2026-02-05"
+    },
+    {
+      "code": "6908",
+      "listed_from": "2026-03-25",
+      "first_raw_close_date": "2026-03-25"
+    },
+    {
+      "code": "2072",
+      "listed_from": "2026-03-26",
+      "first_raw_close_date": "2026-03-26"
+    },
+    {
+      "code": "7822",
+      "listed_from": "2026-03-30",
+      "first_raw_close_date": "2026-03-30"
+    },
+    {
+      "code": "4169",
+      "listed_from": "2026-04-08",
+      "first_raw_close_date": "2026-04-08"
+    },
+    {
+      "code": "7821",
+      "listed_from": "2026-04-20",
+      "first_raw_close_date": "2026-04-20"
+    },
+    {
+      "code": "7760",
+      "listed_from": "2026-04-28",
+      "first_raw_close_date": "2026-04-28"
+    },
+    {
+      "code": "4178",
+      "listed_from": "2026-04-30",
+      "first_raw_close_date": "2026-04-30"
+    },
+    {
+      "code": "7768",
+      "listed_from": "2026-05-07",
+      "first_raw_close_date": "2026-05-07"
+    },
+    {
+      "code": "4195",
+      "listed_from": "2026-05-11",
+      "first_raw_close_date": "2026-05-11"
+    },
+    {
+      "code": "7818",
+      "listed_from": "2026-05-18",
+      "first_raw_close_date": "2026-05-18"
+    },
+    {
+      "code": "7803",
+      "listed_from": "2026-05-20",
+      "first_raw_close_date": "2026-05-20"
+    },
+    {
+      "code": "4582",
+      "listed_from": "2026-05-22",
+      "first_raw_close_date": "2026-05-22"
+    },
+    {
+      "code": "7827",
+      "listed_from": "2026-05-29",
+      "first_raw_close_date": "2026-05-29"
+    },
+    {
+      "code": "5236",
+      "listed_from": "2026-07-16",
+      "first_raw_close_date": "2026-07-16"
+    },
+    {
+      "code": "6947",
+      "listed_from": "2026-07-23",
+      "first_raw_close_date": "2026-07-23"
+    },
+    {
+      "code": "7835",
+      "listed_from": "2026-07-24",
+      "first_raw_close_date": "2026-07-24"
+    },
+    {
+      "code": "7689",
+      "listed_from": "2026-07-28",
+      "first_raw_close_date": "2026-07-28"
+    },
+    {
+      "code": "2237",
+      "listed_from": "2026-08-10",
+      "first_raw_close_date": "2026-08-10"
+    },
+    {
+      "code": "7855",
+      "listed_from": "2026-08-11",
+      "first_raw_close_date": "2026-08-11"
+    },
+    {
+      "code": "7812",
+      "listed_from": "2026-09-22",
+      "first_raw_close_date": "2026-09-22"
+    },
+    {
+      "code": "8908",
+      "listed_from": "2026-10-16",
+      "first_raw_close_date": "2026-10-16"
+    },
+    {
+      "code": "6467",
+      "listed_from": "2026-10-20",
+      "first_raw_close_date": "2026-10-20"
+    },
+    {
+      "code": "7710",
+      "listed_from": "2026-10-27",
+      "first_raw_close_date": "2026-10-27"
+    },
+    {
+      "code": "7867",
+      "listed_from": "2026-10-30",
+      "first_raw_close_date": "2026-10-30"
+    }
+  ],
+  "reduction_pre_window_close": {
+    "code": "2832",
+    "date": "2025-10-21",
+    "close": "36.00",
+    "source": "STOCK_DAY"
+  },
+  "listing_universe_verified": false,
+  "score_eligible": false
+}

@@ -1,0 +1,8 @@
+{
+  "provider": "Goodinfo",
+  "source_url": "https://goodinfo.tw/tw/ShowK_Chart.asp?CHT_CAT=WEEK&PRICE_ADJ=T&STOCK_ID=2330",
+  "weekly_closes": [
+    {"last_session": "2026-01-09", "adjusted_close": "1665"},
+    {"last_session": "2026-11-20", "adjusted_close": "2000"}
+  ]
+}

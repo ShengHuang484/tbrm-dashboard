@@ -1,0 +1,677 @@
+{
+  "checks": [
+    {
+      "code": "2832",
+      "date": "2025-11-03",
+      "twse_pre_halt_close": "36.00",
+      "twse_resumption_reference": "47.14",
+      "secondary": {
+        "date": "2025-11-03",
+        "stock_id": "2832",
+        "ClosingPriceonTheLastTradingDay": 36.0,
+        "PostReductionReferencePrice": 47.14,
+        "LimitUp": 51.8,
+        "LimitDown": 42.45,
+        "OpeningReferencePrice": 47.15,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "1808",
+      "date": "2025-11-24",
+      "twse_pre_halt_close": "34.45",
+      "twse_resumption_reference": "37.16",
+      "secondary": {
+        "date": "2025-11-24",
+        "stock_id": "1808",
+        "ClosingPriceonTheLastTradingDay": 34.45,
+        "PostReductionReferencePrice": 37.16,
+        "LimitUp": 40.85,
+        "LimitDown": 33.45,
+        "OpeningReferencePrice": 37.15,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "9927",
+      "date": "2025-11-24",
+      "twse_pre_halt_close": "52.40",
+      "twse_resumption_reference": "69.11",
+      "secondary": {
+        "date": "2025-11-24",
+        "stock_id": "9927",
+        "ClosingPriceonTheLastTradingDay": 52.4,
+        "PostReductionReferencePrice": 69.11,
+        "LimitUp": 76.0,
+        "LimitDown": 62.2,
+        "OpeningReferencePrice": 69.1,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "8103",
+      "date": "2025-12-08",
+      "twse_pre_halt_close": "74.70",
+      "twse_resumption_reference": "86.11",
+      "secondary": {
+        "date": "2025-12-08",
+        "stock_id": "8103",
+        "ClosingPriceonTheLastTradingDay": 74.7,
+        "PostReductionReferencePrice": 86.11,
+        "LimitUp": 94.7,
+        "LimitDown": 77.5,
+        "OpeningReferencePrice": 86.1,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "3593",
+      "date": "2025-12-22",
+      "twse_pre_halt_close": "8.10",
+      "twse_resumption_reference": "13.50",
+      "secondary": {
+        "date": "2025-12-22",
+        "stock_id": "3593",
+        "ClosingPriceonTheLastTradingDay": 8.1,
+        "PostReductionReferencePrice": 13.5,
+        "LimitUp": 14.85,
+        "LimitDown": 12.15,
+        "OpeningReferencePrice": 13.5,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "1414",
+      "date": "2026-01-12",
+      "twse_pre_halt_close": "17.45",
+      "twse_resumption_reference": "18.27",
+      "secondary": {
+        "date": "2026-01-12",
+        "stock_id": "1414",
+        "ClosingPriceonTheLastTradingDay": 17.45,
+        "PostReductionReferencePrice": 18.27,
+        "LimitUp": 20.05,
+        "LimitDown": 16.45,
+        "OpeningReferencePrice": 18.25,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "2380",
+      "date": "2026-06-29",
+      "twse_pre_halt_close": "6.60",
+      "twse_resumption_reference": "23.86",
+      "secondary": {
+        "date": "2026-06-29",
+        "stock_id": "2380",
+        "ClosingPriceonTheLastTradingDay": 6.6,
+        "PostReductionReferencePrice": 23.86,
+        "LimitUp": 26.2,
+        "LimitDown": 21.5,
+        "OpeningReferencePrice": 23.85,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "1459",
+      "date": "2026-08-03",
+      "twse_pre_halt_close": "11.85",
+      "twse_resumption_reference": "12.46",
+      "secondary": {
+        "date": "2026-08-03",
+        "stock_id": "1459",
+        "ClosingPriceonTheLastTradingDay": 11.85,
+        "PostReductionReferencePrice": 12.46,
+        "LimitUp": 13.7,
+        "LimitDown": 11.25,
+        "OpeningReferencePrice": 12.45,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "6176",
+      "date": "2026-08-24",
+      "twse_pre_halt_close": "81.30",
+      "twse_resumption_reference": "105.06",
+      "secondary": {
+        "date": "2026-08-24",
+        "stock_id": "6176",
+        "ClosingPriceonTheLastTradingDay": 81.3,
+        "PostReductionReferencePrice": 105.06,
+        "LimitUp": 115.5,
+        "LimitDown": 94.6,
+        "OpeningReferencePrice": 105.0,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "1563",
+      "date": "2026-09-07",
+      "twse_pre_halt_close": "66.00",
+      "twse_resumption_reference": "84.66",
+      "secondary": {
+        "date": "2026-09-07",
+        "stock_id": "1563",
+        "ClosingPriceonTheLastTradingDay": 66.0,
+        "PostReductionReferencePrice": 84.66,
+        "LimitUp": 93.1,
+        "LimitDown": 76.2,
+        "OpeningReferencePrice": 84.7,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "2321",
+      "date": "2026-09-21",
+      "twse_pre_halt_close": "15.10",
+      "twse_resumption_reference": "27.61",
+      "secondary": {
+        "date": "2026-09-21",
+        "stock_id": "2321",
+        "ClosingPriceonTheLastTradingDay": 15.1,
+        "PostReductionReferencePrice": 27.61,
+        "LimitUp": 30.35,
+        "LimitDown": 24.85,
+        "OpeningReferencePrice": 27.6,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "3356",
+      "date": "2026-09-21",
+      "twse_pre_halt_close": "59.40",
+      "twse_resumption_reference": "68.04",
+      "secondary": {
+        "date": "2026-09-21",
+        "stock_id": "3356",
+        "ClosingPriceonTheLastTradingDay": 59.4,
+        "PostReductionReferencePrice": 68.04,
+        "LimitUp": 74.8,
+        "LimitDown": 61.3,
+        "OpeningReferencePrice": 68.0,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "3591",
+      "date": "2026-09-21",
+      "twse_pre_halt_close": "23.65",
+      "twse_resumption_reference": "25.22",
+      "secondary": {
+        "date": "2026-09-21",
+        "stock_id": "3591",
+        "ClosingPriceonTheLastTradingDay": 23.65,
+        "PostReductionReferencePrice": 25.22,
+        "LimitUp": 27.7,
+        "LimitDown": 22.7,
+        "OpeningReferencePrice": 25.2,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "1441",
+      "date": "2026-09-29",
+      "twse_pre_halt_close": "8.72",
+      "twse_resumption_reference": "10.13",
+      "secondary": {
+        "date": "2026-09-29",
+        "stock_id": "1441",
+        "ClosingPriceonTheLastTradingDay": 8.72,
+        "PostReductionReferencePrice": 10.13,
+        "LimitUp": 11.1,
+        "LimitDown": 9.12,
+        "OpeningReferencePrice": 10.15,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "6550",
+      "date": "2026-09-29",
+      "twse_pre_halt_close": "9.92",
+      "twse_resumption_reference": "19.09",
+      "secondary": {
+        "date": "2026-09-29",
+        "stock_id": "6550",
+        "ClosingPriceonTheLastTradingDay": 9.92,
+        "PostReductionReferencePrice": 19.09,
+        "LimitUp": 20.95,
+        "LimitDown": 17.2,
+        "OpeningReferencePrice": 19.1,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "2601",
+      "date": "2026-10-05",
+      "twse_pre_halt_close": "5.91",
+      "twse_resumption_reference": "7.06",
+      "secondary": {
+        "date": "2026-10-05",
+        "stock_id": "2601",
+        "ClosingPriceonTheLastTradingDay": 5.91,
+        "PostReductionReferencePrice": 7.06,
+        "LimitUp": 7.76,
+        "LimitDown": 6.36,
+        "OpeningReferencePrice": 7.06,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "2323",
+      "date": "2026-10-12",
+      "twse_pre_halt_close": "11.00",
+      "twse_resumption_reference": "10.88",
+      "secondary": {
+        "date": "2026-10-12",
+        "stock_id": "2323",
+        "ClosingPriceonTheLastTradingDay": 11.0,
+        "PostReductionReferencePrice": 10.88,
+        "LimitUp": 11.95,
+        "LimitDown": 9.8,
+        "OpeningReferencePrice": 10.9,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "4155",
+      "date": "2026-10-19",
+      "twse_pre_halt_close": "14.20",
+      "twse_resumption_reference": "14.68",
+      "secondary": {
+        "date": "2026-10-19",
+        "stock_id": "4155",
+        "ClosingPriceonTheLastTradingDay": 14.2,
+        "PostReductionReferencePrice": 14.68,
+        "LimitUp": 16.1,
+        "LimitDown": 13.25,
+        "OpeningReferencePrice": 14.7,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "1516",
+      "date": "2026-10-27",
+      "twse_pre_halt_close": "18.55",
+      "twse_resumption_reference": "24.73",
+      "secondary": {
+        "date": "2026-10-27",
+        "stock_id": "1516",
+        "ClosingPriceonTheLastTradingDay": 18.55,
+        "PostReductionReferencePrice": 24.73,
+        "LimitUp": 27.2,
+        "LimitDown": 22.3,
+        "OpeningReferencePrice": 24.75,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "6142",
+      "date": "2026-10-27",
+      "twse_pre_halt_close": "8.71",
+      "twse_resumption_reference": "9.47",
+      "secondary": {
+        "date": "2026-10-27",
+        "stock_id": "6142",
+        "ClosingPriceonTheLastTradingDay": 8.71,
+        "PostReductionReferencePrice": 9.47,
+        "LimitUp": 10.4,
+        "LimitDown": 8.53,
+        "OpeningReferencePrice": 9.47,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Making up losses"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    },
+    {
+      "code": "3714",
+      "date": "2026-11-16",
+      "twse_pre_halt_close": "56.70",
+      "twse_resumption_reference": "96.15",
+      "secondary": {
+        "date": "2026-11-16",
+        "stock_id": "3714",
+        "ClosingPriceonTheLastTradingDay": 56.7,
+        "PostReductionReferencePrice": 96.15,
+        "LimitUp": 105.5,
+        "LimitDown": 86.6,
+        "OpeningReferencePrice": 96.2,
+        "ExrightReferencePrice": -1.0,
+        "ReasonforCapitalReduction": "Cash refund"
+      },
+      "prior_close_matches": true,
+      "resumption_reference_matches": true
+    }
+  ],
+  "secondary_only_events": [],
+  "matching_prices": 21,
+  "full_market_coverage_verified": false,
+  "score_eligible": false,
+  "primary_archive": "https://github.com/ShengHuang484/tbrm-dashboard/actions/runs/45100965405",
+  "secondary_queries": [
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=2832",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=1808",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=9927",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=8103",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=3593",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=1414",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=2380",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=1459",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=6176",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=1563",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=2321",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=3356",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=3591",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=1441",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=6550",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=2601",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=2323",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=4155",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=1516",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=6142",
+    "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockCapitalReductionReferencePrice&start_date=2025-10-22&end_date=2026-11-20&data_id=3714"
+  ],
+  "calendar": {
+    "source_url": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockTradingDate&start_date=2025-10-22&end_date=2026-11-20",
+    "matches_all_raw_history_dates": true,
+    "sessions": 262
+  },
+  "par_value_changes": [
+    {
+      "date": "2025-11-17",
+      "stock_id": "8422",
+      "stock_name": "可寧衛",
+      "before_close": 250.0,
+      "after_ref_close": 25.0,
+      "after_ref_max": 27.5,
+      "after_ref_min": 22.5,
+      "after_ref_open": 25.0,
+      "prior_raw_date": "2025-11-05",
+      "prior_raw_close": 250.0,
+      "resumption_raw_close": 24.7
+    },
+    {
+      "date": "2026-01-19",
+      "stock_id": "7780",
+      "stock_name": "大研生醫",
+      "before_close": 185.0,
+      "after_ref_close": 18.5,
+      "after_ref_max": 20.35,
+      "after_ref_min": 16.65,
+      "after_ref_open": 18.5,
+      "prior_raw_date": "2026-01-08",
+      "prior_raw_close": 185.0,
+      "resumption_raw_close": 20.35
+    },
+    {
+      "date": "2026-03-09",
+      "stock_id": "8932",
+      "stock_name": "智通",
+      "before_close": 199.5,
+      "after_ref_close": 99.75,
+      "after_ref_max": 109.5,
+      "after_ref_min": 89.8,
+      "after_ref_open": 99.8,
+      "prior_raw_date": null,
+      "prior_raw_close": null,
+      "resumption_raw_close": null
+    },
+    {
+      "date": "2026-04-13",
+      "stock_id": "8937",
+      "stock_name": "合騏",
+      "before_close": 145.5,
+      "after_ref_close": 36.38,
+      "after_ref_max": 40.0,
+      "after_ref_min": 32.75,
+      "after_ref_open": 36.4,
+      "prior_raw_date": null,
+      "prior_raw_close": null,
+      "resumption_raw_close": null
+    },
+    {
+      "date": "2026-04-20",
+      "stock_id": "3086",
+      "stock_name": "華義",
+      "before_close": 325.0,
+      "after_ref_close": 32.5,
+      "after_ref_max": 35.75,
+      "after_ref_min": 29.25,
+      "after_ref_open": 32.5,
+      "prior_raw_date": null,
+      "prior_raw_close": null,
+      "resumption_raw_close": null
+    },
+    {
+      "date": "2026-08-10",
+      "stock_id": "5904",
+      "stock_name": "寶雅",
+      "before_close": 720.0,
+      "after_ref_close": 72.0,
+      "after_ref_max": 79.2,
+      "after_ref_min": 64.8,
+      "after_ref_open": 72.0,
+      "prior_raw_date": null,
+      "prior_raw_close": null,
+      "resumption_raw_close": null
+    },
+    {
+      "date": "2026-08-31",
+      "stock_id": "4747",
+      "stock_name": "強生",
+      "before_close": 56.5,
+      "after_ref_close": 28.25,
+      "after_ref_max": 31.05,
+      "after_ref_min": 25.45,
+      "after_ref_open": 28.25,
+      "prior_raw_date": null,
+      "prior_raw_close": null,
+      "resumption_raw_close": null
+    },
+    {
+      "date": "2026-09-07",
+      "stock_id": "6949",
+      "stock_name": "沛爾生醫-創",
+      "before_close": 1490.0,
+      "after_ref_close": 74.5,
+      "after_ref_max": 81.9,
+      "after_ref_min": 67.1,
+      "after_ref_open": 74.5,
+      "prior_raw_date": "2026-08-26",
+      "prior_raw_close": 1490.0,
+      "resumption_raw_close": 67.1
+    }
+  ],
+  "par_value_source": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockParValueChange&start_date=2025-10-22&end_date=2026-11-20",
+  "split_source": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockSplitPrice&start_date=2025-10-22&end_date=2026-11-20",
+  "split_event_types": [
+    {
+      "date": "2025-10-22",
+      "stock_id": "00673R",
+      "type": "反分割"
+    },
+    {
+      "date": "2025-10-22",
+      "stock_id": "00706L",
+      "type": "反分割"
+    },
+    {
+      "date": "2025-11-17",
+      "stock_id": "8422",
+      "type": "面額變更"
+    },
+    {
+      "date": "2025-11-26",
+      "stock_id": "0052",
+      "type": "分割"
+    },
+    {
+      "date": "2025-12-10",
+      "stock_id": "00715L",
+      "type": "反分割"
+    },
+    {
+      "date": "2026-01-19",
+      "stock_id": "7780",
+      "type": "面額變更"
+    },
+    {
+      "date": "2026-03-09",
+      "stock_id": "8932",
+      "type": "面額變更"
+    },
+    {
+      "date": "2026-03-31",
+      "stock_id": "00631L",
+      "type": ""
+    },
+    {
+      "date": "2026-04-13",
+      "stock_id": "8937",
+      "type": "面額變更"
+    },
+    {
+      "date": "2026-04-20",
+      "stock_id": "3086",
+      "type": "面額變更"
+    },
+    {
+      "date": "2026-04-22",
+      "stock_id": "00674R",
+      "type": "反分割"
+    },
+    {
+      "date": "2026-07-07",
+      "stock_id": "00685L",
+      "type": "分割"
+    },
+    {
+      "date": "2026-08-10",
+      "stock_id": "5904",
+      "type": "面額變更"
+    },
+    {
+      "date": "2026-08-31",
+      "stock_id": "4747",
+      "type": "面額變更"
+    },
+    {
+      "date": "2026-09-07",
+      "stock_id": "6949",
+      "type": "面額變更"
+    },
+    {
+      "date": "2026-11-17",
+      "stock_id": "00662",
+      "type": "分割"
+    }
+  ],
+  "delisting_source": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockDelisting&start_date=2025-10-22&end_date=2026-11-20",
+  "published_delistings": [
+    {
+      "date": "2026-09-17",
+      "stock_id": "00793B"
+    },
+    {
+      "date": "2026-05-29",
+      "stock_id": "4987"
+    },
+    {
+      "date": "2026-09-03",
+      "stock_id": "5371"
+    },
+    {
+      "date": "2026-06-23",
+      "stock_id": "6806"
+    },
+    {
+      "date": "2026-10-01",
+      "stock_id": "8183"
+    },
+    {
+      "date": "2026-05-06",
+      "stock_id": "00883B"
+    },
+    {
+      "date": "2026-11-18",
+      "stock_id": "1589"
+    },
+    {
+      "date": "2025-12-04",
+      "stock_id": "6747"
+    },
+    {
+      "date": "2026-06-08",
+      "stock_id": "3426"
+    },
+    {
+      "date": "2026-03-27",
+      "stock_id": "3454"
+    },
+    {
+      "date": "2026-09-01",
+      "stock_id": "2867"
+    },
+    {
+      "date": "2026-07-28",
+      "stock_id": "4130"
+    }
+  ]
+}

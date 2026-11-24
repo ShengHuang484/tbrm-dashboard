@@ -1,0 +1,352 @@
+{
+  "observed_on": "2026-11-23",
+  "requested_window": [
+    "2025-10-22",
+    "2026-11-20"
+  ],
+  "independent_sessions_verified": 0,
+  "required_sessions": 262,
+  "sources": {
+    "twse_isin": {
+      "url": "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2",
+      "status": 200,
+      "prefix_sha256": "a36a3510fd6057b21a6b3c8a23e40cd9a29809822bf1d1250f50132245e5a6e8",
+      "prefix_bytes": 8000000,
+      "body_scope": "bounded HTML prefix; full-response hash unavailable",
+      "displayed_update_date": "2026-11-23",
+      "observed_scope": "stock section contains general listing, scope of later sections pending full response",
+      "upstream": "TWSE",
+      "historical_sessions_verified": 0
+    },
+    "twse_issuers": {
+      "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L",
+      "status": 200,
+      "sha256": "f6bc100c07db7ce5bb078828bb7838a32770f64d30b8b8f7a2013adf2bfe989e",
+      "bytes": 1331091,
+      "scope": "TWSE active issuer snapshot",
+      "upstream": "TWSE",
+      "observed_rows": 1098,
+      "observed_roc_dates": [
+        "1151122"
+      ],
+      "historical_sessions_verified": 0,
+      "requested_past_response_same_bytes": true,
+      "fields": [
+        "上市日期",
+        "代理發言人",
+        "住址",
+        "傳真機號碼",
+        "公司代號",
+        "公司名稱",
+        "公司簡稱",
+        "出表日期",
+        "外國企業註冊地國",
+        "實收資本額",
+        "已發行普通股數或TDR原股發行股數",
+        "成立日期",
+        "普通股每股面額",
+        "營利事業統一編號",
+        "特別股",
+        "產業別",
+        "發言人",
+        "發言人職稱",
+        "私募股數",
+        "簽證會計師1",
+        "簽證會計師2",
+        "簽證會計師事務所",
+        "網址",
+        "編制財務報表類型",
+        "總機電話",
+        "總經理",
+        "股票過戶機構",
+        "英文簡稱",
+        "英文通訊地址",
+        "董事長",
+        "過戶地址",
+        "過戶電話",
+        "電子郵件信箱"
+      ],
+      "licensing_reference": "https://data.gov.tw/dataset/18419"
+    },
+    "twse_issuers_dated": {
+      "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L?date=20251022",
+      "status": 200,
+      "sha256": "f6bc100c07db7ce5bb078828bb7838a32770f64d30b8b8f7a2013adf2bfe989e",
+      "bytes": 1331091,
+      "scope": "TWSE active issuer snapshot",
+      "upstream": "TWSE",
+      "observed_rows": 1098,
+      "observed_roc_dates": [
+        "1151122"
+      ],
+      "historical_sessions_verified": 0,
+      "requested_past_response_same_bytes": true,
+      "fields": [
+        "上市日期",
+        "代理發言人",
+        "住址",
+        "傳真機號碼",
+        "公司代號",
+        "公司名稱",
+        "公司簡稱",
+        "出表日期",
+        "外國企業註冊地國",
+        "實收資本額",
+        "已發行普通股數或TDR原股發行股數",
+        "成立日期",
+        "普通股每股面額",
+        "營利事業統一編號",
+        "特別股",
+        "產業別",
+        "發言人",
+        "發言人職稱",
+        "私募股數",
+        "簽證會計師1",
+        "簽證會計師2",
+        "簽證會計師事務所",
+        "網址",
+        "編制財務報表類型",
+        "總機電話",
+        "總經理",
+        "股票過戶機構",
+        "英文簡稱",
+        "英文通訊地址",
+        "董事長",
+        "過戶地址",
+        "過戶電話",
+        "電子郵件信箱"
+      ],
+      "licensing_reference": "https://data.gov.tw/dataset/18419"
+    },
+    "gov_issuers_catalog": {
+      "url": "https://data.gov.tw/api/v2/rest/dataset/18419",
+      "status": 200,
+      "sha256": "a12cfebfba57d5666d12c57f1e094a7802b001359d2c189c5857cb1f6d19b6d9",
+      "bytes": 4759,
+      "licensing": "政府資料開放授權條款第1版",
+      "catalog_resource": "https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv",
+      "upstream": "TWSE",
+      "historical_sessions_verified": 0
+    },
+    "gov_issuers_csv": {
+      "url": "https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv",
+      "status": 200,
+      "sha256": "d997b01ad856f02898bc2cad966849390017e3d4bbfe1d2a4fa52a37014d374f",
+      "bytes": 675019,
+      "observed_rows": 1098,
+      "observed_roc_dates": [
+        "1151123"
+      ],
+      "upstream": "TWSE",
+      "scope": "TWSE active issuer snapshot",
+      "historical_sessions_verified": 0,
+      "code_set_matches_twse_api": true
+    },
+    "tpex_issuers": {
+      "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O",
+      "status": 200,
+      "sha256": "a1d3c7eb68af6794b3e8c7ba2e988bb416d663811a2ecbad2c29609564c599e0",
+      "bytes": 1080697,
+      "scope": "TPEx active issuer snapshot",
+      "upstream": "TPEx",
+      "observed_rows": 898,
+      "observed_roc_dates": [
+        "1151123"
+      ],
+      "historical_twse_sessions_verified": 0,
+      "requested_past_response_same_bytes": true,
+      "fields": [
+        "AccountingFirm",
+        "Address",
+        "CPA.CharteredPublicAccountant.First",
+        "CPA.CharteredPublicAccountant.Second",
+        "Chairman",
+        "CompanyAbbreviation",
+        "CompanyName",
+        "Date",
+        "DateOfIncorporation",
+        "DateOfListing",
+        "DeputySpokesperson",
+        "EmailAddress",
+        "Fax",
+        "GeneralManager",
+        "IssueShares",
+        "Paidin.Capital.NTDollars",
+        "ParValueOfCommonStock",
+        "PreferredStock.shares",
+        "PreparationOfFinancialReportType",
+        "PrivateStock.shares",
+        "Registration",
+        "SecuritiesCompanyCode",
+        "SecuritiesIndustryCode",
+        "Spokesman",
+        "StockTransferAgent",
+        "StockTransferAgentAddress",
+        "StockTransferAgentTelephone",
+        "Symbol",
+        "Telephone",
+        "TitleOfSpokesman",
+        "UnifiedBusinessNo.",
+        "WebAddress"
+      ],
+      "control_6423": true
+    },
+    "tpex_issuers_dated": {
+      "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O?date=20251022",
+      "status": 200,
+      "sha256": "a1d3c7eb68af6794b3e8c7ba2e988bb416d663811a2ecbad2c29609564c599e0",
+      "bytes": 1080697,
+      "scope": "TPEx active issuer snapshot",
+      "upstream": "TPEx",
+      "observed_rows": 898,
+      "observed_roc_dates": [
+        "1151123"
+      ],
+      "historical_twse_sessions_verified": 0,
+      "requested_past_response_same_bytes": true,
+      "fields": [
+        "AccountingFirm",
+        "Address",
+        "CPA.CharteredPublicAccountant.First",
+        "CPA.CharteredPublicAccountant.Second",
+        "Chairman",
+        "CompanyAbbreviation",
+        "CompanyName",
+        "Date",
+        "DateOfIncorporation",
+        "DateOfListing",
+        "DeputySpokesperson",
+        "EmailAddress",
+        "Fax",
+        "GeneralManager",
+        "IssueShares",
+        "Paidin.Capital.NTDollars",
+        "ParValueOfCommonStock",
+        "PreferredStock.shares",
+        "PreparationOfFinancialReportType",
+        "PrivateStock.shares",
+        "Registration",
+        "SecuritiesCompanyCode",
+        "SecuritiesIndustryCode",
+        "Spokesman",
+        "StockTransferAgent",
+        "StockTransferAgentAddress",
+        "StockTransferAgentTelephone",
+        "Symbol",
+        "Telephone",
+        "TitleOfSpokesman",
+        "UnifiedBusinessNo.",
+        "WebAddress"
+      ],
+      "control_6423": true
+    },
+    "finmind_roster": {
+      "url": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInfo",
+      "status": 200,
+      "sha256": "86c51bd6eb22c09942ae40c8a7bf335777defe42bf4ef975f52c7c7e07249e53",
+      "bytes": 607182,
+      "upstream_review": "public institutional disclosures; no independent market coverage established",
+      "licensing_reference": "https://finmind.github.io/Disclaimer/",
+      "rows": 4395,
+      "fields": [
+        "date",
+        "industry_category",
+        "stock_id",
+        "stock_name",
+        "type"
+      ],
+      "control_records": [
+        {
+          "industry_category": "其他",
+          "stock_id": "6806",
+          "stock_name": "森崴能源",
+          "type": "twse",
+          "date": "2023-06-30"
+        },
+        {
+          "industry_category": "半導體業",
+          "stock_id": "6423",
+          "stock_name": "億而得",
+          "type": "emerging",
+          "date": "2024-05-14"
+        },
+        {
+          "industry_category": "創新版股票",
+          "stock_id": "6423",
+          "stock_name": "億而得-創",
+          "type": "twse",
+          "date": "2024-12-04"
+        },
+        {
+          "industry_category": "電子工業",
+          "stock_id": "6423",
+          "stock_name": "億而得-創",
+          "type": "twse",
+          "date": "2026-01-22"
+        },
+        {
+          "industry_category": "創新板股票",
+          "stock_id": "6423",
+          "stock_name": "億而得-創",
+          "type": "twse",
+          "date": "2026-01-22"
+        },
+        {
+          "industry_category": "半導體業",
+          "stock_id": "6423",
+          "stock_name": "億而得-創",
+          "type": "twse",
+          "date": "2026-01-22"
+        },
+        {
+          "industry_category": "綠能環保",
+          "stock_id": "6806",
+          "stock_name": "森崴能源",
+          "type": "twse",
+          "date": "2026-06-23"
+        },
+        {
+          "industry_category": "金融保險",
+          "stock_id": "2867",
+          "stock_name": "三商壽",
+          "type": "twse",
+          "date": "2026-08-20"
+        },
+        {
+          "industry_category": "半導體業",
+          "stock_id": "6423",
+          "stock_name": "億而得",
+          "type": "tpex",
+          "date": "2026-11-23"
+        }
+      ],
+      "scope": "stock metadata, no complete daily coverage or security identifier",
+      "historical_sessions_verified": 0
+    },
+    "finmind_roster_dated": {
+      "url": "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInfo&start_date=2025-10-22&end_date=2025-10-22",
+      "status": 200,
+      "sha256": "bd3deae97b9bbf5496db1c19da707df924ec244a8568f606429c0a6532ddca72",
+      "bytes": 40,
+      "observed_rows": 0,
+      "requested_date": "2025-10-22",
+      "historical_sessions_verified": 0
+    },
+    "twse_isin_complete": {
+      "url": "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2",
+      "sha256": "8ade6f0477045706545c6c91471bf9c801acc2776c128848efb2b396f249a8f4",
+      "bytes": 10496089,
+      "body_scope": "full",
+      "displayed_update_date": "2026-11-23",
+      "upstream": "TWSE",
+      "historical_sessions_verified": 0,
+      "scope": {
+        "general_board": 1057,
+        "innovation_board": 31,
+        "tdr_rows": 10
+      }
+    }
+  },
+  "independent_universe_verified": false,
+  "score_eligible": false
+}
