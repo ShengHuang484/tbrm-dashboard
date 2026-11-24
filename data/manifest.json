@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-23T21:16:34.139876+00:00",
+  "fetched_at_utc": "2026-11-24T01:06:32.932085+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -9,7 +9,7 @@
     "twse_stocks": {
       "status": "ok",
       "records": 1394,
-      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261123",
+      "url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
       "date": "2026-11-23"
     },
     "twse_margin": {
@@ -30,7 +30,7 @@
     "taifex_putcall": {
       "status": "ok",
       "date": "2026-11-23",
-      "url": "https://www.taifex.com.tw/cht/3/pcRatio?queryStartDate=2026%2F11%2F23&queryEndDate=2026%2F11%2F23"
+      "url": "https://openapi.taifex.com.tw/v1/PutCallRatio"
     },
     "taifex_futures": {
       "status": "ok",
