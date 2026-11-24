@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-24T01:46:07.970004+00:00",
+  "fetched_at_utc": "2026-11-24T07:30:16.892378+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -9,8 +9,8 @@
     "twse_stocks": {
       "status": "ok",
       "records": 1394,
-      "url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
-      "date": "2026-11-23"
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261124",
+      "date": "2026-11-24"
     },
     "twse_margin": {
       "status": "ok",
@@ -24,13 +24,13 @@
     },
     "tpex_index": {
       "status": "ok",
-      "records": 16,
+      "records": 17,
       "url": "https://www.tpex.org.tw/openapi/v1/tpex_index"
     },
     "taifex_putcall": {
       "status": "ok",
-      "date": "2026-11-23",
-      "url": "https://openapi.taifex.com.tw/v1/PutCallRatio"
+      "date": "2026-11-24",
+      "url": "https://www.taifex.com.tw/cht/3/pcRatio?queryStartDate=2026%2F11%2F24&queryEndDate=2026%2F11%2F24"
     },
     "taifex_futures": {
       "status": "ok",
@@ -44,16 +44,14 @@
     },
     "twse_dated_breadth": {
       "status": "ok",
-      "date": "2026-11-23",
-      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261123&type=MS"
+      "date": "2026-11-24",
+      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date=20261124&type=MS"
     },
     "taifex_vix": {
-      "status": "ok",
-      "date": "2026-11-23",
-      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/202611new.txt"
+      "status": "failed"
     },
     "new_low": {
-      "date": "2026-11-23",
+      "date": "2026-11-24",
       "method": "raw_close_proxy",
       "valid_days": 262,
       "required_days": 262,
@@ -72,7 +70,6 @@
       "corporate_action_verified": false,
       "corporate_action_method": "none; daily price jumps are only screening flags",
       "window_dates": [
-        "2026-11-10",
         "2026-11-11",
         "2026-11-12",
         "2026-11-13",
@@ -81,12 +78,12 @@
         "2026-11-18",
         "2026-11-19",
         "2026-11-20",
-        "2026-11-23"
+        "2026-11-23",
+        "2026-11-24"
       ],
       "window_jump_flagged_securities": 0,
       "window_jump_samples": {},
       "latest_10_daily_universe_counts": [
-        1089,
         1088,
         1088,
         1089,
@@ -95,6 +92,7 @@
         1090,
         1090,
         1090,
+        1091,
         1091
       ],
       "minimum_daily_universe_count": 1051,
@@ -102,7 +100,6 @@
       "dynamic_universe_research_only": {
         "method": "daily_252_prior_closes; strict new low; unadjusted",
         "counts": [
-          93,
           81,
           85,
           26,
@@ -111,10 +108,10 @@
           104,
           308,
           483,
-          171
+          171,
+          2
         ],
         "eligible_stock_counts": [
-          940,
           940,
           941,
           942,
@@ -123,10 +120,10 @@
           943,
           944,
           946,
+          948,
           948
         ],
         "missing_lookback_counts": [
-          149,
           148,
           147,
           147,
@@ -135,10 +132,10 @@
           147,
           146,
           144,
+          143,
           143
         ],
         "coverage_by_day": [
-          0.86318,
           0.86397,
           0.86489,
           0.86501,
@@ -147,9 +144,10 @@
           0.86514,
           0.86606,
           0.86789,
+          0.86893,
           0.86893
         ],
-        "minimum_coverage": 0.86318,
+        "minimum_coverage": 0.86397,
         "eligible_count_range": 8,
         "score_eligible": false,
         "warning": "Raw prices are not corporate-action-adjusted; universe changes can bias counts"
@@ -283,7 +281,6 @@
         ]
       },
       "counts": [
-        93,
         81,
         85,
         25,
@@ -292,11 +289,12 @@
         104,
         308,
         482,
-        170
+        170,
+        2
       ],
-      "previous_avg": 88.4,
-      "recent_avg": 249.2,
-      "decline_pct": -181.90045248868776,
+      "previous_avg": 106.2,
+      "recent_avg": 213.2,
+      "decline_pct": -100.7532956685499,
       "proxy_points_not_scored": 0,
       "blocking_reasons": [
         "Unadjusted close prices: dividends, rights, splits and capital reductions unverified",
@@ -306,27 +304,22 @@
     },
     "index_history": {
       "status": "ok",
-      "date": "2026-11-23",
-      "records": 256
+      "date": "2026-11-24",
+      "records": 257
     },
     "twse_dated_margin": {
-      "status": "ok",
-      "missing": [],
+      "status": "partial",
+      "missing": [
+        "2026-11-24"
+      ],
       "required": 21,
       "date": "2026-11-23",
-      "errors": {}
+      "errors": {
+        "2026-11-24": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)"
+      }
     },
     "margin_maintenance": {
-      "status": "ok",
-      "url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261123",
-      "date": "2026-11-23",
-      "ratio": 148.46129564239945,
-      "matched_securities": 1243,
-      "provisional": true,
-      "fallback_prices": {},
-      "fallback_value_pct": 0.0,
-      "extended_gap_codes": [],
-      "price_basis_verified": true
+      "status": "failed"
     },
     "breadth_history": {
       "status": "ok",
@@ -339,10 +332,15 @@
       "errors": {}
     },
     "margin_calendar_check": {
-      "status": "ok",
-      "missing": [],
+      "status": "partial",
+      "missing": [
+        "2026-11-24"
+      ],
       "required": 21
     }
   },
-  "errors": {}
+  "errors": {
+    "taifex_vix": "missing trading date 2026-11-24; missing trading date 2026-11-24",
+    "margin_maintenance": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)"
+  }
 }

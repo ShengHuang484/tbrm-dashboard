@@ -1,11 +1,17 @@
 {
-  "checked_at": "2026-11-24T01:46:04.050854+00:00",
-  "expected_session": "2026-11-23",
-  "last_valid_session": "2026-11-23",
-  "status": "VALID",
-  "download_status": "complete",
+  "checked_at": "2026-11-24T07:30:11.920261+00:00",
+  "expected_session": "2026-11-24",
+  "last_valid_session": "2026-11-24",
+  "status": "PARTIAL",
+  "download_status": "partial",
   "date_valid": true,
-  "warnings": {},
+  "warnings": {
+    "stock_openapi": "STOCK_DAY_ALL 2026-11-23; expected 2026-11-24",
+    "taifex_vix": "missing trading date 2026-11-24; missing trading date 2026-11-24",
+    "margin_maintenance": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)",
+    "twse_dated_margin": "TWSE dated margin unavailable: exchangeReport: no_report (很抱歉，沒有符合條件的資料); rwd/zh/marginTrading: no_report (很抱歉，沒有符合條件的資料)",
+    "margin_calendar_check": "歷史資料缺漏 2026-11-24"
+  },
   "source_stock_session": "2026-11-23",
-  "published_stock_source": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
+  "published_stock_source": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261124"
 }
