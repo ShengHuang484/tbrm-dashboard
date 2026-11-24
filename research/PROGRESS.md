@@ -459,3 +459,11 @@ Until then **score_eligible=false; live score=45/50**. Do not merge research int
 - 基準 d4c381b 的完整研究測試及三項 Actions 通過。新增獨立於 checkpoint 的[手動原始資料封存](DAILY_RAW_ARCHIVE.md)。以 11/23 已保存的官方位元及來源雜湊實驗，9/11 個來源保存並通過校驗、普通股 1,088 檔、缺收盤 1538 核得活動。後續日收檔可獨立進行，11/23 增量仍 BLOCKED。
 - [公開產品、授權與成本表](EXTERNAL_DATA_ACQUISITION.md)列出 TWSE、TEJ、FinMind、CMoney。A、B 等待合法資料，既有 API 限制已記錄。未執行購買或遞交申請。
 - 啟動每日排程仍待核准保存地點及書面使用權。正式啟用阻擋解除 0 項，外部歷史母體 0／262，正式 45/50，`score_eligible=false`。
+
+### 2026-11-24 研究預覽、回測樣本及封存運作
+
+- 基準 5f02c25 的本地測試、三項遠端 Actions 與 main 隔離通過。新增[離線預覽](NEW_LOW_RESEARCH_PREVIEW.md)，包含 10 日新低、合格母體、缺價排除、1312 雙口徑與品質限制。11/23 BLOCKED，無對應研究資料的日期查詢為 unavailable。
+- [樣本盤點](new_low_backtest_sample_20261120.json)顯示 10 日新低、5 日收斂、0 日對齊原模型分數和 0 日四組樣本外比較。5／10／20／60 日現有報酬窗口為 5／0／0／0。回測守門不輸出效益。在研究框架以合成資料確認四組探索性比較路徑，合成結果未列入實證。
+- [回測規約](NEW_LOW_BACKTEST_PROTOCOL.md)固定研究訊號、隔離窗、底部定義及分段評估。研究預覽與樣本盤點納入封存 Actions 對照。
+- [18:00 收檔規約](DAILY_RAW_ARCHIVE.md)比較本機、私有物件儲存、私有 GitHub 與短期 artifact，納入補抓、雜湊及失敗通知。原始封存手動驗收仍為 9／11，面額與新上市缺可對應雜湊。等待私有保存位置、授權及排程核准。
+- A、B 維持 WAITING_FOR_EXTERNAL_DATA。正式啟用阻擋解除 0 項，獨立歷史母體 0／262，正式 45/50，`score_eligible=false`。

@@ -102,6 +102,14 @@ jobs:
             > missing-close-full.json
           python -m scripts.new_low_incremental seed data/history/new_low_closes.json \
             strict-gap-source.json missing-close-full.json > research-checkpoint.json
+      - name: Reproduce research preview and backtest availability
+        run: |
+          python -m scripts.new_low_research_preview strict-gap-source.json gap-summary.json \
+            research/1312_rights_scenario.json daily-roster.json \
+            research/session_action_coverage_20261123.json --format markdown > preview.md
+          diff -u research/NEW_LOW_RESEARCH_PREVIEW.md preview.md
+          python -m scripts.new_low_research_backtest strict-gap-source.json data/index_history.json > backtest-availability.json
+          diff -u research/new_low_backtest_sample_20261120.json backtest-availability.json
       - uses: actions/upload-artifact@v4
         with:
           name: new-low-missing-close-review
