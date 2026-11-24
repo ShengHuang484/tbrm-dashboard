@@ -153,5 +153,10 @@
     "date": "2026-11-23",
     "balance_1000_twd": 433807523.0,
     "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261123"
+  },
+  {
+    "date": "2026-11-24",
+    "balance_1000_twd": 453505173.0,
+    "source_url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261124"
   }
 ]
