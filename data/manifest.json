@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-25T19:12:21.942048+00:00",
+  "fetched_at_utc": "2026-11-25T22:38:59.222076+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -9,12 +9,12 @@
     "twse_stocks": {
       "status": "ok",
       "records": 1394,
-      "url": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261125",
+      "url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
       "date": "2026-11-25"
     },
     "twse_margin": {
       "status": "ok",
-      "records": 1311,
+      "records": 1312,
       "url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_MARGN"
     },
     "twse_breadth": {
@@ -50,7 +50,7 @@
     "taifex_vix": {
       "status": "ok",
       "date": "2026-11-25",
-      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/202611new.txt"
+      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data_eng/202611new.txt"
     },
     "new_low": {
       "date": "2026-11-25",
