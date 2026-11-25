@@ -1,11 +1,13 @@
 {
-  "checked_at": "2026-11-25T05:59:12.605940+00:00",
+  "checked_at": "2026-11-25T17:29:26.346973+00:00",
   "expected_session": "2026-11-25",
-  "last_valid_session": "2026-11-24",
-  "status": "STALE",
-  "download_status": "not_started",
-  "date_valid": false,
+  "last_valid_session": "2026-11-25",
+  "status": "VALID",
+  "download_status": "complete",
+  "date_valid": true,
   "warnings": {
-    "market_refresh": "TWSE report has not verified 2026-11-25; latest=2026-11-24"
-  }
+    "stock_openapi": "STOCK_DAY_ALL 2026-11-24; expected 2026-11-25"
+  },
+  "source_stock_session": "2026-11-24",
+  "published_stock_source": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=ALLBUT0999&date=20261125"
 }

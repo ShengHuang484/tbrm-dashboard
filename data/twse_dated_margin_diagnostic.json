@@ -1,10 +1,10 @@
 {
-  "latest_index_date": "2026-11-24",
+  "latest_index_date": "2026-11-25",
   "attempts": [
     {
-      "date": "2026-11-24",
+      "date": "2026-11-25",
       "status": "ok",
-      "url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261124"
+      "url": "https://www.twse.com.tw/exchangeReport/MI_MARGN?response=json&selectType=ALL&date=20261125"
     }
   ],
   "valid_days": 21,
