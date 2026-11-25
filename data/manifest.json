@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-25T22:38:59.222076+00:00",
+  "fetched_at_utc": "2026-11-25T23:12:06.518826+00:00",
   "sources": {
     "twse_index": {
       "status": "ok",
@@ -50,7 +50,7 @@
     "taifex_vix": {
       "status": "ok",
       "date": "2026-11-25",
-      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data_eng/202611new.txt"
+      "url": "https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/202611new.txt"
     },
     "new_low": {
       "date": "2026-11-25",
