@@ -1,11 +1,13 @@
 {
-  "checked_at": "2026-11-27T22:13:02.679823+00:00",
+  "checked_at": "2026-11-27T22:49:09.898552+00:00",
   "expected_session": "2026-11-27",
   "last_valid_session": "2026-11-27",
-  "status": "VALID",
-  "download_status": "complete",
+  "status": "PARTIAL",
+  "download_status": "rejected_regression",
   "date_valid": true,
-  "warnings": {},
+  "warnings": {
+    "tpex_index": "HTTP Error 520: <none>"
+  },
   "source_stock_session": "2026-11-27",
   "published_stock_source": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
 }
